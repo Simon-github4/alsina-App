@@ -1,0 +1,68 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.alsina</groupId>
+  <artifactId>alsinaApp</artifactId>
+  <version>0.0.1-SNAPSHOT</version>
+
+	<dependencies>
+		<!-- https://mvnrepository.com/artifact/org.postgresql/postgresql -->
+		<dependency>
+		    <groupId>org.postgresql</groupId>
+		    <artifactId>postgresql</artifactId>
+		    <version>42.7.3</version>
+		</dependency>
+		
+		<!--https://mvnrepository.com/artifact/javax.persistence/javax.persistence-api 
+		<dependency>
+ 		   <groupId>javax.persistence</groupId>
+  		   <artifactId>javax.persistence-api</artifactId>
+ 		   <version>2.2</version>
+		</dependency>	
+		-->
+		<!-- https://mvnrepository.com/artifact/jakarta.persistence/jakarta.persistence-api -->
+		<dependency>
+		    <groupId>jakarta.persistence</groupId>
+		    <artifactId>jakarta.persistence-api</artifactId>
+		    <version>3.2.0</version>
+		</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core-jakarta -->
+		<dependency>
+		    <groupId>org.hibernate</groupId>
+		    <artifactId>hibernate-core-jakarta</artifactId>
+		    <version>5.6.15.Final</version>
+		</dependency>
+
+		
+		
+	<!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api 
+		<dependency>
+		    <groupId>org.hibernate.jakarta.persistence</groupId>
+		    <artifactId>hibernate-jpa-2.1-api</artifactId>
+		    <version>1.0.0.Final</version>
+		</dependency>
+-->
+
+		<!-- https://mvnrepository.com/artifact/com.itextpdf/itext7-core -->
+		<dependency>
+	    	<groupId>com.itextpdf</groupId>
+	    	<artifactId>itext7-core</artifactId>
+	    	<version>9.0.0</version>
+	    	<type>pom</type>
+		</dependency>
+		
+		<dependency>
+	  		<groupId>com.formdev</groupId>
+	  		<artifactId>flatlaf</artifactId>
+	  		<version>3.5.2</version>
+		</dependency>
+	
+		<dependency>
+	   	 	<groupId>io.github.dj-raven</groupId>
+	    	<artifactId>swing-datetime-picker</artifactId>
+	    	<version>2.0.0</version>
+		</dependency>
+	
+	</dependencies>
+	
+</project>
