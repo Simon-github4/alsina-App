@@ -6,45 +6,62 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.List;
 
-import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-public class MarcasForm extends JFrame {
+import entities.Marca;
+import entityManagers.MarcaDao;
 
-	private static final long serialVersionUID = 1L;
+public class MarcasForm extends JPanel{
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -1753599697527670417L;
 	private JPanel contentPane;
 	private JPanel inputPanel;
 	private JPanel tablePanel;
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
+	private JTextField idTextField;
+	private JTextField descriptionTextField;
 	
 	public MarcasForm() {
+		//setLayout(new BorderLayout(0, 5));
+		//setLocationRelativeTo(null);
+		//setBounds(0,0,1050, 700);
+		//setVisible(true);
+		//setContentPane(contentPane);
 
-		setBounds(100, 100, 1050, 700);
-		setLocationRelativeTo(null);
-		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
-		setContentPane(contentPane);
 		contentPane.setLayout(new BorderLayout(0, 5));
+		contentPane.setPreferredSize(new Dimension(1100, 750));
+		this.setSize(1100, 850);
+		this.setLayout(new BorderLayout());
+		this.add(contentPane, BorderLayout.CENTER);
 		
 		inputPanel = new JPanel();
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
 		contentPane.add(inputPanel, BorderLayout.NORTH);
-		
-
+				
 		JPanel horizontalPanel = new JPanel(new GridLayout());
 		
 		JLabel titulo = new JLabel("MARCAS", JLabel.CENTER);
@@ -54,10 +71,11 @@ public class MarcasForm extends JFrame {
 
 		horizontalPanel = new JPanel(new GridLayout());
 		horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
-		horizontalPanel.add(new JTextField(30));
+		descriptionTextField = new JTextField("",30);
+		horizontalPanel.add(descriptionTextField);
 		horizontalPanel.add(new JLabel("Id", JLabel.RIGHT));
-		JTextField l = new JTextField(10);	 l.setEditable(false);
-		horizontalPanel.add(l);
+		idTextField = new JTextField(10);	 idTextField.setEditable(false);
+		horizontalPanel.add(idTextField);
 		horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 		inputPanel.add(horizontalPanel);		
 		
@@ -67,10 +85,30 @@ public class MarcasForm extends JFrame {
 		
 		horizontalPanel = new JPanel(new FlowLayout());
 		JButton confirm = new JButton("Confirmar");
+		confirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(validateFields())
+					if(table.getSelectedRow() == -1)
+						insert();
+					else
+						update();
+			}
+		});
         confirm.setPreferredSize(new Dimension(250,40));
 		JButton delete = new JButton("Eliminar");
+		delete.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(validateFields())
+					delete();
+			}
+		});
 		delete.setPreferredSize(new Dimension(250,40));
 		JButton cancel = new JButton("Cancelar");
+		cancel.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				clearFields();
+			}
+		});
 		cancel.setPreferredSize(new Dimension(250,40));
 
 		horizontalPanel.add(confirm);
@@ -92,6 +130,23 @@ public class MarcasForm extends JFrame {
 		table.getColumnModel().getColumn(1).setMinWidth(100);
 		table.getColumnModel().getColumn(1).setPreferredWidth(100);
 		table.setShowGrid(true);
+		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                	int row = table.getSelectedRow();
+                	if(row != -1){
+						String description = (String) tableModel.getValueAt(row, 0);
+						long id = (long)tableModel.getValueAt(row, 1);
+						
+						descriptionTextField.setText(description);
+						idTextField.setText(String.valueOf(id));
+                	}
+                }
+			}
+			
+		});
 		
 		tablePanel = new JPanel();
 		tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
@@ -103,25 +158,97 @@ public class MarcasForm extends JFrame {
 		horizontalPanel.add(scroll);
 		tablePanel.add(horizontalPanel);			
 		
-        JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        JPanel south = new JPanel(new GridLayout());
 		contentPane.add(south, BorderLayout.SOUTH);
 		
 		horizontalPanel = new JPanel(new GridLayout());
 
-		messageLabel = new JLabel(" alo", SwingConstants.CENTER);
+		messageLabel = new JLabel("", SwingConstants.CENTER);
         messageLabel.setForeground(Color.WHITE);
         messageLabel.setFont(new Font("Arial", Font.BOLD, 16));
         messageLabel.setBackground(Color.RED);
         messageLabel.setOpaque(false);		
         messageLabel.setPreferredSize(new Dimension(500,70));
-        JButton back = new JButton("Volver");
+        /*JButton back = new JButton("Volver");
+        back.addActionListener(new ActionListener() {
+        	public void actionPerformed(ActionEvent e) {
+        		//dispose();
+        	}
+        });*/
 
 		horizontalPanel.add(messageLabel);
-		horizontalPanel.add(back);
+		//horizontalPanel.add(back);
 		
 		south.add(horizontalPanel);
 
+		loadTable();
+
+	}
+	
+	private void insert() {
+		String description = descriptionTextField.getText();
+		Marca m = new Marca(description);
 		
+		MarcaDao.save(m);
+		clearFields();
+		loadTable();
 	}
 
+	private void update() {
+		String description = descriptionTextField.getText();
+		long id = Long.parseLong(idTextField.getText());
+		Marca m = new Marca(description, id);
+
+		MarcaDao.save(m);
+		clearFields();
+		loadTable();
+	}
+	
+	private void delete() {
+		long id = Long.parseLong(idTextField.getText());
+		try {
+			if(JOptionPane.showConfirmDialog(MarcasForm.this, "Desea eliminar la marca con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+				MarcaDao.delete(id);
+				clearFields();
+				loadTable();
+			}
+		}catch(Exception e) {
+			//JOptionPane.showMessageDialog(null, e.getCause(), "ERROR AL ELIMINAR", JOptionPane.ERROR_MESSAGE);
+			setMessage(e.getCause().getMessage());
+		}
+		
+	}
+	
+	private void loadTable() {
+        tableModel.setRowCount(0);
+
+		List<Marca> marcas = MarcaDao.getMarcas();
+		for(Marca m : marcas) {
+			Object[] row = {m.getNombre(), m.getId()};
+			tableModel.addRow(row);
+		}
+	}
+
+	private boolean validateFields() {
+		if(descriptionTextField.getText().isBlank()) {
+			setMessage("La Descripcion no puede estar Vacia");
+			return false;
+		}
+		
+		return true;	
+	}
+
+	private void setMessage(String message) {
+		messageLabel.setText(message);
+        messageLabel.setOpaque(true);
+
+	}
+
+	private void clearFields() {
+		table.clearSelection();
+		idTextField.setText("");
+		descriptionTextField.setText("");
+		messageLabel.setText("");
+        messageLabel.setOpaque(false);
+	}
 }

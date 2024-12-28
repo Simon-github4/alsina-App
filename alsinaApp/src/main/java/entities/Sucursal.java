@@ -8,46 +8,44 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 
 @Entity
-@Table(name = "marcas")
-public class Marca {
+@Table(name="sucursales")
+public class Sucursal {
 
-@Id
-@GeneratedValue(strategy = GenerationType.IDENTITY)
-@Column(name = "id")
-private long id;
-
-@Column(name = "description")
-private String description;
-
-	public Marca() {
-		//Constructor por defecto NECESARIO
-	}
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Column(name = "id")
+	private long id;
 	
-	public Marca(String description) {
+	private String  description;
+
+	public Sucursal() {
+	}	
+	
+	public Sucursal(String description, long id) {
 		super();
+		this.id = id;
 		this.description = description;
 	}
 
-	public Marca(String description, long id) {
+	public Sucursal(String description) {
 		super();
 		this.description = description;
-		this.id = id;
 	}
 	
 	public Long getId() {
 		return id;
 	}
-	
-	public void setId(Long id) {
+
+	public void setId(long id) {
 		this.id = id;
 	}
-	
-	public String getNombre() {
+
+	public String getDescription() {
 		return description;
 	}
-	
-	public void setNombre(String nombre) {
-		this.description = nombre;
+
+	public void setDescription(String description) {
+		this.description = description;
 	}
 
 	@Override
@@ -55,4 +53,5 @@ private String description;
 		return description;
 	}
 
+	
 }

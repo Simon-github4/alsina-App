@@ -1,53 +1,26 @@
 package entityManagers;
 
-import java.util.Collection;
 import java.util.List;
 
+import entities.Cliente;
+import entities.Marca;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import jakarta.persistence.PersistenceContext;
 
-import entities.Marca;
+public class ClienteDao {
 
-public class MarcaDao {
-
-//private static EntityManager manager;
-
-
-
-	public static void main(String args[]) {
-
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory(("persistencia"))){ 
-		
-		//manager = emf.createEntityManager();    
-		//manager.getTransaction().begin();
-		
-		Marca m = new Marca("nashe2");
-		//m.setId(null);
-		//m.setNombre("nashe");
-		save(m);
-		
-		//Marca u = new MarcaDao().getMarcaById(2);
-		//u.setNombre("999");	Hace luego el UPDATE en la BD
-		
-		//manager.getTransaction().commit();
-		
-		System.out.println(getMarcas().toString());
-		}
-	}
-
-	public static void save(Marca marca) {
+	public static void save(Cliente cliente) {
 		
 		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
 			
-			if(marca.getId() == null)
-				manager.persist(marca);
+			if(cliente.getId() == null)
+				manager.persist(cliente);
 			else
-				manager.merge(marca);
+				manager.merge(cliente);
 
 			manager.getTransaction().commit();
 		}catch(Exception e) {
@@ -55,36 +28,36 @@ public class MarcaDao {
 		}
 	}
 
-	public static Marca getMarcaById(long id) {
-		Marca marca = null;
+	public static Cliente getClienteById(long id) {
+		Cliente cliente = null;
 		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
-		        marca = manager.find(Marca.class, id);	        
+		    	cliente = manager.find(Cliente.class, id);	        
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		        		        
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		    }
 		    
-		return marca;
+		return cliente;
 	}
 
-	public static List<Marca> getMarcas(){
-		List<Marca> marcas = null;
+	public static List<Cliente> getClientes(){
+		List<Cliente> clientes = null;
 		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
-		        marcas = manager.createQuery("select m FROM Marca m ORDER BY m.id desc", Marca.class).getResultList();       
+		    	clientes = manager.createQuery("select c FROM Cliente c ORDER BY c.id desc", Cliente.class).getResultList();       
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		        		        
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		    }
 			
-		return marcas;
+		return clientes;
 		
 	}
 	
@@ -95,11 +68,11 @@ public class MarcaDao {
 			
 			manager.getTransaction().begin();
 	        
-	        Marca marca = manager.find(Marca.class, id);    
-	        if (marca != null) 
-	        	manager.remove(marca);
+			Cliente cliente = manager.find(Cliente.class, id);    
+	        if (cliente != null) 
+	        	manager.remove(cliente);
 	        else 
-	            throw new Exception("Marca with ID " + id + " not found.");
+	            throw new Exception("Cliente with ID " + id + " not found.");
 	        	        
 	        manager.getTransaction().commit();
 	        
