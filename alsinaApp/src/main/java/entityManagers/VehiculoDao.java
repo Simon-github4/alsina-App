@@ -2,25 +2,25 @@ package entityManagers;
 
 import java.util.List;
 
-import entities.Marca;
 import entities.Sucursal;
+import entities.Vehiculo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
-public class SucursalDao {
+public class VehiculoDao {
 
-	public static void save(Sucursal sucursal) {
+public static void save(Vehiculo vehiculo) {
 		
 		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
 			
-			if(sucursal.getId() == null)
-				manager.persist(sucursal);
+			if(vehiculo.getId() == null)
+				manager.persist(vehiculo);
 			else
-				manager.merge(sucursal);
+				manager.merge(vehiculo);
 
 			manager.getTransaction().commit();
 		}catch(Exception e) {
@@ -28,36 +28,36 @@ public class SucursalDao {
 		}
 	}
 
-	public static Sucursal getSucursalById(long id) {
-		Sucursal sucursal = null;
+	public static Vehiculo getVehiculoById(long id) {
+		Vehiculo vehiculo = null;
 		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
-		        sucursal = manager.find(Sucursal.class, id);	        
+		    	vehiculo = manager.find(Vehiculo.class, id);	        
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		        		        
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		    }
 		    
-		return sucursal;
+		return vehiculo;
 	}
 
-	public static List<Sucursal> getSucursales(){
-		List<Sucursal> sucursales = null;
+	public static List<Vehiculo> getVehiculos(){
+		List<Vehiculo> vehiculos = null;
 		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
-		    	sucursales = manager.createQuery("select s FROM Sucursal s ORDER BY s.id desc", Sucursal.class).getResultList();       
+		    	vehiculos = manager.createQuery("select s FROM Vehiculo s ORDER BY s.id desc", Vehiculo.class).getResultList();       
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		        		        
 		    } catch (Exception e) {
 		        e.printStackTrace();
 		    }
 			
-		return sucursales;
+		return vehiculos;
 		
 	}
 	
@@ -68,9 +68,9 @@ public class SucursalDao {
 			
 			manager.getTransaction().begin();
 	        
-			Sucursal sucursal = manager.find(Sucursal.class, id);    
-	        if (sucursal != null) 
-	        	manager.remove(sucursal);
+			Vehiculo vehiculo = manager.find(Vehiculo.class, id);    
+	        if (vehiculo != null) 
+	        	manager.remove(vehiculo);
 	        else 
 	            throw new Exception("Sucursal with ID " + id + " not found.");
 	        	        
@@ -81,4 +81,5 @@ public class SucursalDao {
 	    }
 	}
 	
+
 }

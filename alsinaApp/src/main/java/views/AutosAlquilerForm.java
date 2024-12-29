@@ -3,6 +3,7 @@ package views;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Component;
+import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -26,12 +27,16 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import com.itextpdf.styledxmlparser.css.resolve.shorthand.impl.GridColumnShorthandResolver;
-
 import entities.Cliente;
 import entities.Marca;
+import entities.Sucursal;
+import entities.Vehiculo;
 import entityManagers.ClienteDao;
 import entityManagers.MarcaDao;
+import entityManagers.SucursalDao;
+import entityManagers.VehiculoDao;
+
+import javax.swing.border.LineBorder;
 
 public class AutosAlquilerForm extends JPanel{
 	
@@ -39,6 +44,7 @@ private static final long serialVersionUID = 1L;
 	
 	private JPanel contentPane;
 	private JPanel inputPanel;
+	private JPanel westPanel;
 	private JPanel tablePanel;
 	private JTable table;
 	private DefaultTableModel tableModel;
@@ -47,8 +53,10 @@ private static final long serialVersionUID = 1L;
 	private JTextField patenteTextField;
 	private JTextField modelTextField;
 	private JTextField kilometersTextField;
-	private JComboBox<Marca> marcasComboBox;
+	private JComboBox<Marca> brandComboBox;
 	private JTextField ensuranceTextField;
+	private JTextField priceTextField;
+	private JComboBox<Sucursal> branchComboBox;
 
 
 	public AutosAlquilerForm() {
@@ -62,7 +70,9 @@ private static final long serialVersionUID = 1L;
 			this.add(contentPane, BorderLayout.CENTER);
 			
 			inputPanel = new JPanel();
+			inputPanel.setBorder(new LineBorder(new Color(84, 173, 253 ), 2, true));
 			inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
+			//inputPanel.setPreferredSize(new Dimension(150, HEIGHT));
 			contentPane.add(inputPanel, BorderLayout.NORTH);
 			
 
@@ -74,12 +84,20 @@ private static final long serialVersionUID = 1L;
 			inputPanel.add(horizontalPanel);
 
 			horizontalPanel = new JPanel(new GridLayout());
+			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 7));
+			inputPanel.add(horizontalPanel);
+			
+			
+			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Patente", JLabel.RIGHT));
 			patenteTextField = new JTextField("",30);
 			horizontalPanel.add(patenteTextField);
 			horizontalPanel.add(new JLabel("Año", JLabel.RIGHT));
 			yearTextField = new JTextField(10);	 
 			horizontalPanel.add(yearTextField);
+			horizontalPanel.add(new JLabel("tarifa alquiler", JLabel.RIGHT));
+			priceTextField = new JTextField(10);
+			horizontalPanel.add(priceTextField);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -90,40 +108,45 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(new JLabel("Kilometros", JLabel.RIGHT));
 			kilometersTextField = new JTextField(10);
 			horizontalPanel.add(kilometersTextField);
+			horizontalPanel.add(new JLabel("Sucursal", JLabel.RIGHT));
+			branchComboBox = new JComboBox<Sucursal>();
+			horizontalPanel.add(branchComboBox);
+			fillBranches();
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Marca", JLabel.RIGHT));
-			marcasComboBox = new JComboBox<Marca>();
-			horizontalPanel.add(marcasComboBox);
+			brandComboBox = new JComboBox<Marca>();
+			horizontalPanel.add(brandComboBox);
 			horizontalPanel.add(new JLabel("Seguro", JLabel.RIGHT));
 			ensuranceTextField = new JTextField(20);
 			horizontalPanel.add(ensuranceTextField);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
-			fillMarcas();
-			inputPanel.add(horizontalPanel);	
-			
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 30));
+			fillBrands();
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new FlowLayout());
 			JButton confirm = new JButton("Confirmar");
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(validateFields())
-						if(table.getSelectedRow() == -1)
-							insert();
-						else
-							update();
-				}
+					try {
+						if(validateFields())
+							if(table.getSelectedRow() == -1)
+								insert();
+							else
+								update();
+						
+					} catch (NumberFormatException e2) {
+						setMessage("Asegurese de que todos los campos tengan formato valido.");
+					}
+			}
 			});
 	        confirm.setPreferredSize(new Dimension(250,40));
 			JButton delete = new JButton("Eliminar");
 			delete.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(validateFields())
+					if(validateFields() && table.getSelectedRow() != -1)
 						delete();
 				}
 			});
@@ -140,39 +163,51 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(delete);
 			horizontalPanel.add(cancel);		
 			inputPanel.add(horizontalPanel);		
-
+			
 			tableModel = new DefaultTableModel(){
 	            @Override
 	            public boolean isCellEditable(int row, int column) {
 	                return false; // Hacer que todas las celdas sean no editables
 	            }
 	        };
-	        tableModel.addColumn("Descripcion");
-	        tableModel.addColumn("Direccion");
-	        tableModel.addColumn("Telefono");
+	        tableModel.addColumn("Patente");
+	        tableModel.addColumn("Año");
+	        tableModel.addColumn("Modelo");
+	        tableModel.addColumn("Tarifa Alquiler");
+	        tableModel.addColumn("KM");
+	        tableModel.addColumn("Marca");
+	        tableModel.addColumn("Seguro");
+	        tableModel.addColumn("Sucursal");
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(3).setMaxWidth(100);
-			table.getColumnModel().getColumn(3).setMinWidth(100);
-			table.getColumnModel().getColumn(3).setPreferredWidth(100);
+			table.getColumnModel().getColumn(8).setMaxWidth(0);
+			table.getColumnModel().getColumn(8).setMinWidth(0);
+			table.getColumnModel().getColumn(8).setPreferredWidth(0);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
 				@Override
 				public void valueChanged(ListSelectionEvent e) {
 	                if (!e.getValueIsAdjusting()) {
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
-							String name = (String) tableModel.getValueAt(row, 0);
-							String phone = (String) tableModel.getValueAt(row, 1);
-							String adress = (String) tableModel.getValueAt(row, 2);
-							long id = (long)tableModel.getValueAt(row, 3);
-									
-							patenteTextField.setText(name);
-							modelTextField.setText(adress);
-							kilometersTextField.setText(phone);
-							yearTextField.setText(String.valueOf(id));
+							String plate = (String) tableModel.getValueAt(row, 0);
+							int year = (int) tableModel.getValueAt(row, 1);
+							String model = (String) tableModel.getValueAt(row, 2);
+							int price = (int) tableModel.getValueAt(row, 3);
+							int km = (int) tableModel.getValueAt(row, 4);
+							Marca m = (Marca) tableModel.getValueAt(row, 5);
+							String ensurance = (String) tableModel.getValueAt(row, 6);
+							Sucursal branch = (Sucursal) tableModel.getValueAt(row, 7);
+							
+							patenteTextField.setText(plate);
+							yearTextField.setText(String.valueOf(year));
+							modelTextField.setText(model);
+							priceTextField.setText(String.valueOf(price));
+							kilometersTextField.setText(String.valueOf(km));
+							brandComboBox.setSelectedItem(m);
+							ensuranceTextField.setText(ensurance);
+							branchComboBox.setSelectedItem(branch);
 	                	}
 	                }
 				}
@@ -208,47 +243,79 @@ private static final long serialVersionUID = 1L;
 
 			loadTable();
 
+			
+			/*patenteTextField.setPreferredSize(new Dimension(WIDTH, 10));
+			yearTextField.setPreferredSize(new Dimension(WIDTH, 10));
+			modelTextField.setPreferredSize(new Dimension(WIDTH, 10));
+			priceTextField.setPreferredSize(new Dimension(WIDTH, 10));
+			kilometersTextField.setPreferredSize(new Dimension(WIDTH, 10));
+			ensuranceTextField.setPreferredSize(new Dimension(WIDTH, 10));
+			brandComboBox.setPreferredSize(new Dimension(WIDTH, 10));
+			branchComboBox.setPreferredSize(new Dimension(WIDTH, 10));
+			*/
+			
 		}
 		
-		private void fillMarcas() {
-			marcasComboBox.addItem(new Marca("Seleccione una Marca"));
+		private void fillBranches() {
+			branchComboBox.addItem(new Sucursal("Seleccione una Sucursal"));
+
+			List<Sucursal> sucursales = SucursalDao.getSucursales();
+			for(Sucursal s : sucursales) {
+				branchComboBox.addItem(s);
+			}
+		}
+
+		private void fillBrands() {
+			brandComboBox.addItem(new Marca("Seleccione una Marca"));
 
 			List<Marca> marcas = MarcaDao.getMarcas();
 			for(Marca m : marcas) {
-				marcasComboBox.addItem(m);
+				brandComboBox.addItem(m);
 			}
 		}
 
 		private void insert() {
-			String description = patenteTextField.getText();
-			String adress = modelTextField.getText();
-			String phone = kilometersTextField.getText();
+			int year = Integer.parseInt(yearTextField.getText());
+			int km = Integer.parseInt(kilometersTextField.getText());
+			int price = Integer.parseInt(priceTextField.getText());
+			String plate = patenteTextField.getText();
+			String model = modelTextField.getText();
+			String ensurance = ensuranceTextField.getText();
+			Marca m = (Marca)brandComboBox.getSelectedItem();
+			Sucursal s = (Sucursal)branchComboBox.getSelectedItem();			
 			
-			Cliente m = new Cliente( description, adress, phone);
+			Vehiculo v = new Vehiculo(year, km, price, plate, model, ensurance, m, s);
 			
-			ClienteDao.save(m);
+			VehiculoDao.save(v);
 			clearFields();
 			loadTable();
 		}
 
 		private void update() {
-			String description = patenteTextField.getText();
-			long id = Long.parseLong(yearTextField.getText());
-			String adress = modelTextField.getText();
-			String phone = kilometersTextField.getText();
+			int year = Integer.parseInt(yearTextField.getText());
+			int km = Integer.parseInt(kilometersTextField.getText());
+			int price = Integer.parseInt(priceTextField.getText());
+			String plate = patenteTextField.getText();
+			String model = modelTextField.getText();
+			String ensurance = ensuranceTextField.getText();
+			Marca m = (Marca)brandComboBox.getSelectedItem();
+			Sucursal s = (Sucursal)branchComboBox.getSelectedItem();
+			
+			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 8);
 
-			Cliente m = new Cliente(id, description, phone, adress);
+			Vehiculo v = new Vehiculo(id, year, km, price, plate, model, ensurance, m, s);
 
-			ClienteDao.save(m);
+			VehiculoDao.save(v);
 			clearFields();
 			loadTable();
 		}
 		
 		private void delete() {
-			long id = Long.parseLong(yearTextField.getText());
+			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 8);
+			
 			try {
-				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al cliente con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-					ClienteDao.delete(id);
+				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al vehiculo: "+VehiculoDao.getVehiculoById(id).getPlate(),  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+					VehiculoDao.delete(id);
 					clearFields();
 					loadTable();
 				}
@@ -262,28 +329,33 @@ private static final long serialVersionUID = 1L;
 		private void loadTable() {
 	        tableModel.setRowCount(0);
 
-			List<Cliente> clientes = ClienteDao.getClientes();
-			for(Cliente m : clientes) {
-				Object[] row = {m.getName(), m.getAdress(), m.getPhone(), m.getId()};
+			List<Vehiculo> vehiculos = VehiculoDao.getVehiculos();
+			for(Vehiculo v : vehiculos) {
+				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
 				tableModel.addRow(row);
 			}
+
 		}
 
 		private boolean validateFields() {
 
-			if(patenteTextField.getText().length() < 6 || patenteTextField.getText().isBlank()) {
-				setMessage("la Patente no puede tener menos de 6 caracteres");
-				return false;
-			}
-			
-			if(yearTextField.getText().isBlank() || Integer.parseInt(yearTextField.getText()) < 1950) {
-				setMessage("el Año no puede ser menor a 1950");
-				return false;	
-			}
-			if(marcasComboBox.getSelectedIndex() == 0) {
-				setMessage("Seleccione una Marca valida");
-				return false;
-			}
+					if(patenteTextField.getText().length() < 6 || patenteTextField.getText().isBlank()) {
+						setMessage("la Patente no puede tener menos de 6 caracteres");
+						return false;
+					}				
+					if(yearTextField.getText().isBlank() || Integer.parseInt(yearTextField.getText()) < 1950) {
+						setMessage("el Año no puede ser menor a 1950");
+						return false;	
+					}					
+					if(brandComboBox.getSelectedIndex() == 0) {
+						setMessage("Seleccione una Marca valida");
+						return false;
+					}				
+					if(branchComboBox.getSelectedIndex() == 0) {
+						setMessage("Seleccione una Sucursal valida");
+						return false;
+					}
+
 			return true;	
 		}
 
@@ -298,8 +370,10 @@ private static final long serialVersionUID = 1L;
 			patenteTextField.setText("");
 			modelTextField.setText("");
 			kilometersTextField.setText("");
-			marcasComboBox.setSelectedIndex(0);
+			brandComboBox.setSelectedIndex(0);
+			branchComboBox.setSelectedIndex(0);
 			ensuranceTextField.setText("");
+			priceTextField.setText("");
 			
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);

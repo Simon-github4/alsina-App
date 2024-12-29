@@ -1,5 +1,7 @@
 package entities;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -53,6 +55,23 @@ private String description;
 	@Override
 	public String toString() {
 		return description;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(description, id);
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj)
+			return true;
+		if (obj == null)
+			return false;
+		if (getClass() != obj.getClass())
+			return false;
+		Marca other = (Marca) obj;
+		return Objects.equals(description, other.description) && id == other.id;
 	}
 
 }

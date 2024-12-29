@@ -98,7 +98,7 @@ public class MarcasForm extends JPanel{
 		JButton delete = new JButton("Eliminar");
 		delete.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				if(validateFields())
+				if(validateFields() && table.getSelectedRow() != -1)
 					delete();
 			}
 		});

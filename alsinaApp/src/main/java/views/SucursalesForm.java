@@ -24,9 +24,9 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import entities.Marca;
+import com.itextpdf.layout.borders.Border;
+
 import entities.Sucursal;
-import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 
 public class SucursalesForm extends JPanel {
@@ -94,7 +94,7 @@ public class SucursalesForm extends JPanel {
 			JButton delete = new JButton("Eliminar");
 			delete.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(validateFields())
+					if(validateFields() && table.getSelectedRow() != -1)
 						delete();
 				}
 			});
@@ -212,7 +212,7 @@ public class SucursalesForm extends JPanel {
 		private void loadTable() {
 	        tableModel.setRowCount(0);
 
-			List<Sucursal> sucursales = SucursalDao.getMarcas();
+			List<Sucursal> sucursales = SucursalDao.getSucursales();
 			for(Sucursal m : sucursales) {
 				Object[] row = {m.getDescription(), m.getId()};
 				tableModel.addRow(row);

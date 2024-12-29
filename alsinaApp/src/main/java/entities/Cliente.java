@@ -1,5 +1,7 @@
 package entities;
 
+import java.util.Objects;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -73,6 +75,24 @@ public class Cliente {
 		@Override
 		public String toString() {
 			return name;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(adress, id, name, phone);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Cliente other = (Cliente) obj;
+			return Objects.equals(adress, other.adress) && id == other.id && Objects.equals(name, other.name)
+					&& Objects.equals(phone, other.phone);
 		}
 
 	
