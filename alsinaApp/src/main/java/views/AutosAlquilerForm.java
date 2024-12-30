@@ -27,6 +27,8 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import com.formdev.flatlaf.FlatClientProperties;
+
 import entities.Cliente;
 import entities.Marca;
 import entities.Sucursal;
@@ -57,7 +59,9 @@ private static final long serialVersionUID = 1L;
 	private JTextField ensuranceTextField;
 	private JTextField priceTextField;
 	private JComboBox<Sucursal> branchComboBox;
-
+	private JTextField searchTextField;
+	private JComboBox<Marca> filterBrandComboBox;
+	
 
 	public AutosAlquilerForm() {
 							
@@ -123,7 +127,6 @@ private static final long serialVersionUID = 1L;
 			ensuranceTextField = new JTextField(20);
 			horizontalPanel.add(ensuranceTextField);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
-			fillBrands();
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new FlowLayout());
@@ -163,6 +166,7 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(delete);
 			horizontalPanel.add(cancel);		
 			inputPanel.add(horizontalPanel);		
+			
 			
 			tableModel = new DefaultTableModel(){
 	            @Override
@@ -224,25 +228,36 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(scroll);
 			tablePanel.add(horizontalPanel);			
 			
-	        //JPanel south = new JPanel(new FlowLayout(FlowLayout.RIGHT));
-			//contentPane.add(south, BorderLayout.SOUTH);
+	        JPanel south = new JPanel();
+	        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
+			contentPane.add(south, BorderLayout.SOUTH);
 			
 			horizontalPanel = new JPanel(new GridLayout());
-
+			horizontalPanel.add(new JLabel(""));
+			searchTextField = new JTextField();
+			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter para buscar por patente");
+			filterBrandComboBox = new JComboBox<Marca>();
+			filterBrandComboBox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter para buscar por patente");
+			horizontalPanel.add(searchTextField);
+			horizontalPanel.add(filterBrandComboBox);
+			horizontalPanel.add(new JLabel(""));
+			south.add(horizontalPanel);
+			
+			horizontalPanel = new JPanel(new GridLayout());
 			messageLabel = new JLabel("", SwingConstants.CENTER);
 	        messageLabel.setForeground(Color.WHITE);
 	        messageLabel.setFont(new Font("Arial", Font.BOLD, 16));
 	        messageLabel.setBackground(Color.RED);
 	        messageLabel.setOpaque(false);		
 	        messageLabel.setPreferredSize(new Dimension(500,70));
-
 			horizontalPanel.add(messageLabel);
 			
-			contentPane.add(horizontalPanel, BorderLayout.SOUTH);
-			//south.add(horizontalPanel);
-
+			south.add(horizontalPanel);
+			//contentPane.add(horizontalPanel, BorderLayout.SOUTH);
+			
+			
 			loadTable();
-
+			fillBrands();
 			
 			/*patenteTextField.setPreferredSize(new Dimension(WIDTH, 10));
 			yearTextField.setPreferredSize(new Dimension(WIDTH, 10));
@@ -267,9 +282,11 @@ private static final long serialVersionUID = 1L;
 
 		private void fillBrands() {
 			brandComboBox.addItem(new Marca("Seleccione una Marca"));
+			filterBrandComboBox.addItem(new Marca("Filtre por Marca"));
 
 			List<Marca> marcas = MarcaDao.getMarcas();
 			for(Marca m : marcas) {
+				filterBrandComboBox.addItem(m);
 				brandComboBox.addItem(m);
 			}
 		}
