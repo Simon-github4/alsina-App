@@ -50,7 +50,7 @@ public class ClienteDao {
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
-		    	clientes = manager.createQuery("select c FROM Cliente c ORDER BY c.id desc", Cliente.class).getResultList();       
+		    	clientes = manager.createQuery("select c FROM Cliente c ORDER BY c.name ASC", Cliente.class).getResultList();       
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		        		        
 		    } catch (Exception e) {

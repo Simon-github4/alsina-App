@@ -2,7 +2,6 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
@@ -10,35 +9,43 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JFormattedTextField;
+import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import org.hibernate.exception.ConstraintViolationException;
+import org.postgresql.util.PSQLException;
+
 import com.formdev.flatlaf.FlatClientProperties;
 
-import entities.Cliente;
 import entities.Marca;
 import entities.Sucursal;
-import entities.Vehiculo;
-import entityManagers.ClienteDao;
+import entities.VehiculoAlquilable;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
-
-import javax.swing.border.LineBorder;
+import jakarta.persistence.PersistenceException;
+import raven.datetime.DatePicker;
 
 public class AutosAlquilerForm extends JPanel{
 	
@@ -115,7 +122,6 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(new JLabel("Sucursal", JLabel.RIGHT));
 			branchComboBox = new JComboBox<Sucursal>();
 			horizontalPanel.add(branchComboBox);
-			fillBranches();
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -138,10 +144,17 @@ private static final long serialVersionUID = 1L;
 							if(table.getSelectedRow() == -1)
 								insert();
 							else
-								update();
-						
+								update();					
 					} catch (NumberFormatException e2) {
-						setMessage("Asegurese de que todos los campos tengan formato valido.");
+						setMessage("Asegurese de que todos los campos tengan formato valido.", false);
+					}catch(ConstraintViolationException e4) {
+						setMessage("ya existe un Vehivulo con esa Patente", false);							
+					}catch(PSQLException e5) {
+						setMessage("ya existe un Vehivulo con esa Patente", false);							
+					}catch(PersistenceException e5) {
+						setMessage("ya existe un Vehivulo con esa Patente", false);							
+					} catch(Exception e3) {
+						setMessage("ya existe un Vehivulo con esa Patente", false);
 					}
 			}
 			});
@@ -149,8 +162,9 @@ private static final long serialVersionUID = 1L;
 			JButton delete = new JButton("Eliminar");
 			delete.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(validateFields() && table.getSelectedRow() != -1)
+					if(table.getSelectedRow() != -1)
 						delete();
+					else setMessage("Seleccione un Vehiculo para eliminar", false);
 				}
 			});
 			delete.setPreferredSize(new Dimension(250,40));
@@ -203,6 +217,7 @@ private static final long serialVersionUID = 1L;
 							Marca m = (Marca) tableModel.getValueAt(row, 5);
 							String ensurance = (String) tableModel.getValueAt(row, 6);
 							Sucursal branch = (Sucursal) tableModel.getValueAt(row, 7);
+							Long id = (Long)tableModel.getValueAt(row, 8);
 							
 							patenteTextField.setText(plate);
 							yearTextField.setText(String.valueOf(year));
@@ -230,18 +245,6 @@ private static final long serialVersionUID = 1L;
 			
 	        JPanel south = new JPanel();
 	        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
-			contentPane.add(south, BorderLayout.SOUTH);
-			
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel(""));
-			searchTextField = new JTextField();
-			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter para buscar por patente");
-			filterBrandComboBox = new JComboBox<Marca>();
-			filterBrandComboBox.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Enter para buscar por patente");
-			horizontalPanel.add(searchTextField);
-			horizontalPanel.add(filterBrandComboBox);
-			horizontalPanel.add(new JLabel(""));
-			south.add(horizontalPanel);
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			messageLabel = new JLabel("", SwingConstants.CENTER);
@@ -253,22 +256,79 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(messageLabel);
 			
 			south.add(horizontalPanel);
-			//contentPane.add(horizontalPanel, BorderLayout.SOUTH);
+			contentPane.add(south, BorderLayout.SOUTH);
+
+			JPanel west = new JPanel();
+			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
 			
+			JPanel vert = new JPanel(new GridLayout(14,1));
+			vert.add(new JLabel(""));
+			vert.add(new JLabel("Patente"));
+			searchTextField = new JTextField();
+			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
+			searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
+			filterBrandComboBox = new JComboBox<Marca>();
+			vert.add(searchTextField);
+			vert.add(new JLabel("Marca"));
+			vert.add(filterBrandComboBox);
+			searchTextField.setPreferredSize(new Dimension(180, 80));
+			filterBrandComboBox.setPreferredSize(new Dimension(180, 80));
+			vert.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Buscar/Filtrar", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
+			vert.add(new JLabel(""));
+			JButton searchButton =new JButton("Buscar");
+			searchButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					loadTable(searchTextField.getText(), (Marca) filterBrandComboBox.getSelectedItem());
+				}
+			});
+			searchButton.setPreferredSize(new Dimension(180, 160));
+			vert.add(searchButton);
+			searchTextField.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					if(e.getKeyCode() == KeyEvent.VK_ENTER)
+						searchButton.doClick();
+				}
+			});
+			JButton viewAvailableCarsButton =new JButton("Ver Autos Disponibles");
+			viewAvailableCarsButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JFrame dateFrame = new JFrame("Seleccione Rango de fecha");
+					dateFrame.setLayout(new BorderLayout());
+					DatePicker dp = new DatePicker();
+					dp.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
+					dp.setUsePanelOption(true);
+					dp.setDateFormat("yyyy/MM/dd");
+					JFormattedTextField dates = new JFormattedTextField();
+					dp.setEditor(dates);
+					dateFrame.add(new JPanel());
+					dateFrame.add(dates);
+					dateFrame.setVisible(true);
+					dateFrame.setLocationRelativeTo(null);
+				}
+			});
+			viewAvailableCarsButton.setPreferredSize(new Dimension(180, 160));
+			vert.add(viewAvailableCarsButton);
+			JButton viewRentsButton =new JButton("Ver Alquileres");
+			viewRentsButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					JTabbedPane t = getTabbedPane();
+					t.setSelectedIndex(1);
+					AlquileresForm a = (AlquileresForm)t.getSelectedComponent();
+					a.getSearchTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
+					a.getSearchButton().doClick();
+				}
+			});
+			viewRentsButton.setPreferredSize(new Dimension(180, 160));
+			vert.add(viewRentsButton);
 			
-			loadTable();
+			west.add(vert);
+			contentPane.add(west, BorderLayout.WEST);
+
+			//loadTable();
 			fillBrands();
-			
-			/*patenteTextField.setPreferredSize(new Dimension(WIDTH, 10));
-			yearTextField.setPreferredSize(new Dimension(WIDTH, 10));
-			modelTextField.setPreferredSize(new Dimension(WIDTH, 10));
-			priceTextField.setPreferredSize(new Dimension(WIDTH, 10));
-			kilometersTextField.setPreferredSize(new Dimension(WIDTH, 10));
-			ensuranceTextField.setPreferredSize(new Dimension(WIDTH, 10));
-			brandComboBox.setPreferredSize(new Dimension(WIDTH, 10));
-			branchComboBox.setPreferredSize(new Dimension(WIDTH, 10));
-			*/
-			
+			fillBranches();
+			searchButton.doClick();
 		}
 		
 		private void fillBranches() {
@@ -291,40 +351,58 @@ private static final long serialVersionUID = 1L;
 			}
 		}
 
-		private void insert() {
+		private void insert() throws PSQLException {
 			int year = Integer.parseInt(yearTextField.getText());
 			int km = Integer.parseInt(kilometersTextField.getText());
 			int price = Integer.parseInt(priceTextField.getText());
-			String plate = patenteTextField.getText();
+			String plate = patenteTextField.getText().toUpperCase();
 			String model = modelTextField.getText();
 			String ensurance = ensuranceTextField.getText();
 			Marca m = (Marca)brandComboBox.getSelectedItem();
 			Sucursal s = (Sucursal)branchComboBox.getSelectedItem();			
 			
-			Vehiculo v = new Vehiculo(year, km, price, plate, model, ensurance, m, s);
-			
-			VehiculoDao.save(v);
-			clearFields();
-			loadTable();
+			try {		
+				VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, year, km,  plate, model,  m, s);
+				VehiculoDao.save(v);
+				clearFields();
+				loadTable();
+				setMessage("Insertado correctamente", true);
+
+			} catch (NumberFormatException e2) {
+				setMessage("Asegurese de que todos los campos tengan formato valido.", false);
+				JOptionPane.showMessageDialog(null, "constraint");
+			}catch(PersistenceException e5) {
+				setMessage("ya existe un Vehiculo con esa Patente", false);	
+			} catch(Exception e3) {
+				setMessage("Ha ocurrido un Error:"+e3.getLocalizedMessage(), false);	
+			}
+
 		}
 
 		private void update() {
 			int year = Integer.parseInt(yearTextField.getText());
 			int km = Integer.parseInt(kilometersTextField.getText());
 			int price = Integer.parseInt(priceTextField.getText());
-			String plate = patenteTextField.getText();
+			String plate = patenteTextField.getText().toUpperCase();
 			String model = modelTextField.getText();
 			String ensurance = ensuranceTextField.getText();
 			Marca m = (Marca)brandComboBox.getSelectedItem();
 			Sucursal s = (Sucursal)branchComboBox.getSelectedItem();
 			
-			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 8);
+			Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 8);
 
-			Vehiculo v = new Vehiculo(id, year, km, price, plate, model, ensurance, m, s);
+			try {
+					VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, id, year, km, plate, model, m, s);
+					VehiculoDao.save(v);
+					clearFields();
+					loadTable();
+					setMessage("Actualizado correctamente", true);
 
-			VehiculoDao.save(v);
-			clearFields();
-			loadTable();
+				} catch (NumberFormatException e2) {
+					setMessage("Asegurese de que todos los campos tengan formato valido.", false);
+				} catch(Exception e3) {
+					setMessage("Ha ocurrido un Error:"+e3.getLocalizedMessage(), false);	
+				}
 		}
 		
 		private void delete() {
@@ -335,10 +413,11 @@ private static final long serialVersionUID = 1L;
 					VehiculoDao.delete(id);
 					clearFields();
 					loadTable();
+					setMessage("Eliminado correctamente", true);
+
 				}
 			}catch(Exception e) {
-				//JOptionPane.showMessageDialog(null, e.getCause(), "ERROR AL ELIMINAR", JOptionPane.ERROR_MESSAGE);
-				setMessage(e.getCause().getMessage());
+				setMessage(e.getCause().getMessage(), false);
 			}
 			
 		}
@@ -346,40 +425,65 @@ private static final long serialVersionUID = 1L;
 		private void loadTable() {
 	        tableModel.setRowCount(0);
 
-			List<Vehiculo> vehiculos = VehiculoDao.getVehiculos();
-			for(Vehiculo v : vehiculos) {
+			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilables();
+			for(VehiculoAlquilable v : vehiculos) {
 				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
 				tableModel.addRow(row);
 			}
 
 		}
 
+		private void loadTable(String plate, Marca marca) {
+	        tableModel.setRowCount(0);
+
+			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesByPlate(plate, marca);
+			for(VehiculoAlquilable v : vehiculos) {
+				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
+				tableModel.addRow(row);
+			}
+
+		}
+		/*
+		private void loadTableAvailableCars() {
+	        tableModel.setRowCount(0);
+
+			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesAvailabel();
+			for(VehiculoAlquilable v : vehiculos) {
+				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
+				tableModel.addRow(row);
+			}
+
+		}
+		*/
 		private boolean validateFields() {
 
 					if(patenteTextField.getText().length() < 6 || patenteTextField.getText().isBlank()) {
-						setMessage("la Patente no puede tener menos de 6 caracteres");
+						setMessage("la Patente no puede tener menos de 6 caracteres", false);
 						return false;
 					}				
 					if(yearTextField.getText().isBlank() || Integer.parseInt(yearTextField.getText()) < 1950) {
-						setMessage("el Año no puede ser menor a 1950");
+						setMessage("el Año no puede ser menor a 1950", false);
 						return false;	
 					}					
 					if(brandComboBox.getSelectedIndex() == 0) {
-						setMessage("Seleccione una Marca valida");
+						setMessage("Seleccione una Marca valida", false);
 						return false;
 					}				
 					if(branchComboBox.getSelectedIndex() == 0) {
-						setMessage("Seleccione una Sucursal valida");
+						setMessage("Seleccione una Sucursal valida", false);
 						return false;
 					}
 
 			return true;	
 		}
 
-		private void setMessage(String message) {
+		private void setMessage(String message, boolean succes) {
 			messageLabel.setText(message);
 	        messageLabel.setOpaque(true);
-
+	        if(succes == true)
+	        	messageLabel.setBackground(Color.GREEN);
+	        else 
+	        	messageLabel.setBackground(Color.RED);
 		}
 
 		private void clearFields() {
@@ -392,9 +496,22 @@ private static final long serialVersionUID = 1L;
 			ensuranceTextField.setText("");
 			priceTextField.setText("");
 			
+			searchTextField.setText("");
+			filterBrandComboBox.setSelectedIndex(0);
+			
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
 	        table.clearSelection();
 		}
 
+		public JTabbedPane getTabbedPane() {
+	        Container parent = this.getParent();
+	        while (parent != null) {
+	            if (parent instanceof JTabbedPane) {
+	                return (JTabbedPane) parent;
+	            }
+	            parent = parent.getParent();
+	        }
+	        return null; // Return null if not found
+	    }
 }

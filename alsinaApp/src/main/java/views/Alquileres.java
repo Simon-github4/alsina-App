@@ -68,7 +68,10 @@ public class Alquileres extends JFrame {
 	private JPanel panel_2;
 	private JButton btnNewButton_3;
 
-	
+	public static void main(String args[]) {
+		new Alquileres().setVisible(true);
+	}
+			
 	public Alquileres() {
 
 		setBounds(100, 100, 981, 790);

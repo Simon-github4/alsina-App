@@ -3,29 +3,37 @@ package entities;
 import java.util.Objects;
 
 import jakarta.persistence.Column;
+import jakarta.persistence.DiscriminatorColumn;
+import jakarta.persistence.DiscriminatorType;
+import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Inheritance;
+import jakarta.persistence.InheritanceType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
+//@Table()
 @Entity
-@Table(name = "vehiculos")
+@Table(name = "vehiculos", uniqueConstraints = @UniqueConstraint(columnNames = {"plate"}))
+@DiscriminatorColumn(name = "esalquilable", discriminatorType = DiscriminatorType.STRING) 
+@DiscriminatorValue(value= "no")
+@Inheritance(strategy = InheritanceType.SINGLE_TABLE)
 public class Vehiculo {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private long id;
+	private Long id;
 	private int year;
 	private int kilometers;
-	private int price;
+    @Column(name = "plate", unique = true)
 	private String plate;
 	private String model;
-	private String ensurance;
-
 	@ManyToOne
 	@JoinColumn(name = "brand")
 	private Marca brand;
@@ -35,29 +43,26 @@ public class Vehiculo {
 
 	public Vehiculo() {}
 
-	public Vehiculo(long id, int year, int kilometers, int price, String plate, String model, String ensurance, Marca brand, Sucursal branch) {
+	public Vehiculo(long id, int year, int kilometers, String plate, String model, Marca brand, Sucursal branch) {
 		super();
 		this.id = id;
 		this.year = year;
 		this.kilometers = kilometers;
-		this.price = price;
 		this.plate = plate;
 		this.model = model;
 		this.brand = brand;
 		this.branch = branch;
-		this.setEnsurance(ensurance);
 	}
 
-	public Vehiculo(int year, int kilometers, int price, String plate, String model, String ensurance, Marca brand, Sucursal branch) {
+	public Vehiculo(int year, int kilometers, String plate, String model, Marca brand, Sucursal branch) {
 		super();
+		this.id= null;
 		this.year = year;
 		this.kilometers = kilometers;
-		this.price = price;
 		this.plate = plate;
 		this.model = model;
 		this.brand = brand;
 		this.branch = branch;
-		this.setEnsurance(ensurance);
 	}
 
 	public Long getId() {
@@ -66,14 +71,6 @@ public class Vehiculo {
 
 	public void setId(long id) {
 		this.id = id;
-	}
-
-	public int getPrice() {
-		return price;
-	}
-
-	public void setPrice(int price) {
-		this.price = price;
 	}
 
 	public Marca getBrand() {
@@ -117,17 +114,9 @@ public class Vehiculo {
 		this.model = model;
 	}
 
-	public String getEnsurance() {
-		return ensurance;
-	}
-
-	public void setEnsurance(String ensurance) {
-		this.ensurance = ensurance;
-	}
-
 	@Override
 	public int hashCode() {
-		return Objects.hash(branch, brand, ensurance, id, kilometers, model, plate, price, year);
+		return Objects.hash(branch, brand, id, kilometers, model, plate, year);
 	}
 
 	@Override
@@ -140,9 +129,14 @@ public class Vehiculo {
 			return false;
 		Vehiculo other = (Vehiculo) obj;
 		return Objects.equals(branch, other.branch) && Objects.equals(brand, other.brand)
-				&& Objects.equals(ensurance, other.ensurance) && id == other.id && kilometers == other.kilometers
-				&& Objects.equals(model, other.model) && Objects.equals(plate, other.plate) && price == other.price
+			    && id == other.id && kilometers == other.kilometers
+				&& Objects.equals(model, other.model) && Objects.equals(plate, other.plate) 
 				&& year == other.year;
+	}
+
+	@Override
+	public String toString() {
+		return plate ;
 	}
 
 	

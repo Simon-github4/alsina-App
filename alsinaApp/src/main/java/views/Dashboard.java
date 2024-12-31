@@ -16,6 +16,8 @@ import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
+import com.formdev.flatlaf.FlatClientProperties;
+import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 
 import java.awt.Color;
@@ -28,7 +30,9 @@ public class Dashboard extends JFrame{
 	public Dashboard() {
 		
 		setStyling();
-		
+		getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
+		getRootPane().putClientProperty(FlatClientProperties.TITLE_BAR_BACKGROUND, new Color(84, 173, 253 ));
+
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(719,448);
 		getContentPane().setLayout(new BorderLayout(40, 40));
@@ -112,13 +116,12 @@ public class Dashboard extends JFrame{
 
 	private void setStyling() {
 		FlatIntelliJLaf.setup();	
-		
+
 		UIManager.put("Button.arc", 20);		
 		UIManager.put("Button.foreground", Color.WHITE);		
-		UIManager.put("Button.background", new Color(84, 173, 253 ));		
-		//UIManager.put("Button.background", new Color(157, 201, 255));		
+		UIManager.put("Button.background", new Color(84, 173, 253 ));	//new Color(157, 201, 255)	
+		//UIManager.put("Button.border", BorderFactory.createLineBorder(Color.WHITE, 1));
 		UIManager.put("Button.borderColor", Color.WHITE);				
-		//UIManager.put("Button.outline", Color.BLACK); // Outline color
 
 		UIManager.put("TextComponent.arc", 10);		
 		UIManager.put("Component.arc", 10);		
@@ -128,8 +131,8 @@ public class Dashboard extends JFrame{
 	    
 		UIManager.put("defaultFont", new Font("Montserrat", Font.TYPE1_FONT, 15));
 		
-	    //contentPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true)); // Soft shadow
-		
+		//putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, "true");
+		//contentPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true)); // Soft shadow
 	}
 
 }

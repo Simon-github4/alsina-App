@@ -39,7 +39,11 @@
 		    <artifactId>HikariCP</artifactId>
 		    <version>5.0.1</version>
 		</dependency>
-		
+		<dependency>
+	    	 <groupId>org.slf4j</groupId>
+	    	 <artifactId>slf4j-api</artifactId>
+	   		 <version>1.7.30</version> <!-- Asegúrate de usar la última versión -->
+		</dependency>
 	<!-- https://mvnrepository.com/artifact/org.hibernate.javax.persistence/hibernate-jpa-2.1-api 
 		<dependency>
 		    <groupId>org.hibernate.jakarta.persistence</groupId>
@@ -61,7 +65,13 @@
 	  		<artifactId>flatlaf</artifactId>
 	  		<version>3.5.2</version>
 		</dependency>
-	
+	<!-- https://mvnrepository.com/artifact/com.formdev/flatlaf-extras -->
+		<dependency>
+		    <groupId>com.formdev</groupId>
+		    <artifactId>flatlaf-extras</artifactId>
+		    <version>3.5.2</version>
+		</dependency>
+
 		<dependency>
 	   	 	<groupId>io.github.dj-raven</groupId>
 	    	<artifactId>swing-datetime-picker</artifactId>

@@ -16,7 +16,7 @@ public class Marca {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
 @Column(name = "id")
-private long id;
+private Long id;
 
 @Column(name = "description")
 private String description;
@@ -28,6 +28,7 @@ private String description;
 	public Marca(String description) {
 		super();
 		this.description = description;
+		this.id=null;
 	}
 
 	public Marca(String description, long id) {

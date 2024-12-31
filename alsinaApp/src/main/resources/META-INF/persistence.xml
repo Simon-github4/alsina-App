@@ -6,8 +6,9 @@
 
   <persistence-unit name="persistencia">
   	
-  	<!---->
+  	
   	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> 
+  	<!--<provider>com.zaxxer.hikari.hibernate.HikariConnectionProvider</provider> -->
     
     <class>entities.Marca</class>
   
@@ -20,8 +21,18 @@
         <property name="hibernate.hbm2ddl.auto" value="update" />
         <property name="hibernate.show_sql" value="true"/>
         <property name="hibernate.format_sql" value="true"/>
-        <property name="hibernate.hikari.maximumPoolSize" value="5"/>
         
+        <property name="hibernate.hikari.dataSource.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
+        <property name="hibernate.hikari.dataSource.user" value="postgres"/>
+        <property name="hibernate.hikari.pool-name" value="HikariPool"/>
+        <property name="hibernate.hikari.connectionProviderClass" value="com.zaxxer.hikari.hibernate.HikariConnectionProvider"/>
+        <property name="hibernate.hikari.maximumPoolSize" value="10"/>
+        
+        <property name="hibernate.hikari.idleTimeout" value="30000" />
+        <property name="hibernate.hikari.dataSource.cachePrepStmts" value="true" />
+        <property name="hibernate.hikari.dataSource.prepStmtCacheSize" value="250" />
+        <property name="hibernate.hikari.dataSource.prepStmtCacheSqlLimit" value="2048" />
+   
     </properties>
   </persistence-unit>
 
