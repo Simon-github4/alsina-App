@@ -1,9 +1,11 @@
 package entityManagers;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.postgresql.util.PSQLException;
 
+import entities.Alquiler;
 import entities.Marca;
 import entities.Sucursal;
 import entities.Vehiculo;
@@ -15,9 +17,11 @@ import jakarta.persistence.TypedQuery;
 
 public class VehiculoDao {
 
-	public static void save(Vehiculo vehiculo){
+	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+
+	public void save(Vehiculo vehiculo){
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
@@ -31,9 +35,9 @@ public class VehiculoDao {
 		}
 	}
 
-	public static Vehiculo getVehiculoById(long id) {
+	public Vehiculo getVehiculoById(long id) {
 		Vehiculo vehiculo = null;
-		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -44,9 +48,9 @@ public class VehiculoDao {
 		return vehiculo;
 	}
 
-	public static VehiculoAlquilable getVehiculoAlquilableByPlate(String plate) {
+	public VehiculoAlquilable getVehiculoAlquilableByPlate(String plate) {
 		VehiculoAlquilable vehiculo = null;
-		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -58,9 +62,9 @@ public class VehiculoDao {
 		return vehiculo;
 	}
 	
-	public static List<Vehiculo> getVehiculos(){
+	public List<Vehiculo> getVehiculos(){
 		List<Vehiculo> vehiculos = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -71,34 +75,21 @@ public class VehiculoDao {
 		return vehiculos;
 		
 	}
-	
-	public static List<VehiculoAlquilable> getVehiculosAlquilables() {
-		List<VehiculoAlquilable> vehiculos = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    EntityManager manager = emf.createEntityManager();) {
-		        
-		    	manager.getTransaction().begin();
-		    	vehiculos = manager.createQuery("select a FROM VehiculoAlquilable a ORDER BY a.id desc", VehiculoAlquilable.class).getResultList();       
-		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
-		}
-			
-		return vehiculos;
-	}
 
-	public static List<VehiculoAlquilable> getVehiculosAlquilablesByPlate(String plate, Marca marca) {
+	public List<VehiculoAlquilable> getVehiculosAlquilablesByPlate(String plate, Marca marca) {
 		List<VehiculoAlquilable> vehiculos = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 				StringBuilder query = new StringBuilder("select a FROM VehiculoAlquilable a WHERE lower(a.plate) like: filterplate ");
 		    	
 				if(marca.getId() != null) 
 		    		query.append("AND a.brand = :brand");
-				query.append(" ORDER BY a.id desc");
+				query.append(" ORDER BY a.plate ASC");
 		    					
 				manager.getTransaction().begin();
 		        TypedQuery<VehiculoAlquilable> queryResult = manager.createQuery(query.toString() , VehiculoAlquilable.class)
-		    					   									.setParameter("filterplate", "%" + plate.toLowerCase()+ "%");       
+		    					   									.setParameter("filterplate", plate.toLowerCase()+ "%");       
 		        if(marca.getId() != null) {
 		        	queryResult.setParameter("brand", marca);
 		    	}
@@ -108,32 +99,36 @@ public class VehiculoDao {
 			
 		return vehiculos;
 	}
-/*
-	public static List<VehiculoAlquilable> getVehiculosAlquilablesAvailabel() {
+
+	public List<VehiculoAlquilable> getVehiculosAlquilablesAvailable(LocalDate startDate, LocalDate endDate) {
 		List<VehiculoAlquilable> vehiculos = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    EntityManager manager = emf.createEntityManager();) {
-		        
-				StringBuilder query = new StringBuilder("select a FROM VehiculoAlquilable a WHERE lower(a.plate) like: filterplate ");
-		    	
-				if() 
-		    		query.append("AND a.brand = :brand");
-				query.append(" ORDER BY a.id desc");
-		    					
+		try (EntityManager manager = emf.createEntityManager()) {
+		        		    	   					
 				manager.getTransaction().begin();
-		        TypedQuery<VehiculoAlquilable> queryResult = manager.createQuery(query.toString() , VehiculoAlquilable.class)
-		    					   									.setParameter("filterplate", "%" + plate.toLowerCase()+ "%");       
-		        if() {
-		        	queryResult.setParameter("brand", marca);
-		    	}
-		        vehiculos = queryResult.getResultList();
+		        TypedQuery<VehiculoAlquilable> queryResult = manager.createQuery( 
+		        			    "SELECT v FROM VehiculoAlquilable v " +
+		        			    "LEFT JOIN Alquiler a ON a.vehicle.id = v.id " +
+		        			    "GROUP BY v " +
+		        			    "HAVING (COUNT(a.id) = " +
+		        			    "   (SELECT COUNT(a2.id) " +
+		        			    "    FROM Alquiler a2 " +
+		        			    "    WHERE a2.vehicle.id = v.id"+
+		        			    "			AND(a2.start NOT BETWEEN :startDate AND :endDate) " +
+		        			    "       	AND (a2.end NOT BETWEEN :startDate AND :endDate) " +
+		        			    "       	AND (NOT (a2.start < :startDate AND a2.end > :endDate)) " +
+		        			    "       	AND (NOT (a2.start > :startDate AND a2.end < :endDate)) " +
+		        			    "       	)) " +
+		        			    "OR (COUNT(a.id) = 0) " +
+		        			    "ORDER BY v.plate ASC" , VehiculoAlquilable.class);
+
+		        vehiculos = queryResult.setParameter("startDate", startDate).setParameter("endDate", endDate).getResultList();
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		}
 			
 		return vehiculos;
 	}
-	*/
-	public static void delete(long id) throws Exception {
+	
+	public void delete(long id) throws Exception {
 		
 		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 

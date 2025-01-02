@@ -10,9 +10,11 @@ import jakarta.persistence.Persistence;
 
 public class ClienteDao {
 
-	public static void save(Cliente cliente) {
+	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+	
+	public void save(Cliente cliente) {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
@@ -28,9 +30,9 @@ public class ClienteDao {
 		}
 	}
 
-	public static Cliente getClienteById(long id) {
+	public Cliente getClienteById(long id) {
 		Cliente cliente = null;
-		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -44,9 +46,9 @@ public class ClienteDao {
 		return cliente;
 	}
 
-	public static List<Cliente> getClientes(){
+	public List<Cliente> getClientes(){
 		List<Cliente> clientes = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -61,9 +63,9 @@ public class ClienteDao {
 		
 	}
 	
-	public static void delete(long id) {
+	public void delete(long id) {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();

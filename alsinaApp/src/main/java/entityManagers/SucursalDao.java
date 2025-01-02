@@ -9,10 +9,12 @@ import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 
 public class SucursalDao {
-
-	public static void save(Sucursal sucursal) {
+	
+	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+	
+	public void save(Sucursal sucursal) {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
@@ -28,9 +30,9 @@ public class SucursalDao {
 		}
 	}
 
-	public static Sucursal getSucursalById(long id) {
+	public Sucursal getSucursalById(long id) {
 		Sucursal sucursal = null;
-		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -44,9 +46,9 @@ public class SucursalDao {
 		return sucursal;
 	}
 
-	public static List<Sucursal> getSucursales(){
+	public List<Sucursal> getSucursales(){
 		List<Sucursal> sucursales = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -61,9 +63,9 @@ public class SucursalDao {
 		
 	}
 	
-	public static void delete(long id) {
+	public void delete(long id) {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();

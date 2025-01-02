@@ -2,6 +2,7 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -10,6 +11,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAccessor;
@@ -36,6 +41,11 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.DateFormatter;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.Row;
+import org.apache.poi.ss.usermodel.Sheet;
+import org.apache.poi.ss.usermodel.Workbook;
 import org.hibernate.exception.ConstraintViolationException;
 import org.postgresql.util.PSQLException;
 
@@ -67,19 +77,29 @@ private static final long serialVersionUID = 1L;
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
+	
 	private JTextField vehicleTextField;
-	private JTextField kilometersTextField;
+	private JTextField kilometersDepartureTextField;
+	private JTextField kilometersReturnTextField;
 	private JTextField priceTextField;
+	private JFormattedTextField dates;
 	private JComboBox<Cliente> clientComboBox;
+	
 	private JTextField searchTextField;
 	private JFormattedTextField filterDatesField;
 	private DatePicker dpFilters;
-	private JFormattedTextField dates;
 	private DatePicker dp;
 	private JButton searchButton;
+	
+	private AlquilerDao AlquilerDao;
+	private VehiculoDao VehiculoDao;
+	private ClienteDao ClienteDao;
 
-	public AlquileresForm() {
-							
+	public AlquileresForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, ClienteDao clienteDao) {
+			this.AlquilerDao= alquilerDao;	
+			this.VehiculoDao = vehiculoDao;
+			this.ClienteDao = clienteDao;
+			
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));
@@ -106,7 +126,7 @@ private static final long serialVersionUID = 1L;
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Vehiculo", JLabel.RIGHT));
-			vehicleTextField = new JTextField(30);
+			vehicleTextField = new JTextField();
 			horizontalPanel.add(vehicleTextField);
 			horizontalPanel.add(new JLabel("Monto Total", JLabel.RIGHT));
 			priceTextField = new JTextField(10);
@@ -116,16 +136,20 @@ private static final long serialVersionUID = 1L;
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel("Kilometros", JLabel.RIGHT));
-			kilometersTextField = new JTextField(10);
-			horizontalPanel.add(kilometersTextField);
-			horizontalPanel.add(new JLabel("Cliente", JLabel.RIGHT));
-			clientComboBox = new JComboBox<Cliente>();
-			horizontalPanel.add(clientComboBox);
+			horizontalPanel.add(new JLabel("Kilometros Salida", JLabel.RIGHT));
+			kilometersDepartureTextField = new JTextField();
+			horizontalPanel.add(kilometersDepartureTextField);
+			horizontalPanel.add(new JLabel("Kilometros Retorno", JLabel.RIGHT));
+			kilometersReturnTextField = new JTextField();
+			horizontalPanel.add(kilometersReturnTextField);
+
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new GridLayout());
+			horizontalPanel.add(new JLabel("Cliente", JLabel.RIGHT));
+			clientComboBox = new JComboBox<Cliente>();
+			horizontalPanel.add(clientComboBox);
 			horizontalPanel.add(new JLabel("Desde/Hasta", JLabel.RIGHT));
 			dp = new DatePicker();
 			dp.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
@@ -185,12 +209,16 @@ private static final long serialVersionUID = 1L;
 	        tableModel.addColumn("Fin");
 	        tableModel.addColumn("Cliente");
 	        tableModel.addColumn("Monto Total");
+	        tableModel.addColumn("KM Salida");
+	        tableModel.addColumn("KM Retorno");
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(5).setMaxWidth(0);
-			table.getColumnModel().getColumn(5).setMinWidth(0);
-			table.getColumnModel().getColumn(5).setPreferredWidth(0);
+			table.getColumnModel().getColumn(7).setMaxWidth(0);
+			table.getColumnModel().getColumn(7).setMinWidth(0);
+			table.getColumnModel().getColumn(7).setPreferredWidth(0);
+			table.getColumnModel().getColumn(3).setPreferredWidth(190);
+			table.getColumnModel().getColumn(4).setPreferredWidth(100);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				@Override
@@ -198,17 +226,20 @@ private static final long serialVersionUID = 1L;
 	                if (!e.getValueIsAdjusting()) {
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
-	                		Vehiculo vehicle = (Vehiculo) tableModel.getValueAt(row, 0);
+	                		VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
 							LocalDate start = (LocalDate) tableModel.getValueAt(row, 1);
 							LocalDate end = (LocalDate) tableModel.getValueAt(row, 2);
 							Cliente client = (Cliente) tableModel.getValueAt(row, 3);
 							int price = (int) tableModel.getValueAt(row, 4);
+							int kmD = (int) tableModel.getValueAt(row, 5);
+							int kmR = (int) tableModel.getValueAt(row, 6);
 							
 							vehicleTextField.setText(vehicle.getPlate());
 							dp.setSelectedDateRange(start, end);
 							clientComboBox.setSelectedItem(client);
 							priceTextField.setText(String.valueOf(price));
-							//kilometersTextField.setText(String.valueOf(km));
+							kilometersDepartureTextField.setText(String.valueOf(kmD));
+							kilometersReturnTextField.setText(String.valueOf(kmR));
 	                	}
 	                }
 				}
@@ -254,7 +285,6 @@ private static final long serialVersionUID = 1L;
 			dpFilters = new DatePicker();
 			dpFilters.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
 			dpFilters.setUsePanelOption(true);
-			dp.setDateFormat("yyyy/MM/dd");
 			filterDatesField = new JFormattedTextField();
 			dpFilters.setEditor(filterDatesField);
 			vert.add(filterDatesField);
@@ -278,18 +308,45 @@ private static final long serialVersionUID = 1L;
 				}
 			});
 			JButton excelButton = new JButton("Imprimir Contrato");
+			excelButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(table.getSelectedRow()==-1)
+						setMessage("Ningun Alquiler seleccionado", false);
+					else {
+						try {
+							int row =table.getSelectedRow();
+							VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
+							LocalDate start = (LocalDate) tableModel.getValueAt(row, 1);
+							LocalDate end = (LocalDate) tableModel.getValueAt(row, 2);
+							Cliente client = (Cliente) tableModel.getValueAt(row, 3);
+							int price = (int) tableModel.getValueAt(row, 4);
+							int kmD = (int) tableModel.getValueAt(row, 5);
+							int kmR = (int) tableModel.getValueAt(row, 6);
+							
+							Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR);
+							alquiler.openExcelPrint();
+						} catch (FileNotFoundException ex) {
+							setMessage(ex.getMessage(), false);
+							ex.printStackTrace();
+						} catch (IOException ex) {
+							setMessage(ex.getMessage(), false);
+							ex.printStackTrace();
+						}	
+					}
+				}
+			});
 			excelButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(excelButton);
-			vert.add(new JLabel(""));
 			vert.add(new JLabel(""));
 			vert.add(new JLabel(""));
 			west.add(vert);
 			contentPane.add(west, BorderLayout.WEST);
 
 			fillClients();
+			clearFields();
 			searchButton.doClick();
-		}
-		
+		}	
+	
 		private void fillClients() {
 			clientComboBox.addItem(new Cliente( "Seleccione un Cliente", null, null));
 
@@ -316,8 +373,10 @@ private static final long serialVersionUID = 1L;
 				LocalDate end = date[1];
 				Cliente client = (Cliente) clientComboBox.getSelectedItem();
 				int price = (int) (vehicle.getPrice() * daysBetween);
-	
-				Alquiler v = new Alquiler(start, end, client, vehicle, price);
+				int kmD = Integer.parseInt(kilometersDepartureTextField.getText());
+				int kmR = Integer.parseInt(kilometersReturnTextField.getText());
+				
+				Alquiler v = new Alquiler(start, end, client, vehicle, price, kmD, kmR);
 				AlquilerDao.save(v);
 				clearFields();
 				searchButton.doClick();
@@ -325,23 +384,18 @@ private static final long serialVersionUID = 1L;
 
 			} catch (NumberFormatException e2) {
 				setMessage("Asegurese de que todos los campos tengan formato valido.", false);
-				JOptionPane.showMessageDialog(null, "constraint");
 			} catch (PersistenceException e5) {
 				setMessage("ya existe un Vehiculo con esa Patente", false);
-				e5.printStackTrace();
 			} catch (Exception e3) {
 				setMessage("Ha ocurrido un Error:" + e3.getLocalizedMessage(), false);
-				e3.printStackTrace();
 			}
 
 		}
 
 		private void update() {
-			Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 5);
+			Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 7);
 
-			VehiculoAlquilable vehicle;
-			LocalDate[] date = dp.getSelectedDateRange();
-			long daysBetween = ChronoUnit.DAYS.between(date[0], date[1]);
+			VehiculoAlquilable vehicle;		
 			try {
 				vehicle = VehiculoDao.getVehiculoAlquilableByPlate(vehicleTextField.getText());
 			} catch (NoResultException p) {
@@ -350,12 +404,16 @@ private static final long serialVersionUID = 1L;
 			}
 
 			try {
+				LocalDate[] date = dp.getSelectedDateRange();
+				long daysBetween = ChronoUnit.DAYS.between(date[0], date[1]);
+				int price = (int) (vehicle.getPrice() * daysBetween);
 				LocalDate start = date[0];
 				LocalDate end = date[1];
 				Cliente client = (Cliente) clientComboBox.getSelectedItem();
-				int price = (int) (vehicle.getPrice() * daysBetween);
-
-				Alquiler v = new Alquiler(id, start, end, client, vehicle, price);
+				int kmD = Integer.parseInt(kilometersDepartureTextField.getText());
+				int kmR = Integer.parseInt(kilometersReturnTextField.getText());
+		
+				Alquiler v = new Alquiler(id, start, end, client, vehicle, price, kmD, kmR);
 				AlquilerDao.save(v);
 				clearFields();
 				searchButton.doClick();
@@ -389,24 +447,13 @@ private static final long serialVersionUID = 1L;
 
 			List<Alquiler> alquileres = AlquilerDao.getAlquileresByPlateAndDate(plate, dates);
 			for(Alquiler a : alquileres) {
-				Object[] row = {a.getVehicle(), a.getStart(), a.getEnd(), a.getClient(), a.getTotalPrice(), a.getId()};
+				Object[] row = {a.getVehicle(), a.getStart(), a.getEnd(), a.getClient(), a.getTotalPrice(), a.getDepartureKm(), a.getReturnKm(), a.getId()};
 				tableModel.addRow(row);
 			}
 		}
-
-		/*private void loadTable() {
-	        tableModel.setRowCount(0);
-
-			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesByPlate(plate, marca);
-			for(VehiculoAlquilable v : vehiculos) {
-				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
-				tableModel.addRow(row);
-			}
-
-		}*/
 		
 		private boolean validateFields() {
-
+			try {
 					if(vehicleTextField.getText().length() < 6 || vehicleTextField.getText().isBlank()) {
 						setMessage("la Patente no puede tener menos de 6 caracteres", false);
 						return false;
@@ -419,7 +466,23 @@ private static final long serialVersionUID = 1L;
 						setMessage("Seleccione Fechas validas", false);
 						return false;	
 					}
-
+					if(kilometersDepartureTextField.getText().isBlank() || kilometersReturnTextField.getText().isBlank()) {
+						setMessage("KM no pueden estar Vacio", false);
+						return false;
+					}
+					if(Integer.parseInt(kilometersDepartureTextField.getText()) < 0 || Integer.parseInt(kilometersReturnTextField.getText())<0) {
+						setMessage("KM no pueden ser menor a 0", false);
+						return false;
+					}
+					/*if(Integer.parseInt(kilometersDepartureTextField.getText()) > Integer.parseInt(kilometersReturnTextField.getText())) {
+						setMessage("KM de retorno no puede ser menor a Salida", false);
+						return false;
+					}*/
+			
+			}catch (NumberFormatException e) {
+				setMessage("Asegurese de que todos los campos tengan formato valido.", false);
+				return false;
+			}
 			return true;	
 		}
 
@@ -434,11 +497,12 @@ private static final long serialVersionUID = 1L;
 
 		private void clearFields() {
 			vehicleTextField.setText("");
-			kilometersTextField.setText("");
+			kilometersDepartureTextField.setText("");
 			clientComboBox.setSelectedIndex(0);
 			priceTextField.setText("");
 			dp.clearSelectedDate();
-			
+			kilometersDepartureTextField.setText("0");
+			kilometersReturnTextField.setText("0");
 			/*searchTextField.setText("");
 			dpFilters.clearSelectedDate();*/
 

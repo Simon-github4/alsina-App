@@ -43,10 +43,11 @@ public class ClientesForm extends JPanel{
 	private JTextField nameTextField;
 	private JTextField adressTextField;
 	private JTextField phoneTextField;
-	
+	private ClienteDao ClienteDao;
 
-	public ClientesForm() {
-							
+	public ClientesForm(ClienteDao cdao) {
+			ClienteDao=cdao;
+		
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));

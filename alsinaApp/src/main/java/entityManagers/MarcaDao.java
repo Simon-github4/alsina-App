@@ -12,9 +12,7 @@ import entities.Marca;
 
 public class MarcaDao {
 
-//private static EntityManager manager;
-
-
+	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 
 	public static void main(String args[]) {
 
@@ -26,20 +24,19 @@ public class MarcaDao {
 		Marca m = new Marca("nashe2");
 		//m.setId(null);
 		//m.setNombre("nashe");
-		save(m);
+		//save(m);
 		
 		//Marca u = new MarcaDao().getMarcaById(2);
 		//u.setNombre("999");	Hace luego el UPDATE en la BD
 		
 		//manager.getTransaction().commit();
 		
-		System.out.println(getMarcas().toString());
 		}
 	}
 
-	public static void save(Marca marca) {
+	public void save(Marca marca) {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
@@ -55,9 +52,9 @@ public class MarcaDao {
 		}
 	}
 
-	public static Marca getMarcaById(long id) {
+	public Marca getMarcaById(long id) {
 		Marca marca = null;
-		    try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    	EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -71,9 +68,9 @@ public class MarcaDao {
 		return marca;
 	}
 
-	public static List<Marca> getMarcas(){
+	public List<Marca> getMarcas(){
 		List<Marca> marcas = null;
-		try (EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 		    EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
@@ -88,9 +85,9 @@ public class MarcaDao {
 		
 	}
 	
-	public static void delete(long id) {
+	public void delete(long id) {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();

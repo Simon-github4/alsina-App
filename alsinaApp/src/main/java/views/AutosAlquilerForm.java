@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.time.LocalDate;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -41,6 +42,7 @@ import com.formdev.flatlaf.FlatClientProperties;
 import entities.Marca;
 import entities.Sucursal;
 import entities.VehiculoAlquilable;
+import entityManagers.AlquilerDao;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
@@ -68,10 +70,16 @@ private static final long serialVersionUID = 1L;
 	private JComboBox<Sucursal> branchComboBox;
 	private JTextField searchTextField;
 	private JComboBox<Marca> filterBrandComboBox;
+	private VehiculoDao VehiculoDao;
+	private SucursalDao SucursalDao;
+	private MarcaDao MarcaDao;
+	private JButton searchButton;
 	
-
-	public AutosAlquilerForm() {
-							
+	public AutosAlquilerForm(VehiculoDao vehiculoDao, SucursalDao sucursalDao, MarcaDao marcaDao) {
+			this.VehiculoDao = vehiculoDao;
+			this.SucursalDao = sucursalDao;
+			this.MarcaDao = marcaDao;
+			
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));
@@ -261,7 +269,7 @@ private static final long serialVersionUID = 1L;
 			JPanel west = new JPanel();
 			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
 			
-			JPanel vert = new JPanel(new GridLayout(14,1));
+			JPanel vert = new JPanel(new GridLayout(0,1));
 			vert.add(new JLabel(""));
 			vert.add(new JLabel("Patente"));
 			searchTextField = new JTextField();
@@ -275,7 +283,7 @@ private static final long serialVersionUID = 1L;
 			filterBrandComboBox.setPreferredSize(new Dimension(180, 80));
 			vert.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Buscar/Filtrar", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
 			vert.add(new JLabel(""));
-			JButton searchButton =new JButton("Buscar");
+			searchButton =new JButton("Buscar");
 			searchButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					loadTable(searchTextField.getText(), (Marca) filterBrandComboBox.getSelectedItem());
@@ -293,18 +301,37 @@ private static final long serialVersionUID = 1L;
 			JButton viewAvailableCarsButton =new JButton("Ver Autos Disponibles");
 			viewAvailableCarsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					JFrame dateFrame = new JFrame("Seleccione Rango de fecha");
+					JFrame dateFrame = new JFrame();
 					dateFrame.setLayout(new BorderLayout());
+					dateFrame.setSize(300, 300);
+					dateFrame.setVisible(true);
+					dateFrame.setLocationRelativeTo(null);
+					dateFrame.setAlwaysOnTop(true);
+					dateFrame.setAutoRequestFocus(true);
+					
 					DatePicker dp = new DatePicker();
 					dp.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
 					dp.setUsePanelOption(true);
 					dp.setDateFormat("yyyy/MM/dd");
+					dp.setCloseAfterSelected(true);
+					dp.setBackground(Color.LIGHT_GRAY);
 					JFormattedTextField dates = new JFormattedTextField();
 					dp.setEditor(dates);
-					dateFrame.add(new JPanel());
-					dateFrame.add(dates);
-					dateFrame.setVisible(true);
-					dateFrame.setLocationRelativeTo(null);
+					
+					JPanel panel = new JPanel(new GridLayout(0,1));
+					dateFrame.add(panel, BorderLayout.CENTER);
+					
+					panel.add(new JLabel("Seleccione Rango de fecha", JLabel.CENTER));
+					panel.add(dates);
+					JButton button = new JButton("Confirm");
+					panel.add(button);
+					button.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							loadTableAvailableCars(dp.getSelectedDateRange()[0], dp.getSelectedDateRange()[1]);
+							dateFrame.dispose();
+							}
+					});
+	
 				}
 			});
 			viewAvailableCarsButton.setPreferredSize(new Dimension(180, 160));
@@ -321,11 +348,12 @@ private static final long serialVersionUID = 1L;
 			});
 			viewRentsButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(viewRentsButton);
+			vert.add(new JLabel(""));
 			
 			west.add(vert);
 			contentPane.add(west, BorderLayout.WEST);
 
-			//loadTable();
+
 			fillBrands();
 			fillBranches();
 			searchButton.doClick();
@@ -365,7 +393,7 @@ private static final long serialVersionUID = 1L;
 				VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, year, km,  plate, model,  m, s);
 				VehiculoDao.save(v);
 				clearFields();
-				loadTable();
+				searchButton.doClick();
 				setMessage("Insertado correctamente", true);
 
 			} catch (NumberFormatException e2) {
@@ -395,7 +423,7 @@ private static final long serialVersionUID = 1L;
 					VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, id, year, km, plate, model, m, s);
 					VehiculoDao.save(v);
 					clearFields();
-					loadTable();
+					searchButton.doClick();
 					setMessage("Actualizado correctamente", true);
 
 				} catch (NumberFormatException e2) {
@@ -412,7 +440,7 @@ private static final long serialVersionUID = 1L;
 				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al vehiculo: "+VehiculoDao.getVehiculoById(id).getPlate(),  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 					VehiculoDao.delete(id);
 					clearFields();
-					loadTable();
+					searchButton.doClick();
 					setMessage("Eliminado correctamente", true);
 
 				}
@@ -420,17 +448,6 @@ private static final long serialVersionUID = 1L;
 				setMessage(e.getCause().getMessage(), false);
 			}
 			
-		}
-		
-		private void loadTable() {
-	        tableModel.setRowCount(0);
-
-			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilables();
-			for(VehiculoAlquilable v : vehiculos) {
-				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
-				tableModel.addRow(row);
-			}
-
 		}
 
 		private void loadTable(String plate, Marca marca) {
@@ -443,18 +460,18 @@ private static final long serialVersionUID = 1L;
 			}
 
 		}
-		/*
-		private void loadTableAvailableCars() {
+
+		private void loadTableAvailableCars(LocalDate startDate, LocalDate endDate) {
 	        tableModel.setRowCount(0);
 
-			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesAvailabel();
+			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesAvailable(startDate, endDate);
 			for(VehiculoAlquilable v : vehiculos) {
 				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
 				tableModel.addRow(row);
 			}
 
 		}
-		*/
+
 		private boolean validateFields() {
 
 					if(patenteTextField.getText().length() < 6 || patenteTextField.getText().isBlank()) {

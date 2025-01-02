@@ -12,7 +12,6 @@ import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -25,11 +24,14 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
+import entities.Destino;
 import entities.Marca;
+import entityManagers.DestinoDao;
 import entityManagers.MarcaDao;
 
-public class MarcasForm extends JPanel{
+public class DestinosForm extends JPanel{
 
+	private DestinoDao DestinoDao;
 	private static final long serialVersionUID = -1753599697527670417L;
 	private JPanel contentPane;
 	private JPanel inputPanel;
@@ -39,10 +41,9 @@ public class MarcasForm extends JPanel{
 	private JLabel messageLabel;
 	private JTextField idTextField;
 	private JTextField descriptionTextField;
-	private MarcaDao MarcaDao;
-	
-	public MarcasForm(MarcaDao mdao) {
-		MarcaDao = mdao;
+
+	public DestinosForm(DestinoDao ddao) {
+		this.DestinoDao=ddao;
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -58,7 +59,7 @@ public class MarcasForm extends JPanel{
 				
 		JPanel horizontalPanel = new JPanel(new GridLayout());
 		
-		JLabel titulo = new JLabel("MARCAS", JLabel.CENTER);
+		JLabel titulo = new JLabel("DESTINOS", JLabel.CENTER);
 		titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 		horizontalPanel.add(titulo);		
 		inputPanel.add(horizontalPanel);
@@ -163,15 +164,7 @@ public class MarcasForm extends JPanel{
         messageLabel.setBackground(Color.RED);
         messageLabel.setOpaque(false);		
         messageLabel.setPreferredSize(new Dimension(500,70));
-        /*JButton back = new JButton("Volver");
-        back.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		//dispose();
-        	}
-        });*/
-
 		horizontalPanel.add(messageLabel);
-		//horizontalPanel.add(back);
 		
 		south.add(horizontalPanel);
 
@@ -181,9 +174,9 @@ public class MarcasForm extends JPanel{
 	
 	private void insert() {
 		String description = descriptionTextField.getText();
-		Marca m = new Marca(description);
+		Destino m = new Destino(description);
 		
-		MarcaDao.save(m);
+		DestinoDao.save(m);
 		clearFields();
 		loadTable();
 	}
@@ -191,9 +184,9 @@ public class MarcasForm extends JPanel{
 	private void update() {
 		String description = descriptionTextField.getText();
 		long id = Long.parseLong(idTextField.getText());
-		Marca m = new Marca(description, id);
+		Destino m = new Destino(id, description);
 
-		MarcaDao.save(m);
+		DestinoDao.save(m);
 		clearFields();
 		loadTable();
 	}
@@ -201,13 +194,12 @@ public class MarcasForm extends JPanel{
 	private void delete() {
 		long id = Long.parseLong(idTextField.getText());
 		try {
-			if(JOptionPane.showConfirmDialog(MarcasForm.this, "Desea eliminar la marca con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-				MarcaDao.delete(id);
+			if(JOptionPane.showConfirmDialog(DestinosForm.this, "Desea eliminar la marca con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+				DestinoDao.delete(id);
 				clearFields();
 				loadTable();
 			}
 		}catch(Exception e) {
-			//JOptionPane.showMessageDialog(null, e.getCause(), "ERROR AL ELIMINAR", JOptionPane.ERROR_MESSAGE);
 			setMessage(e.getCause().getMessage());
 		}
 		
@@ -216,9 +208,9 @@ public class MarcasForm extends JPanel{
 	private void loadTable() {
         tableModel.setRowCount(0);
 
-		List<Marca> marcas = MarcaDao.getMarcas();
-		for(Marca m : marcas) {
-			Object[] row = {m.getNombre(), m.getId()};
+		List<Destino> destinos = DestinoDao.getDestinos();
+		for(Destino m : destinos) {
+			Object[] row = {m.getDescription(), m.getId()};
 			tableModel.addRow(row);
 		}
 	}
@@ -246,3 +238,4 @@ public class MarcasForm extends JPanel{
         messageLabel.setOpaque(false);
 	}
 }
+

@@ -1,44 +1,48 @@
 package views;
 
 import java.awt.BorderLayout;
-import java.awt.EventQueue;
+import java.awt.Color;
+import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
-import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 
-import java.awt.Color;
-import java.awt.Component;
+import entityManagers.AlquilerDao;
+import entityManagers.ClienteDao;
+import entityManagers.MarcaDao;
+import entityManagers.SucursalDao;
+import entityManagers.VehiculoDao;
+import entityManagers.DestinoDao;
 
 public class Dashboard extends JFrame{
 
 	private JPanel mainPanel;
+	private AlquilerDao AlquilerDao = new AlquilerDao();
+	private VehiculoDao VehiculoDao = new VehiculoDao();
+	private ClienteDao ClienteDao = new ClienteDao();
+	private SucursalDao SucursalDao = new SucursalDao();
+	private MarcaDao MarcaDao = new MarcaDao();
+	private DestinoDao DestinoDao = new DestinoDao();
 	
 	public Dashboard() {
 		
 		setStyling();
 		getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
 		getRootPane().putClientProperty(FlatClientProperties.TITLE_BAR_BACKGROUND, new Color(84, 173, 253 ));
-
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		setSize(719,448);
 		getContentPane().setLayout(new BorderLayout(40, 40));
-		
+	
 		mainPanel= new JPanel();
-		//mainPanel.setLayout(new BoxLayout(mainPanel, BoxLayout.X_AXIS));
 		mainPanel.setLayout(new GridLayout(3, 4, 15, 15));
 		//mainPanel.setBackground(new Color(0, 102, 204));
 		getContentPane().add(mainPanel, BorderLayout.CENTER);
@@ -47,7 +51,7 @@ public class Dashboard extends JFrame{
 		JButton btnNewButton_2_9 = new JButton("Clientes/Marcas/Sucursales");
 		btnNewButton_2_9.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new MarcasSucursalesClientesFrame();
+				new MarcasSucursalesClientesFrame(MarcaDao, SucursalDao, ClienteDao, DestinoDao);
 			}
 		});
 		btnNewButton_2_9.setBounds(208, 194, 128, 100);
@@ -57,7 +61,7 @@ public class Dashboard extends JFrame{
 		btnNewButton_2.setBounds(45, 35, 128, 100);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new AlquileresFrame().setVisible(true);
+				new AlquileresFrame(MarcaDao, SucursalDao, ClienteDao, AlquilerDao, VehiculoDao).setVisible(true);
 			}
 		});
 		mainPanel.add(btnNewButton_2);

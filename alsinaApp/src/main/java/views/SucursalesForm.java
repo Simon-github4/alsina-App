@@ -41,10 +41,11 @@ public class SucursalesForm extends JPanel {
 	private JLabel messageLabel;
 	private JTextField idTextField;
 	private JTextField descriptionTextField;
+	private SucursalDao SucursalDao;
 
-
-	public SucursalesForm() {
-							
+	public SucursalesForm(SucursalDao sdao) {
+			SucursalDao = sdao;
+			
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));
