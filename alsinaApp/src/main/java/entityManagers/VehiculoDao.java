@@ -17,12 +17,15 @@ import jakarta.persistence.TypedQuery;
 
 public class VehiculoDao {
 
-	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-
+	private static EntityManagerFactory emf  ;//= Persistence.createEntityManagerFactory("persistencia");
+	
+	public VehiculoDao(EntityManagerFactory emf2) {
+		emf = emf2;
+	}
+	
 	public void save(Vehiculo vehiculo){
 		
-		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-			EntityManager manager = emf.createEntityManager();){ 
+		try(EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
 			
@@ -37,8 +40,7 @@ public class VehiculoDao {
 
 	public Vehiculo getVehiculoById(long id) {
 		Vehiculo vehiculo = null;
-		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    	EntityManager manager = emf.createEntityManager();) {
+		    try (EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
 		    	vehiculo = manager.find(Vehiculo.class, id);	        
@@ -64,8 +66,7 @@ public class VehiculoDao {
 	
 	public List<Vehiculo> getVehiculos(){
 		List<Vehiculo> vehiculos = null;
-		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    EntityManager manager = emf.createEntityManager();) {
+		try (EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
 		    	vehiculos = manager.createQuery("select s FROM Vehiculo s ORDER BY s.id desc", Vehiculo.class).getResultList();       
@@ -85,6 +86,7 @@ public class VehiculoDao {
 		    	
 				if(marca.getId() != null) 
 		    		query.append("AND a.brand = :brand");
+				
 				query.append(" ORDER BY a.plate ASC");
 		    					
 				manager.getTransaction().begin();

@@ -16,7 +16,7 @@ public class Sucursal {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Column(name = "id")
-	private long id;
+	private Long id;
 	
 	private String  description;
 
@@ -31,6 +31,7 @@ public class Sucursal {
 
 	public Sucursal(String description) {
 		super();
+		this.id = null;
 		this.description = description;
 	}
 	
@@ -38,7 +39,7 @@ public class Sucursal {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 

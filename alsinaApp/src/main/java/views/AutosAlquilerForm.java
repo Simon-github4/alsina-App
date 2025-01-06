@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -39,6 +41,8 @@ import org.postgresql.util.PSQLException;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
+import entities.Alquiler;
+import entities.Cliente;
 import entities.Marca;
 import entities.Sucursal;
 import entities.VehiculoAlquilable;
@@ -55,7 +59,7 @@ private static final long serialVersionUID = 1L;
 	
 	private JPanel contentPane;
 	private JPanel inputPanel;
-	private JPanel westPanel;
+	private JPanel west;
 	private JPanel tablePanel;
 	private JTable table;
 	private DefaultTableModel tableModel;
@@ -64,6 +68,7 @@ private static final long serialVersionUID = 1L;
 	private JTextField patenteTextField;
 	private JTextField modelTextField;
 	private JTextField kilometersTextField;
+	private JTextField franchiseTextField;
 	private JComboBox<Marca> brandComboBox;
 	private JTextField ensuranceTextField;
 	private JTextField priceTextField;
@@ -97,7 +102,7 @@ private static final long serialVersionUID = 1L;
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			JLabel titulo = new JLabel("Vehiculos Alquiler", JLabel.CENTER);
+			JLabel titulo = new JLabel("VEHICULOS DE ALQUILER", JLabel.CENTER);
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(titulo);		
 			inputPanel.add(horizontalPanel);
@@ -140,6 +145,9 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(new JLabel("Seguro", JLabel.RIGHT));
 			ensuranceTextField = new JTextField(20);
 			horizontalPanel.add(ensuranceTextField);
+			horizontalPanel.add(new JLabel("Franquicia", JLabel.RIGHT));
+			franchiseTextField = new JTextField(20);
+			horizontalPanel.add(franchiseTextField);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -147,25 +155,9 @@ private static final long serialVersionUID = 1L;
 			JButton confirm = new JButton("Confirmar");
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					try {
 						if(validateFields())
-							if(table.getSelectedRow() == -1)
-								insert();
-							else
-								update();					
-					} catch (NumberFormatException e2) {
-						setMessage("Asegurese de que todos los campos tengan formato valido.", false);
-					}catch(ConstraintViolationException e4) {
-						setMessage("ya existe un Vehivulo con esa Patente", false);							
-					}catch(PSQLException e5) {
-						setMessage("ya existe un Vehivulo con esa Patente", false);							
-					}catch(PersistenceException e5) {
-						setMessage("ya existe un Vehivulo con esa Patente", false);							
-					} catch(Exception e3) {
-						setMessage("ya existe un Vehivulo con esa Patente", false);
-					}
-			}
-			});
+								insert();				
+			}});
 	        confirm.setPreferredSize(new Dimension(250,40));
 			JButton delete = new JButton("Eliminar");
 			delete.addActionListener(new ActionListener() {
@@ -197,19 +189,20 @@ private static final long serialVersionUID = 1L;
 	            }
 	        };
 	        tableModel.addColumn("Patente");
-	        tableModel.addColumn("Año");
-	        tableModel.addColumn("Modelo");
-	        tableModel.addColumn("Tarifa Alquiler");
-	        tableModel.addColumn("KM");
 	        tableModel.addColumn("Marca");
+	        tableModel.addColumn("Modelo");
+	        tableModel.addColumn("Año");
+	        tableModel.addColumn("KM");
+	        tableModel.addColumn("Tarifa Alquiler");
 	        tableModel.addColumn("Seguro");
-	        tableModel.addColumn("Sucursal");
+	        tableModel.addColumn("Franquicia");
+	        tableModel.addColumn("Consecionaria");
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(8).setMaxWidth(0);
-			table.getColumnModel().getColumn(8).setMinWidth(0);
-			table.getColumnModel().getColumn(8).setPreferredWidth(0);
+			table.getColumnModel().getColumn(9).setMaxWidth(0);
+			table.getColumnModel().getColumn(9).setMinWidth(0);
+			table.getColumnModel().getColumn(9).setPreferredWidth(0);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				@Override
@@ -218,14 +211,14 @@ private static final long serialVersionUID = 1L;
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
 							String plate = (String) tableModel.getValueAt(row, 0);
-							int year = (int) tableModel.getValueAt(row, 1);
+							Marca m = (Marca) tableModel.getValueAt(row, 1);
 							String model = (String) tableModel.getValueAt(row, 2);
-							int price = (int) tableModel.getValueAt(row, 3);
+							int year = (int) tableModel.getValueAt(row, 3);
 							int km = (int) tableModel.getValueAt(row, 4);
-							Marca m = (Marca) tableModel.getValueAt(row, 5);
+							int price = (int) tableModel.getValueAt(row, 5);
 							String ensurance = (String) tableModel.getValueAt(row, 6);
-							Sucursal branch = (Sucursal) tableModel.getValueAt(row, 7);
-							Long id = (Long)tableModel.getValueAt(row, 8);
+							int franch = (int)tableModel.getValueAt(row, 7);
+							Sucursal branch = (Sucursal) tableModel.getValueAt(row, 8);
 							
 							patenteTextField.setText(plate);
 							yearTextField.setText(String.valueOf(year));
@@ -235,6 +228,7 @@ private static final long serialVersionUID = 1L;
 							brandComboBox.setSelectedItem(m);
 							ensuranceTextField.setText(ensurance);
 							branchComboBox.setSelectedItem(branch);
+							franchiseTextField.setText(String.valueOf(franch));
 	                	}
 	                }
 				}
@@ -266,7 +260,7 @@ private static final long serialVersionUID = 1L;
 			south.add(horizontalPanel);
 			contentPane.add(south, BorderLayout.SOUTH);
 
-			JPanel west = new JPanel();
+			west = new JPanel();
 			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
 			
 			JPanel vert = new JPanel(new GridLayout(0,1));
@@ -312,7 +306,7 @@ private static final long serialVersionUID = 1L;
 					DatePicker dp = new DatePicker();
 					dp.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
 					dp.setUsePanelOption(true);
-					dp.setDateFormat("yyyy/MM/dd");
+					dp.setDateFormat("dd/MM/yyyy");
 					dp.setCloseAfterSelected(true);
 					dp.setBackground(Color.LIGHT_GRAY);
 					JFormattedTextField dates = new JFormattedTextField();
@@ -348,7 +342,20 @@ private static final long serialVersionUID = 1L;
 			});
 			viewRentsButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(viewRentsButton);
-			vert.add(new JLabel(""));
+			
+			JButton gastosButton = new JButton("ver Gastos");
+			gastosButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(table.getSelectedRow()==-1)
+						setMessage("Ningun Vehiculo seleccionado", false);
+					else { 
+							String plate = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
+							Dashboard.openGastos(plate);
+					}
+				}});
+			gastosButton.setPreferredSize(new Dimension(180, 160));
+			vert.add(gastosButton);
+			//vert.add(new JLabel(""));
 			
 			west.add(vert);
 			contentPane.add(west, BorderLayout.WEST);
@@ -379,26 +386,30 @@ private static final long serialVersionUID = 1L;
 			}
 		}
 
-		private void insert() throws PSQLException {
-			int year = Integer.parseInt(yearTextField.getText());
-			int km = Integer.parseInt(kilometersTextField.getText());
-			int price = Integer.parseInt(priceTextField.getText());
-			String plate = patenteTextField.getText().toUpperCase();
-			String model = modelTextField.getText();
-			String ensurance = ensuranceTextField.getText();
-			Marca m = (Marca)brandComboBox.getSelectedItem();
-			Sucursal s = (Sucursal)branchComboBox.getSelectedItem();			
-			
-			try {		
-				VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, year, km,  plate, model,  m, s);
+		private void insert() {
+			try {
+				int year = Integer.parseInt(yearTextField.getText());
+				int km = Integer.parseInt(kilometersTextField.getText());
+				int price = Integer.parseInt(priceTextField.getText());
+				String plate = patenteTextField.getText().toUpperCase();
+				String model = modelTextField.getText();
+				String ensurance = ensuranceTextField.getText();
+				Marca m = (Marca)brandComboBox.getSelectedItem();
+				Sucursal s = (Sucursal)branchComboBox.getSelectedItem();			
+				int franchise = Integer.parseInt(franchiseTextField.getText());
+
+				VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, franchise, year, km,  plate, model,  m, s);
+				if(table.getSelectedRow() != -1) {
+					Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 9);
+					v.setId(id);
+				}
 				VehiculoDao.save(v);
 				clearFields();
 				searchButton.doClick();
 				setMessage("Insertado correctamente", true);
 
 			} catch (NumberFormatException e2) {
-				setMessage("Asegurese de que todos los campos tengan formato valido.", false);
-				JOptionPane.showMessageDialog(null, "constraint");
+				setMessage("Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)", false);
 			}catch(PersistenceException e5) {
 				setMessage("ya existe un Vehiculo con esa Patente", false);	
 			} catch(Exception e3) {
@@ -406,35 +417,9 @@ private static final long serialVersionUID = 1L;
 			}
 
 		}
-
-		private void update() {
-			int year = Integer.parseInt(yearTextField.getText());
-			int km = Integer.parseInt(kilometersTextField.getText());
-			int price = Integer.parseInt(priceTextField.getText());
-			String plate = patenteTextField.getText().toUpperCase();
-			String model = modelTextField.getText();
-			String ensurance = ensuranceTextField.getText();
-			Marca m = (Marca)brandComboBox.getSelectedItem();
-			Sucursal s = (Sucursal)branchComboBox.getSelectedItem();
-			
-			Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 8);
-
-			try {
-					VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, id, year, km, plate, model, m, s);
-					VehiculoDao.save(v);
-					clearFields();
-					searchButton.doClick();
-					setMessage("Actualizado correctamente", true);
-
-				} catch (NumberFormatException e2) {
-					setMessage("Asegurese de que todos los campos tengan formato valido.", false);
-				} catch(Exception e3) {
-					setMessage("Ha ocurrido un Error:"+e3.getLocalizedMessage(), false);	
-				}
-		}
 		
 		private void delete() {
-			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 8);
+			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 9);
 			
 			try {
 				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al vehiculo: "+VehiculoDao.getVehiculoById(id).getPlate(),  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
@@ -455,7 +440,7 @@ private static final long serialVersionUID = 1L;
 
 			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesByPlate(plate, marca);
 			for(VehiculoAlquilable v : vehiculos) {
-				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
+				Object[] row = {v.getPlate(), v.getBrand(), v.getModel(), v.getYear(), v.getKilometers(), v.getPrice(), v.getEnsurance(), v.getEnsuranceFranchise(), v.getBranch(), v.getId()};
 				tableModel.addRow(row);
 			}
 
@@ -466,14 +451,13 @@ private static final long serialVersionUID = 1L;
 
 			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesAvailable(startDate, endDate);
 			for(VehiculoAlquilable v : vehiculos) {
-				Object[] row = {v.getPlate(), v.getYear(), v.getModel(), v.getPrice(), v.getKilometers(), v.getBrand(), v.getEnsurance(), v.getBranch(), v.getId()};
-				tableModel.addRow(row);
+				Object[] row = {v.getPlate(), v.getBrand(), v.getModel(), v.getYear(), v.getKilometers(), v.getPrice(), v.getEnsurance(), v.getEnsuranceFranchise(), v.getBranch(), v.getId()};
+		        tableModel.addRow(row);
 			}
 
 		}
 
 		private boolean validateFields() {
-
 					if(patenteTextField.getText().length() < 6 || patenteTextField.getText().isBlank()) {
 						setMessage("la Patente no puede tener menos de 6 caracteres", false);
 						return false;
@@ -490,7 +474,10 @@ private static final long serialVersionUID = 1L;
 						setMessage("Seleccione una Sucursal valida", false);
 						return false;
 					}
-
+					if(franchiseTextField.getText().isBlank()) {
+						setMessage("La Franquicia no puede estar vacia", false);
+						return false;	
+					}
 			return true;	
 		}
 
@@ -512,6 +499,7 @@ private static final long serialVersionUID = 1L;
 			branchComboBox.setSelectedIndex(0);
 			ensuranceTextField.setText("");
 			priceTextField.setText("");
+			franchiseTextField.setText("");
 			
 			searchTextField.setText("");
 			filterBrandComboBox.setSelectedIndex(0);

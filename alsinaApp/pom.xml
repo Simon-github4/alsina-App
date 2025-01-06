@@ -39,10 +39,10 @@
 		    <artifactId>HikariCP</artifactId>
 		    <version>5.0.1</version>
 		</dependency>
-		<dependency>
+ 		<dependency>
 	    	 <groupId>org.slf4j</groupId>
 	    	 <artifactId>slf4j-api</artifactId>
-	   		 <version>1.7.30</version> <!-- Asegúrate de usar la última versión -->
+	   		 <version>1.7.30</version><!-- Asegúrate de usar la última versión -->
 		</dependency>
 		<!-- https://mvnrepository.com/artifact/com.itextpdf/itext7-core -->
 		<dependency>
@@ -69,6 +69,16 @@
 	    	<artifactId>swing-datetime-picker</artifactId>
 	    	<version>2.0.0</version>
 		</dependency>
+	<!--	<dependency>
+    		<groupId>org.dhatim</groupId>
+    		<artifactId>fastexcel</artifactId>
+   		 	<version>0.14.0</version>
+		</dependency>
+		<dependency>
+		    <groupId>org.dhatim</groupId>
+		    <artifactId>fastexcel-reader</artifactId>
+		    <version>0.14.0</version>
+		</dependency>--> 
 		<!-- https://mvnrepository.com/artifact/org.apache.poi/poi -->
 		<dependency>
 		    <groupId>org.apache.poi</groupId>
@@ -82,7 +92,7 @@
 		    <version>5.3.0</version>
 		</dependency>
 		
-<!--	<dependency>
+	<!-- <dependency>
     		<groupId>org.apache.logging.log4j</groupId>
     		<artifactId>log4j-core</artifactId>
     		<version>2.20.0</version> 

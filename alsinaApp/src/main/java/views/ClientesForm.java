@@ -2,12 +2,15 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -23,6 +26,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+import com.formdev.flatlaf.FlatClientProperties;
 
 import entities.Cliente;
 import entities.Sucursal;
@@ -44,6 +49,10 @@ public class ClientesForm extends JPanel{
 	private JTextField adressTextField;
 	private JTextField phoneTextField;
 	private ClienteDao ClienteDao;
+	private JTextField dniTextField;
+	private JTextField cuitTextField;
+	private JTextField searchTextField;
+
 
 	public ClientesForm(ClienteDao cdao) {
 			ClienteDao=cdao;
@@ -58,8 +67,7 @@ public class ClientesForm extends JPanel{
 			
 			inputPanel = new JPanel();
 			inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-			contentPane.add(inputPanel, BorderLayout.NORTH);
-			
+			contentPane.add(inputPanel, BorderLayout.NORTH);		
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
@@ -89,7 +97,31 @@ public class ClientesForm extends JPanel{
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 30));
+			horizontalPanel.add(new JLabel("D.N.I", JLabel.RIGHT));
+			dniTextField = new JTextField("",30);
+			horizontalPanel.add(dniTextField);
+			horizontalPanel.add(new JLabel("Cuit/Cuil", JLabel.RIGHT));
+			cuitTextField = new JTextField(10);
+			horizontalPanel.add(cuitTextField);
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+			inputPanel.add(horizontalPanel);	
+			
+			horizontalPanel = new JPanel(new GridLayout());
+			//horizontalPanel.setPreferredSize(new Dimension(WIDTH, 15));
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel("Buscar por Nombre", JLabel.RIGHT));
+			searchTextField = new JTextField(); 
+			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
+			searchTextField.addKeyListener(new KeyAdapter() {
+				@Override
+				public void keyPressed(KeyEvent e) {
+					if(e.getKeyCode() == KeyEvent.VK_ENTER)
+						loadTable(searchTextField.getText());
+				}
+			});
+			horizontalPanel.add(searchTextField);
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel(""));
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new FlowLayout());
@@ -134,12 +166,14 @@ public class ClientesForm extends JPanel{
 	        tableModel.addColumn("Descripcion");
 	        tableModel.addColumn("Direccion");
 	        tableModel.addColumn("Telefono");
+	        tableModel.addColumn("D.N.I");
+	        tableModel.addColumn("Cuit/Cuil");
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(3).setMaxWidth(100);
-			table.getColumnModel().getColumn(3).setMinWidth(100);
-			table.getColumnModel().getColumn(3).setPreferredWidth(100);
+			table.getColumnModel().getColumn(5).setMaxWidth(100);
+			table.getColumnModel().getColumn(5).setMinWidth(100);
+			table.getColumnModel().getColumn(5).setPreferredWidth(100);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -151,11 +185,15 @@ public class ClientesForm extends JPanel{
 							String name = (String) tableModel.getValueAt(row, 0);
 							String phone = (String) tableModel.getValueAt(row, 1);
 							String adress = (String) tableModel.getValueAt(row, 2);
-							long id = (long)tableModel.getValueAt(row, 3);
+							String dni = (String) tableModel.getValueAt(row, 3);
+							String cuil = (String) tableModel.getValueAt(row, 4);
+							long id = (long)tableModel.getValueAt(row, 5);
 									
 							nameTextField.setText(name);
 							adressTextField.setText(adress);
 							phoneTextField.setText(phone);
+							dniTextField.setText(dni);
+							cuitTextField.setText(cuil);
 							idTextField.setText(String.valueOf(id));
 	                	}
 	                }
@@ -190,7 +228,7 @@ public class ClientesForm extends JPanel{
 			contentPane.add(horizontalPanel, BorderLayout.SOUTH);
 			//south.add(horizontalPanel);
 
-			loadTable();
+			loadTable(searchTextField.getText());
 
 		}
 		
@@ -198,12 +236,14 @@ public class ClientesForm extends JPanel{
 			String description = nameTextField.getText();
 			String adress = adressTextField.getText();
 			String phone = phoneTextField.getText();
-			
-			Cliente m = new Cliente( description, adress, phone);
+			String dni = dniTextField.getText();
+			String cuil = cuitTextField.getText();
+
+			Cliente m = new Cliente(description, adress, phone, dni, cuil);
 			
 			ClienteDao.save(m);
 			clearFields();
-			loadTable();
+			loadTable(searchTextField.getText());
 		}
 
 		private void update() {
@@ -211,12 +251,14 @@ public class ClientesForm extends JPanel{
 			long id = Long.parseLong(idTextField.getText());
 			String adress = adressTextField.getText();
 			String phone = phoneTextField.getText();
+			String dni = dniTextField.getText();
+			String cuil = cuitTextField.getText();
 
-			Cliente m = new Cliente(id, description, phone, adress);
+			Cliente m = new Cliente(id, description, phone, adress, dni, cuil);
 
 			ClienteDao.save(m);
 			clearFields();
-			loadTable();
+			loadTable(searchTextField.getText());
 		}
 		
 		private void delete() {
@@ -225,7 +267,7 @@ public class ClientesForm extends JPanel{
 				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al cliente con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 					ClienteDao.delete(id);
 					clearFields();
-					loadTable();
+					loadTable(searchTextField.getText());
 				}
 			}catch(Exception e) {
 				//JOptionPane.showMessageDialog(null, e.getCause(), "ERROR AL ELIMINAR", JOptionPane.ERROR_MESSAGE);
@@ -234,19 +276,23 @@ public class ClientesForm extends JPanel{
 			
 		}
 		
-		private void loadTable() {
+		private void loadTable(String name) {
 	        tableModel.setRowCount(0);
 
 			List<Cliente> clientes = ClienteDao.getClientes();
 			for(Cliente m : clientes) {
-				Object[] row = {m.getName(), m.getAdress(), m.getPhone(), m.getId()};
+				Object[] row = {m.getName(), m.getAdress(), m.getPhone(), m.getDni(), m.getCuil(), m.getId()};
 				tableModel.addRow(row);
 			}
 		}
 
 		private boolean validateFields() {
 			if(nameTextField.getText().isBlank()) {
-				setMessage("La Descripcion no puede estar Vacia");
+				setMessage("El nombre no puede estar vacio");
+				return false;
+			}
+			if(dniTextField.getText().isBlank()) {
+				setMessage("El DNI no puede estar vacio");
 				return false;
 			}
 			if(nameTextField.getText().length() > 45) {
@@ -268,6 +314,8 @@ public class ClientesForm extends JPanel{
 			nameTextField.setText("");
 			adressTextField.setText("");
 			phoneTextField.setText("");
+			dniTextField.setText("");
+			cuitTextField.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
 		}

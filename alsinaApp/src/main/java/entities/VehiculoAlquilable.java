@@ -2,6 +2,7 @@ package entities;
 
 import java.util.Objects;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Entity;
 
@@ -11,6 +12,8 @@ public class VehiculoAlquilable extends Vehiculo{
 
 	private int price;
 	private String ensurance;
+	//@Column(columnDefinition = "int default 18")
+	private int ensuranceFranchise ;
 	
 	public VehiculoAlquilable() {}
 	
@@ -20,7 +23,7 @@ public class VehiculoAlquilable extends Vehiculo{
 		this.ensurance = ensurance;
 	}
 	
-	public VehiculoAlquilable(int price, String ensurance, int year, int kilometers,  String plate, String model, Marca brand, Sucursal branch) {
+	public VehiculoAlquilable(int price, String ensurance, int franchise, int year, int kilometers,  String plate, String model, Marca brand, Sucursal branch) {
 		super(year, kilometers, plate, model, brand, branch);
 		this.price = price;
 		this.ensurance = ensurance;
@@ -60,6 +63,14 @@ public class VehiculoAlquilable extends Vehiculo{
 			return false;
 		VehiculoAlquilable other = (VehiculoAlquilable) obj;
 		return Objects.equals(ensurance, other.ensurance) && price == other.price;
+	}
+
+	public int getEnsuranceFranchise() {
+		return ensuranceFranchise;
+	}
+
+	public void setEnsuranceFranchise(int ensuranceFranchise) {
+		this.ensuranceFranchise = ensuranceFranchise;
 	}
 
 	

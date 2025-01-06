@@ -10,8 +10,12 @@ import jakarta.persistence.Persistence;
 
 public class DestinoDao {
 
-	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-
+	private static EntityManagerFactory emf  ;//= Persistence.createEntityManagerFactory("persistencia");
+	
+	public DestinoDao(EntityManagerFactory emf2) {
+		emf = emf2;
+	}
+	
 	public void save(Destino destino) {
 		
 		try(EntityManager manager = emf.createEntityManager();){ 

@@ -21,17 +21,23 @@ import entityManagers.ClienteDao;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.Persistence;
 import entityManagers.DestinoDao;
+import entityManagers.GastoDao;
 
 public class Dashboard extends JFrame{
 
+	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+
 	private JPanel mainPanel;
-	private AlquilerDao AlquilerDao = new AlquilerDao();
-	private VehiculoDao VehiculoDao = new VehiculoDao();
-	private ClienteDao ClienteDao = new ClienteDao();
-	private SucursalDao SucursalDao = new SucursalDao();
-	private MarcaDao MarcaDao = new MarcaDao();
-	private DestinoDao DestinoDao = new DestinoDao();
+	private static AlquilerDao AlquilerDao = new AlquilerDao(emf);
+	private static VehiculoDao VehiculoDao = new VehiculoDao(emf);
+	private static ClienteDao ClienteDao = new ClienteDao(emf);
+	private static SucursalDao SucursalDao = new SucursalDao(emf);
+	private static MarcaDao MarcaDao = new MarcaDao(emf);
+	private static DestinoDao DestinoDao = new DestinoDao(emf);
+	private static GastoDao GastoDao = new GastoDao(emf);
 	
 	public Dashboard() {
 		
@@ -70,43 +76,14 @@ public class Dashboard extends JFrame{
 		btnNewButton_2_1.setBounds(208, 35, 128, 100);
 		mainPanel.add(btnNewButton_2_1);
 		
-		/*
-		JButton btnNewButton_2_2 = new JButton("Motos");
-		btnNewButton_2_2.setBounds(374, 35, 128, 100);
-		mainPanel.add(btnNewButton_2_2);
-				
-		JButton btnNewButton_2_2_1 = new JButton("Baterias");
-		btnNewButton_2_2_1.setBounds(542, 35, 128, 100);
-		mainPanel.add(btnNewButton_2_2_1); 
-	
-		JButton btnNewButton_2_3 = new JButton("Clientes");
-		btnNewButton_2_3.setBounds(45, 194, 128, 100);
-		mainPanel.add(btnNewButton_2_3);
-		
-		JButton btnNewButton_2_4 = new JButton("Marcas");
-		btnNewButton_2_4.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-			new MarcasForm().setVisible(true);
-			}
-		});
-		btnNewButton_2_4.setBounds(208, 194, 128, 100);
-		mainPanel.add(btnNewButton_2_4);
-		
-		JButton btnNewButton_2_5_1 = new JButton("Ver Reporte total");
-		btnNewButton_2_5_1.setBounds(542, 194, 128, 100);
-		mainPanel.add(btnNewButton_2_5_1);
-		*/
-		
 		JButton btnNewButton_2_5 = new JButton("Ventas/Compras");
 		btnNewButton_2_5.setBounds(374, 194, 128, 100);
 		mainPanel.add(btnNewButton_2_5);
 		
-
-		
 		JButton btnNewButton = new JButton("Gastos");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				new Gastos().setVisible(true);
+				openGastos(null);
 			}
 		});
 		btnNewButton.setBounds(45, 320, 628, 62);
@@ -118,6 +95,16 @@ public class Dashboard extends JFrame{
 		
 	}
 
+	public static void openGastos(String plateFilter) {
+		JFrame f = new JFrame();
+		GastosForm g = new GastosForm(AlquilerDao, VehiculoDao, SucursalDao, GastoDao, DestinoDao);
+		f.setContentPane(g);
+		f.setVisible(true);
+		f.setSize(1100, 850);
+		g.getSearchTextField().setText(plateFilter);
+		g.getSearchButton().doClick();
+	}
+	
 	private void setStyling() {
 		FlatIntelliJLaf.setup();	
 
@@ -130,8 +117,7 @@ public class Dashboard extends JFrame{
 		UIManager.put("TextComponent.arc", 10);		
 		UIManager.put("Component.arc", 10);		
 		UIManager.put("Component.innerFocusWidth", 1);		
-		UIManager.put("Table.alternateRowColor", (Color.LIGHT_GRAY));
-		//UIManager.put("Table.showVerticalLines", "value = true");	
+		UIManager.put("Table.alternateRowColor", Color.LIGHT_GRAY);
 	    
 		UIManager.put("defaultFont", new Font("Montserrat", Font.TYPE1_FONT, 15));
 		

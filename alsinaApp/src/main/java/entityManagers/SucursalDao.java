@@ -10,7 +10,11 @@ import jakarta.persistence.Persistence;
 
 public class SucursalDao {
 	
-	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+	private static EntityManagerFactory emf  ;//= Persistence.createEntityManagerFactory("persistencia");
+	
+	public SucursalDao(EntityManagerFactory emf2) {
+		emf = emf2;
+	}
 	
 	public void save(Sucursal sucursal) {
 		

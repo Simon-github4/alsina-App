@@ -12,8 +12,12 @@ import entities.Marca;
 
 public class MarcaDao {
 
-	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-
+	private static EntityManagerFactory emf  ;//= Persistence.createEntityManagerFactory("persistencia");
+	
+	public MarcaDao(EntityManagerFactory emf2) {
+		emf = emf2;
+	}
+	
 	public static void main(String args[]) {
 
 		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory(("persistencia"))){ 

@@ -1,6 +1,7 @@
 package entityManagers;
 
 import java.time.LocalDate;
+import java.util.HashSet;
 import java.util.List;
 
 import entities.Alquiler;
@@ -14,18 +15,26 @@ import jakarta.persistence.TypedQuery;
 
 public class AlquilerDao {
 
-	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
+	private static EntityManagerFactory emf  ;//= Persistence.createEntityManagerFactory("persistencia");
 			
-	public void save(Alquiler alquiler){
+	public AlquilerDao(EntityManagerFactory emf2) {
+		emf = emf2;
+	}
+
+	public void save(Alquiler alquiler) throws Exception{
 		
-		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-			EntityManager manager = emf.createEntityManager();){ 
+		try(EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
 			
-			if(alquiler.getId() == null)
-				manager.persist(alquiler);
-			else
+			if(alquiler.getId() == null) {
+					List<VehiculoAlquilable> availables = new VehiculoDao(emf).getVehiculosAlquilablesAvailable(alquiler.getStart(), alquiler.getEnd());			
+					HashSet<VehiculoAlquilable> hs = new HashSet<VehiculoAlquilable>(availables);
+					if(hs.contains(alquiler.getVehicle())) 
+						manager.persist(alquiler);
+					else
+						throw new Exception("No se puedo insertar alquiler debido a Fechas no disponibles");
+			}else
 				manager.merge(alquiler);
 
 			manager.getTransaction().commit();
@@ -34,12 +43,11 @@ public class AlquilerDao {
 
 	public Alquiler getAlquilerById(long id) {
 		Alquiler alquiler = null;
-		    try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    	EntityManager manager = emf.createEntityManager();) {
+		    try (EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
 		    	alquiler = manager.find(Alquiler.class, id);	        
-		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
+		        manager.getTransaction().commit();
 		    }
 		    
 		return alquiler;
@@ -47,24 +55,22 @@ public class AlquilerDao {
 
 	public List<Alquiler> getAlquileresByPlateAndDate(String plate, LocalDate[] dates) {
 		List<Alquiler> alquileres = null;
-		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    EntityManager manager = emf.createEntityManager();) {
+		try (EntityManager manager = emf.createEntityManager();) {
 		        
 				StringBuilder query = new StringBuilder("select a FROM Alquiler a WHERE lower(a.vehicle.plate) like :filterplate ");
 		    	
 				if(dates != null)
-					if(dates.length == 2) 
-						query.append("AND a.start BETWEEN :start AND :end OR a.end BETWEEN :start AND :end OR (a.start < :start AND a.end > :end) ");
+					query.append("AND a.start BETWEEN :start AND :end OR a.end BETWEEN :start AND :end OR (a.start < :start AND a.end > :end) ");
 				
 				query.append("ORDER BY a.end desc");
 		    					
 				manager.getTransaction().begin();
 		        TypedQuery<Alquiler> queryResult = manager.createQuery(query.toString() , Alquiler.class)
 		    					   									.setParameter("filterplate", plate.toLowerCase()+ "%");       
-				if(dates != null)
-					if(dates.length == 2) 
-						queryResult.setParameter("start", dates[0]).setParameter("end", dates[1]);//.setParameter("start", dates[0]).setParameter("end", dates[1]);
-		    	
+				
+		        if(dates != null)
+					queryResult.setParameter("start", dates[0]).setParameter("end", dates[1]);
+		        
 		        alquileres = queryResult.getResultList();
 		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
 		}

@@ -20,24 +20,31 @@ public class Cliente {
 	private String name;
 	private String adress;
 	private String phone;
+	private String dni;
+	private String cuil;
 
 		public Cliente() {
 			//Constructor por defecto NECESARIO
 		}
 		
-		public Cliente(long id, String name, String adress, String phone) {
+		public Cliente(long id, String name, String adress, String phone, String dni,  String cuil) {
 			super();
 			this.id = id;
 			this.name = name;
 			this.adress = adress;
 			this.phone = phone;
+			this.dni=dni;
+			this.cuil=cuil;
 		}
 
-		public Cliente(String name, String adress, String phone) {
+		public Cliente(String name, String adress, String phone, String dni,  String cuil) {
 			super();
+			this.id=null;
 			this.name = name;
 			this.adress = adress;
 			this.phone = phone;
+			this.dni=dni;
+			this.cuil=cuil;
 		}
 
 		public Long getId() {
@@ -93,6 +100,22 @@ public class Cliente {
 			Cliente other = (Cliente) obj;
 			return Objects.equals(adress, other.adress) && id == other.id && Objects.equals(name, other.name)
 					&& Objects.equals(phone, other.phone);
+		}
+
+		public String getDni() {
+			return dni;
+		}
+
+		public void setDni(String dni) {
+			this.dni = dni;
+		}
+
+		public String getCuil() {
+			return cuil;
+		}
+
+		public void setCuil(String cuil) {
+			this.cuil = cuil;
 		}
 
 	
