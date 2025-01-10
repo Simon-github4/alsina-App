@@ -52,12 +52,29 @@ public class ClienteDao {
 
 	public List<Cliente> getClientes(){
 		List<Cliente> clientes = null;
-		try (//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-		    EntityManager manager = emf.createEntityManager();) {
+		try (EntityManager manager = emf.createEntityManager();) {
 		        
 		    	manager.getTransaction().begin();
-		    	clientes = manager.createQuery("select c FROM Cliente c ORDER BY c.name ASC", Cliente.class).getResultList();       
-		        manager.getTransaction().commit();// Confirmar la transacción (aunque find no modifica, es una buena práctica)
+		    	clientes = manager.createQuery("select c FROM Cliente c ORDER BY c.name ASC", Cliente.class)
+		    						.getResultList();       
+		        manager.getTransaction().commit();
+		        		        
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+			
+		return clientes;
+		
+	}
+	
+	public List<Cliente> getClientes(String name){
+		List<Cliente> clientes = null;
+		try (EntityManager manager = emf.createEntityManager();) {
+		        
+		    	manager.getTransaction().begin();
+		    	clientes = manager.createQuery("select c FROM Cliente c WHERE lower(c.name) like :filtername ORDER BY c.name ASC", Cliente.class)
+		    						.setParameter("filtername", "%"+name.toLowerCase()+"%").getResultList();       
+		        manager.getTransaction().commit();
 		        		        
 		    } catch (Exception e) {
 		        e.printStackTrace();

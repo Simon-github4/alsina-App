@@ -264,7 +264,7 @@ private static final long serialVersionUID = 1L;
 			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
 			
 			JPanel vert = new JPanel(new GridLayout(0,1));
-			vert.add(new JLabel(""));
+			//vert.add(new JLabel(""));
 			vert.add(new JLabel("Patente"));
 			searchTextField = new JTextField();
 			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
@@ -276,7 +276,7 @@ private static final long serialVersionUID = 1L;
 			searchTextField.setPreferredSize(new Dimension(180, 80));
 			filterBrandComboBox.setPreferredSize(new Dimension(180, 80));
 			vert.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Buscar/Filtrar", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
-			vert.add(new JLabel(""));
+			//vert.add(new JLabel(""));
 			searchButton =new JButton("Buscar");
 			searchButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -297,7 +297,7 @@ private static final long serialVersionUID = 1L;
 				public void actionPerformed(ActionEvent e) {
 					JFrame dateFrame = new JFrame();
 					dateFrame.setLayout(new BorderLayout());
-					dateFrame.setSize(300, 300);
+					dateFrame.setSize(500, 350);
 					dateFrame.setVisible(true);
 					dateFrame.setLocationRelativeTo(null);
 					dateFrame.setAlwaysOnTop(true);
@@ -330,14 +330,33 @@ private static final long serialVersionUID = 1L;
 			});
 			viewAvailableCarsButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(viewAvailableCarsButton);
+			JButton newRentButton =new JButton("Nuevo Contrato");
+			newRentButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if(table.getSelectedRow()==-1)
+						setMessage("Ningun Vehiculo seleccionado", false);
+					else { 
+						JTabbedPane t = getTabbedPane();
+						t.setSelectedIndex(1);
+						AlquileresForm a = (AlquileresForm)t.getSelectedComponent();
+						a.getVehicleTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
+					}
+				}
+			});
+			newRentButton.setPreferredSize(new Dimension(180, 160));
+			vert.add(newRentButton);
 			JButton viewRentsButton =new JButton("Ver Alquileres");
 			viewRentsButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					JTabbedPane t = getTabbedPane();
-					t.setSelectedIndex(1);
-					AlquileresForm a = (AlquileresForm)t.getSelectedComponent();
-					a.getSearchTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
-					a.getSearchButton().doClick();
+					if(table.getSelectedRow()==-1)
+						setMessage("Ningun Vehiculo seleccionado", false);
+					else { 
+						JTabbedPane t = getTabbedPane();
+						t.setSelectedIndex(2);
+						AlquileresHistorial a = (AlquileresHistorial)t.getSelectedComponent();
+						a.getSearchTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
+						a.getSearchButton().doClick();
+					}
 				}
 			});
 			viewRentsButton.setPreferredSize(new Dimension(180, 160));
@@ -350,13 +369,15 @@ private static final long serialVersionUID = 1L;
 						setMessage("Ningun Vehiculo seleccionado", false);
 					else { 
 							String plate = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
-							Dashboard.openGastos(plate);
+							
+							//Dashboard.openGastos(plate);
 					}
 				}});
 			gastosButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(gastosButton);
 			//vert.add(new JLabel(""));
 			
+			west.setPreferredSize(new Dimension(215, 160));
 			west.add(vert);
 			contentPane.add(west, BorderLayout.WEST);
 
@@ -397,7 +418,7 @@ private static final long serialVersionUID = 1L;
 				Marca m = (Marca)brandComboBox.getSelectedItem();
 				Sucursal s = (Sucursal)branchComboBox.getSelectedItem();			
 				int franchise = Integer.parseInt(franchiseTextField.getText());
-
+				
 				VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, franchise, year, km,  plate, model,  m, s);
 				if(table.getSelectedRow() != -1) {
 					Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 9);

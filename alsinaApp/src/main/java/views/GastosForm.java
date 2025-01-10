@@ -59,10 +59,6 @@ public class GastosForm extends JPanel{
 
 	private JPanel contentPane;
 	private JPanel inputPanel;
-	private JPanel west;
-	private JPanel tablePanel;
-	private JTable table;
-	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
 	
 	private JTextField vehicleTextField;
@@ -72,27 +68,21 @@ public class GastosForm extends JPanel{
 	private JFormattedTextField date;
 	private JComboBox<Sucursal> branchComboBox;
 	private JComboBox<Destino> destinationComboBox;
-
-	private JTextField searchTextField;
-	private JFormattedTextField filterDatesField;
-	private DatePicker dpFilters;
 	private DatePicker dp;
-	private JButton searchButton;
 	
-	private AlquilerDao AlquilerDao;
 	private VehiculoDao VehiculoDao;
 	private SucursalDao SucursalDao;
 	private GastoDao GastoDao;
 	private DestinoDao DestinoDao;
-	private JComboBox<Sucursal> filterBranchComboBox;
-	private JLabel totalLabel;
+	private JLabel title;
+	private Long id;
 	
-	public GastosForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, SucursalDao SucursalDao, GastoDao GastoDao, DestinoDao DestinoDao) {
-			this.AlquilerDao= alquilerDao;	
+	public GastosForm(VehiculoDao vehiculoDao, SucursalDao SucursalDao, GastoDao GastoDao, DestinoDao DestinoDao) {
 			this.VehiculoDao = vehiculoDao;
 			this.SucursalDao = SucursalDao;
 			this.GastoDao = GastoDao;
 			this.DestinoDao = DestinoDao;
+			this.id=null;
 			
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -103,50 +93,24 @@ public class GastosForm extends JPanel{
 			this.add(contentPane, BorderLayout.CENTER);
 			
 			inputPanel = new JPanel();
-			inputPanel.setBorder(new LineBorder(new Color(84, 173, 253 ), 2, true));
+			//inputPanel.setBorder(new LineBorder(new Color(84, 173, 253 ), 2, true));
 			inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-			contentPane.add(inputPanel, BorderLayout.NORTH);		
+			contentPane.add(inputPanel, BorderLayout.CENTER);		
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			JLabel titulo = new JLabel("GASTOS", JLabel.CENTER);
-			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
-			horizontalPanel.add(titulo);		
-			inputPanel.add(horizontalPanel);
-
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 9));
-			inputPanel.add(horizontalPanel);		
+			title = new JLabel("GASTOS", JLabel.CENTER);
+			title.setFont(new Font("Montserrat Black", Font.BOLD, 46));
+			horizontalPanel.add(title);		
+			inputPanel.add(horizontalPanel);	
 			
-			horizontalPanel = new JPanel(new GridLayout());
+			horizontalPanel = new JPanel(new GridLayout(0,3));
 			horizontalPanel.add(new JLabel("Vehiculo", JLabel.RIGHT));
 			vehicleTextField = new JTextField();
+			vehicleTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Opcional");
 			horizontalPanel.add(vehicleTextField);
-			horizontalPanel.add(new JLabel("Importe", JLabel.RIGHT));
-			amountTextField = new JTextField(10);
-			horizontalPanel.add(amountTextField);
-			horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
-			descriptionTextField = new JTextField();
-			horizontalPanel.add(descriptionTextField);
-			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
-
-			inputPanel.add(horizontalPanel);		
+			horizontalPanel.add(new JLabel(""));
 			
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel("Destino", JLabel.RIGHT));
-			destinationComboBox = new JComboBox<Destino>();
-			horizontalPanel.add(destinationComboBox);
-			horizontalPanel.add(new JLabel("Forma de Pago", JLabel.RIGHT));
-			paymentTextField = new JTextField();
-			horizontalPanel.add(paymentTextField);
-
-			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
-			inputPanel.add(horizontalPanel);		
-			
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel("Consecionaria", JLabel.RIGHT));
-			branchComboBox = new JComboBox<Sucursal>();
-			horizontalPanel.add(branchComboBox);
 			horizontalPanel.add(new JLabel("Fecha", JLabel.RIGHT));
 			dp = new DatePicker();
 			dp.setDateSelectionMode(DatePicker.DateSelectionMode.SINGLE_DATE_SELECTED);
@@ -157,9 +121,42 @@ public class GastosForm extends JPanel{
 			dp.setEditor(date);
 			horizontalPanel.add(date);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+			
+			horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
+			descriptionTextField = new JTextField();
+			horizontalPanel.add(descriptionTextField);
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+
 			inputPanel.add(horizontalPanel);		
 			
-			horizontalPanel = new JPanel(new FlowLayout());
+			horizontalPanel.add(new JLabel("Destino", JLabel.RIGHT));
+			destinationComboBox = new JComboBox<Destino>();
+			horizontalPanel.add(destinationComboBox);
+			horizontalPanel.add(new JLabel(""));
+
+			
+			horizontalPanel = new JPanel(new GridLayout(0,3));
+			horizontalPanel.add(new JLabel("Consecionaria", JLabel.RIGHT));
+			branchComboBox = new JComboBox<Sucursal>();
+			horizontalPanel.add(branchComboBox);
+			horizontalPanel.add(new JLabel(""));
+
+			horizontalPanel.add(new JLabel("Forma de Pago", JLabel.RIGHT));
+			paymentTextField = new JTextField();
+			horizontalPanel.add(paymentTextField);
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+			
+			horizontalPanel.add(new JLabel("Importe", JLabel.RIGHT));
+			amountTextField = new JTextField(10);
+			amountTextField.setBackground(Color.YELLOW);
+			horizontalPanel.add(amountTextField);
+			horizontalPanel.add(new JLabel(""));
+			
+			inputPanel.add(horizontalPanel);		
+			
+			horizontalPanel = new JPanel(new GridLayout(0,4));
+			horizontalPanel.add(new JLabel(""));
+
 			JButton confirm = new JButton("Confirmar");
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -168,97 +165,29 @@ public class GastosForm extends JPanel{
 								insert();				
 
 				}});
-	        confirm.setPreferredSize(new Dimension(250,40));
-			JButton delete = new JButton("Eliminar");
-			delete.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if(table.getSelectedRow() != -1)
-						delete();
-					else setMessage("Seleccione un Vehiculo para eliminar", false);
-				}
-			});
-			delete.setPreferredSize(new Dimension(250,40));
+	        confirm.setPreferredSize(new Dimension(WIDTH, 80));
 			JButton cancel = new JButton("Cancelar");
 			cancel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					clearFields();
 				}
 			});
-			cancel.setPreferredSize(new Dimension(250,40));
-
+			cancel.setPreferredSize(new Dimension(WIDTH, 80));
 			horizontalPanel.add(confirm);
-			horizontalPanel.add(delete);
-			horizontalPanel.add(cancel);		
+			horizontalPanel.add(cancel);	
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel(""));
+
+			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 80));
 			inputPanel.add(horizontalPanel);		
-			
-			
-			tableModel = new DefaultTableModel(){
-	            @Override
-	            public boolean isCellEditable(int row, int column) {
-	                return false; // Hacer que todas las celdas sean no editables
-	            }
-	        };
-	        tableModel.addColumn("Vehiculo");
-	        tableModel.addColumn("Fecha");
-	        tableModel.addColumn("Descripcion");
-	        tableModel.addColumn("Importe");
-	        tableModel.addColumn("Destino");
-	        tableModel.addColumn("Forma de Pago");
-	        tableModel.addColumn("Consecionaria");
-	        tableModel.addColumn("Id");
-	        
-			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(7).setMaxWidth(0);
-			table.getColumnModel().getColumn(7).setMinWidth(0);
-			table.getColumnModel().getColumn(7).setPreferredWidth(0);
-			table.getColumnModel().getColumn(3).setPreferredWidth(80);
-			table.getColumnModel().getColumn(4).setPreferredWidth(100);
-			table.setShowGrid(true);
-			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-				@Override
-				public void valueChanged(ListSelectionEvent e) {
-	                if (!e.getValueIsAdjusting()) {
-	                	int row = table.getSelectedRow();
-	                	if(row != -1){
-	                		VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
-							LocalDate date = (LocalDate) tableModel.getValueAt(row, 1);
-							String description = (String) tableModel.getValueAt(row, 2);
-							int amount = (int) tableModel.getValueAt(row, 3);
-							Destino destination = (Destino) tableModel.getValueAt(row, 4);
-							String pay = (String) tableModel.getValueAt(row, 5);
-							Sucursal branch = (Sucursal) tableModel.getValueAt(row, 6);
-							
-							if(vehicle != null)
-								vehicleTextField.setText(vehicle.getPlate());
-							dp.setSelectedDate(date);
-							descriptionTextField.setText(description);
-							amountTextField.setText(String.valueOf(amount));
-							paymentTextField.setText(String.valueOf(pay));
-							branchComboBox.setSelectedItem(branch);
-							destinationComboBox.setSelectedItem(destination);
-	                	}
-	                }
-				}
-				
-			});
-			
-			tablePanel = new JPanel();
-			tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
-			contentPane.add(tablePanel, BorderLayout.CENTER);
-			
-			JScrollPane scroll = new JScrollPane(table);
-			
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(scroll);
-			tablePanel.add(horizontalPanel);			
 			
 	        JPanel south = new JPanel();
 	        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
 
 			horizontalPanel = new JPanel(new GridLayout());
-			totalLabel = new JLabel("Total: $", JLabel.CENTER);
-			totalLabel.setFont(new Font("Montserrat", Font.BOLD, 23));
-			horizontalPanel.add(totalLabel);
 			south.add(horizontalPanel);
 			
 			horizontalPanel = new JPanel(new GridLayout());
@@ -273,72 +202,26 @@ public class GastosForm extends JPanel{
 			south.add(horizontalPanel);
 			contentPane.add(south, BorderLayout.SOUTH);
 
-			west = new JPanel();
-			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
-			west.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Buscar/Filtrar", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
-			
-			JPanel vert = new JPanel(new GridLayout(0,1));
-			vert.add(new JLabel("Patente"));
-			searchTextField = new JTextField();
-			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
-			searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
-			vert.add(searchTextField);
-			vert.add(new JLabel("Fechas"));
-			dpFilters = new DatePicker();
-			dpFilters.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
-			dpFilters.setUsePanelOption(true);
-			dpFilters.setBackground(Color.GRAY);
-			dpFilters.setDateFormat("yyyy/MM/dd");
-			filterDatesField = new JFormattedTextField();
-			dpFilters.setEditor(filterDatesField);
-			vert.add(filterDatesField);
-			vert.add(new JLabel("Consecionaria", JLabel.LEFT));
-			filterBranchComboBox = new JComboBox<Sucursal>();
-			vert.add(filterBranchComboBox);
-			vert.add(new JLabel(""));
-			searchButton =new JButton("Buscar");
-			searchButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					loadTable(searchTextField.getText(), dpFilters.getSelectedDateRange(), (Sucursal)filterBranchComboBox.getSelectedItem());
-				}
-			});
-			vert.add(searchButton);
-			searchTextField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if(e.getKeyCode() == KeyEvent.VK_ENTER)
-						searchButton.doClick();
-				}
-			});
-			west.add(vert);
-			vert.setPreferredSize(new Dimension(200, HEIGHT));
-			contentPane.add(west, BorderLayout.WEST);
-
 			fillBranchs();
 			fillDestinations();
 			clearFields();
-			searchButton.doClick();
 		}	
 	
 		private void fillBranchs() {
 			branchComboBox.addItem(new Sucursal("Seleccione una Consecionaria"));
-			filterBranchComboBox.addItem(new Sucursal("Seleccione una Consecionaria"));
 
 			List<Sucursal> sucursales = SucursalDao.getSucursales();
-			for(Sucursal s : sucursales) {
+			for(Sucursal s : sucursales) 
 				branchComboBox.addItem(s);
-				filterBranchComboBox.addItem(s);
 				
-			}
 		}
 
 		private void fillDestinations() {
 			destinationComboBox.addItem(new Destino("Seleccione un Destino"));
-
+			
 			List<Destino> destinos = DestinoDao.getDestinos();
-			for(Destino s : destinos) {
+			for(Destino s : destinos) 
 				destinationComboBox.addItem(s);
-			}
 		}
 		
 		private void insert() {
@@ -360,13 +243,16 @@ public class GastosForm extends JPanel{
 				Destino dest = (Destino)destinationComboBox.getSelectedItem();
 				
 				Gasto g = new Gasto(vehicle, amount, date, description, pay, dest, branch);
-				if(table.getSelectedRow() != -1) {
-					Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 7);
+
+				if(id != null) {
 					g.setId(id);
+					GastoDao.save(g);
+					title.setText("NUEVO ALQUILER");			
+					id = null;
+					setMessage("Modificado correctamente", true);
 				}
 				GastoDao.save(g);
 				clearFields();
-				searchButton.doClick();
 				setMessage("Insertado correctamente", true);
 
 			} catch (NumberFormatException e2) {
@@ -377,35 +263,6 @@ public class GastosForm extends JPanel{
 				setMessage("Ha ocurrido un Error:" + e3.getLocalizedMessage(), false);
 			}
 
-		}
-		
-		private void delete() {
-			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 7);
-			
-			try {
-				if(JOptionPane.showConfirmDialog(null, "Desea eliminar el alquiler: "+id ,"", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-					AlquilerDao.delete(id);
-					clearFields();
-					searchButton.doClick();
-					setMessage("Eliminado correctamente", true);
-				}
-			}catch(Exception e) {
-				setMessage(e.getCause().getMessage(), false);
-			}
-			
-		}
-		
-		private void loadTable(String plate, LocalDate[] dates, Sucursal branch) {
-			tableModel.setRowCount(0);
-			long total =0;
-	        
-			List<Gasto> gastos = GastoDao.getGastosByFilters(plate.toLowerCase(), dates, branch);			
-			for(Gasto a : gastos) {
-				Object[] row = {a.getVehicle(), a.getDate(), a.getDescription(), a.getAmount(), a.getDestination(), a.getPayment(), a.getBranch(), a.getId()};
-				tableModel.addRow(row);
-				total += a.getAmount();
-			}
-	        totalLabel.setText("Total: $"+ total);
 		}
 		
 		private boolean validateFields() {
@@ -421,19 +278,14 @@ public class GastosForm extends JPanel{
 					if(!dp.isDateSelected()) {
 						setMessage("Seleccione Fechas validas", false);
 						return false;	
-					}
-					
-					/*if(Integer.parseInt(kilometersDepartureTextField.getText()) > Integer.parseInt(kilometersReturnTextField.getText())) {
-						setMessage("KM de retorno no puede ser menor a Salida", false);
-						return false;
-					}*/
-			
+					}			
 			}catch (NumberFormatException e) {
 				setMessage("Asegurese de que todos los campos tengan formato valido.", false);
 				return false;
 			}
 			return true;	
 		}
+		
 
 		private void setMessage(String message, boolean succes) {
 			messageLabel.setText(message);
@@ -452,21 +304,23 @@ public class GastosForm extends JPanel{
 			paymentTextField.setText("");
 			branchComboBox.setSelectedIndex(0);
 			destinationComboBox.setSelectedIndex(0);
-			/*searchTextField.setText("");
-			dpFilters.clearSelectedDate();*/
-			
-			totalLabel.setText("Total: $");
+	
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
-	        table.clearSelection();
 		}
 
-		public JTextField getSearchTextField() {
-			return searchTextField;
+		public void setUpdateForm(Gasto g) {
+			title.setText("MODIFICANDO GASTO");
+			id = g.getId();
+			
+			if(g.getVehicle() != null)
+				vehicleTextField.setText(g.getVehicle().getPlate());
+			dp.setSelectedDate(g.getDate());
+			descriptionTextField.setText(g.getDescription());
+			amountTextField.setText(String.valueOf(g.getAmount()));
+			paymentTextField.setText(String.valueOf(g.getPayment()));
+			branchComboBox.setSelectedItem(g.getBranch());
+			destinationComboBox.setSelectedItem(g.getDestination());
 		}
-
-		public JButton getSearchButton() {
-			return searchButton;
-		}
-	
+		
 }

@@ -58,7 +58,6 @@ public class ClientesForm extends JPanel{
 			ClienteDao=cdao;
 		
 			contentPane = new JPanel();
-			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));
 			contentPane.setPreferredSize(new Dimension(1100, 750));
 			this.setSize(1100, 850);
@@ -66,6 +65,7 @@ public class ClientesForm extends JPanel{
 			this.add(contentPane, BorderLayout.CENTER);
 			
 			inputPanel = new JPanel();
+			inputPanel.setBorder(new EmptyBorder(0,0,0,25));
 			inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
 			contentPane.add(inputPanel, BorderLayout.NORTH);		
 
@@ -80,38 +80,58 @@ public class ClientesForm extends JPanel{
 			horizontalPanel.add(new JLabel("Nombre/s", JLabel.RIGHT));
 			nameTextField = new JTextField("",30);
 			horizontalPanel.add(nameTextField);
+			horizontalPanel.add(new JLabel("Domicilio", JLabel.RIGHT));
+			adressTextField = new JTextField("",30);
+			horizontalPanel.add(adressTextField);
 			horizontalPanel.add(new JLabel("Id", JLabel.RIGHT));
 			idTextField = new JTextField(10);	 idTextField.setEditable(false);
 			horizontalPanel.add(idTextField);
-			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel("Direccion", JLabel.RIGHT));
-			adressTextField = new JTextField("",30);
-			horizontalPanel.add(adressTextField);
+			
 			horizontalPanel.add(new JLabel("Telefono", JLabel.RIGHT));
 			phoneTextField = new JTextField(10);
-			horizontalPanel.add(phoneTextField);
-			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
-			inputPanel.add(horizontalPanel);		
-			
-			horizontalPanel = new JPanel(new GridLayout());
+			horizontalPanel.add(phoneTextField);			
 			horizontalPanel.add(new JLabel("D.N.I", JLabel.RIGHT));
 			dniTextField = new JTextField("",30);
 			horizontalPanel.add(dniTextField);
 			horizontalPanel.add(new JLabel("Cuit/Cuil", JLabel.RIGHT));
 			cuitTextField = new JTextField(10);
 			horizontalPanel.add(cuitTextField);
-			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);	
 			
 			horizontalPanel = new JPanel(new GridLayout());
-			//horizontalPanel.setPreferredSize(new Dimension(WIDTH, 15));
+			horizontalPanel.add(new JLabel("Licencia de Conducir", JLabel.RIGHT));
+			phoneTextField = new JTextField(10);
+			horizontalPanel.add(phoneTextField);			
+			horizontalPanel.add(new JLabel("Vencimiento", JLabel.RIGHT));
+			dniTextField = new JTextField("",30);
+			horizontalPanel.add(dniTextField);
+			horizontalPanel.add(new JLabel("Cod.Seg./Autor", JLabel.RIGHT));
+			cuitTextField = new JTextField(10);
+			horizontalPanel.add(cuitTextField);
+			inputPanel.add(horizontalPanel);
+			
+			horizontalPanel = new JPanel(new GridLayout());
+			horizontalPanel.add(new JLabel("Tarjeta", JLabel.RIGHT));
+			phoneTextField = new JTextField(10);
+			horizontalPanel.add(phoneTextField);			
+			horizontalPanel.add(new JLabel("Codigo Tarjeta", JLabel.RIGHT));
+			dniTextField = new JTextField("",30);
+			horizontalPanel.add(dniTextField);
+			horizontalPanel.add(new JLabel("Tarjeta Vencimiento", JLabel.RIGHT));
+			cuitTextField = new JTextField(10);
+			horizontalPanel.add(cuitTextField);
+			inputPanel.add(horizontalPanel);	
+			
+			
+			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel(""));
 			horizontalPanel.add(new JLabel("Buscar por Nombre", JLabel.RIGHT));
 			searchTextField = new JTextField(); 
 			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
+			searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
 			searchTextField.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
@@ -279,7 +299,7 @@ public class ClientesForm extends JPanel{
 		private void loadTable(String name) {
 	        tableModel.setRowCount(0);
 
-			List<Cliente> clientes = ClienteDao.getClientes();
+			List<Cliente> clientes = ClienteDao.getClientes(name);
 			for(Cliente m : clientes) {
 				Object[] row = {m.getName(), m.getAdress(), m.getPhone(), m.getDni(), m.getCuil(), m.getId()};
 				tableModel.addRow(row);
@@ -316,6 +336,7 @@ public class ClientesForm extends JPanel{
 			phoneTextField.setText("");
 			dniTextField.setText("");
 			cuitTextField.setText("");
+			searchTextField.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
 		}

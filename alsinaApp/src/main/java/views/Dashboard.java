@@ -2,7 +2,6 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -18,13 +17,13 @@ import com.formdev.flatlaf.FlatIntelliJLaf;
 
 import entityManagers.AlquilerDao;
 import entityManagers.ClienteDao;
+import entityManagers.DestinoDao;
+import entityManagers.GastoDao;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import entityManagers.DestinoDao;
-import entityManagers.GastoDao;
 
 public class Dashboard extends JFrame{
 
@@ -83,26 +82,17 @@ public class Dashboard extends JFrame{
 		JButton btnNewButton = new JButton("Gastos");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				openGastos(null);
+				CajaFrame g = new CajaFrame(GastoDao, SucursalDao, AlquilerDao, VehiculoDao, DestinoDao);
+				g.setVisible(true);
 			}
 		});
 		btnNewButton.setBounds(45, 320, 628, 62);
 		mainPanel.add(btnNewButton);
 		
-		for(Component b : mainPanel.getComponents()) {
+		/*for(Component b : mainPanel.getComponents()) {
 			//((JButton) b).setBorder(BorderFactory.createLineBorder(Color.ORANGE, 3, true));
-		}
+		}*/
 		
-	}
-
-	public static void openGastos(String plateFilter) {
-		JFrame f = new JFrame();
-		GastosForm g = new GastosForm(AlquilerDao, VehiculoDao, SucursalDao, GastoDao, DestinoDao);
-		f.setContentPane(g);
-		f.setVisible(true);
-		f.setSize(1100, 850);
-		g.getSearchTextField().setText(plateFilter);
-		g.getSearchButton().doClick();
 	}
 	
 	private void setStyling() {
@@ -117,7 +107,7 @@ public class Dashboard extends JFrame{
 		UIManager.put("TextComponent.arc", 10);		
 		UIManager.put("Component.arc", 10);		
 		UIManager.put("Component.innerFocusWidth", 1);		
-		UIManager.put("Table.alternateRowColor", Color.LIGHT_GRAY);
+		UIManager.put("Table.alternateRowColor", new Color(225,225,225));
 	    
 		UIManager.put("defaultFont", new Font("Montserrat", Font.TYPE1_FONT, 15));
 		

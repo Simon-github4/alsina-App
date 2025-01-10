@@ -12,7 +12,7 @@ public class VehiculoAlquilable extends Vehiculo{
 
 	private int price;
 	private String ensurance;
-	//@Column(columnDefinition = "int default 18")
+	@Column(columnDefinition = "int default 18")
 	private int ensuranceFranchise ;
 	
 	public VehiculoAlquilable() {}
@@ -25,6 +25,7 @@ public class VehiculoAlquilable extends Vehiculo{
 	
 	public VehiculoAlquilable(int price, String ensurance, int franchise, int year, int kilometers,  String plate, String model, Marca brand, Sucursal branch) {
 		super(year, kilometers, plate, model, brand, branch);
+		this.ensuranceFranchise=franchise;
 		this.price = price;
 		this.ensurance = ensurance;
 	}

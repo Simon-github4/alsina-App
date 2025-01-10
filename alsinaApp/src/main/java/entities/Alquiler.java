@@ -146,7 +146,7 @@ public class Alquiler {
 		hoja.createRow(43).createCell(9).setCellValue(vehicle.getEnsuranceFranchise());	
 
 		int gasExitColumn = -1;
-		if(getGasExit().equalsIgnoreCase("1/8"))
+		if(getGasExit().equalsIgnoreCase("RESERVA"))
 			gasExitColumn = 12;
 		else if(getGasExit().equalsIgnoreCase("1/4"))
 			gasExitColumn=13;
@@ -154,11 +154,11 @@ public class Alquiler {
 			gasExitColumn=14;
 		else if(getGasExit().equalsIgnoreCase("3/4"))
 			gasExitColumn=15;
-		else if(getGasExit().equalsIgnoreCase("f"))
+		else if(getGasExit().equalsIgnoreCase("FULL"))
 			gasExitColumn=15;
 
 		int gasReturnColumn = -1;
-		if(getGasExit().equalsIgnoreCase("1/8"))
+		if(getGasExit().equalsIgnoreCase("RESERVA"))
 			gasReturnColumn = 12;
 		else if(getGasReturn().equalsIgnoreCase("1/4"))
 			gasReturnColumn=13;
@@ -166,7 +166,7 @@ public class Alquiler {
 			gasReturnColumn=14;
 		else if(getGasReturn().equalsIgnoreCase("3/4"))
 			gasReturnColumn=15;
-		else if(getGasReturn().equalsIgnoreCase("f"))
+		else if(getGasReturn().equalsIgnoreCase("FULL"))
 			gasReturnColumn=15;
 
 		hoja.getRow(exitrow).createCell(gasExitColumn).setCellValue("X");

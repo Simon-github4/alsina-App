@@ -3,6 +3,7 @@ package entityManagers;
 import java.time.LocalDate;
 import java.util.List;
 
+import entities.Destino;
 import entities.Gasto;
 import entities.Marca;
 import entities.Sucursal;
@@ -52,7 +53,7 @@ public class GastoDao {
 	}
 
 	
-	public List<Gasto> getGastosByFilters(String plate, LocalDate[] dates, Sucursal branch){
+	public List<Gasto> getGastosByFilters(String plate, LocalDate[] dates, Sucursal branch, Destino destination){
 		List<Gasto> gastos = null;
 		try (EntityManager manager = emf.createEntityManager();) {
 		        
@@ -69,6 +70,9 @@ public class GastoDao {
 		          if (branch.getId() != null) 
 		              queryString.append(" AND e.branch = :branch ");
 		          
+		          if (destination.getId() != null) 
+		              queryString.append(" AND e.destination = :destination ");
+		   
 		          queryString.append("ORDER BY e.id desc ");
 		          
 		          TypedQuery<Gasto> query = manager.createQuery(queryString.toString(), Gasto.class);
@@ -83,7 +87,9 @@ public class GastoDao {
 		          if (branch.getId() != null) 
 		              query.setParameter("branch", branch);
 		          
-		    	
+		          if (destination.getId() != null) 
+		              query.setParameter("destination", destination);
+		          
 		    	gastos = query.getResultList();       
 		        manager.getTransaction().commit();
 		        		        

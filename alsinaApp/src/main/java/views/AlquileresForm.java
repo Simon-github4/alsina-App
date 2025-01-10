@@ -2,7 +2,6 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Desktop;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -11,18 +10,15 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalAccessor;
-import java.util.Date;
 import java.util.List;
 
 import javax.swing.BoxLayout;
+import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
@@ -40,27 +36,16 @@ import javax.swing.border.TitledBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-import javax.swing.text.DateFormatter;
-
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.hibernate.exception.ConstraintViolationException;
-import org.postgresql.util.PSQLException;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
 import entities.Alquiler;
 import entities.Cliente;
-import entities.Marca;
-import entities.Sucursal;
-import entities.Vehiculo;
 import entities.VehiculoAlquilable;
 import entityManagers.AlquilerDao;
 import entityManagers.ClienteDao;
 import entityManagers.VehiculoDao;
+import interfaces.EnumCombustible;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
@@ -85,6 +70,7 @@ private static final long serialVersionUID = 1L;
 	private JTextField priceTextField;
 	private JFormattedTextField dates;
 	private JComboBox<Cliente> clientComboBox;
+	private Long id;
 	
 	private JTextField searchTextField;
 	private JFormattedTextField filterDatesField;
@@ -96,14 +82,17 @@ private static final long serialVersionUID = 1L;
 	private VehiculoDao VehiculoDao;
 	private ClienteDao ClienteDao;
 
-	private JTextField gasExitTextField;
+	private JComboBox<String> gasExitComboBox;
+	private JComboBox<String> gasReturnComboBox;
+	private JLabel title;
 
-	private JTextField gasReturnTextField;
+	private JLabel labelSuggestedAmount;
 
 	public AlquileresForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, ClienteDao clienteDao) {
 			this.AlquilerDao= alquilerDao;	
 			this.VehiculoDao = vehiculoDao;
 			this.ClienteDao = clienteDao;
+			this.id=null;
 			
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -114,64 +103,82 @@ private static final long serialVersionUID = 1L;
 			this.add(contentPane, BorderLayout.CENTER);
 			
 			inputPanel = new JPanel();
-			inputPanel.setBorder(new LineBorder(new Color(84, 173, 253 ), 2, true));
+			//inputPanel.setBorder(new LineBorder(new Color(84, 173, 253 ), 2, true));
 			inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-			contentPane.add(inputPanel, BorderLayout.NORTH);		
+			contentPane.add(inputPanel, BorderLayout.CENTER);		
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			JLabel titulo = new JLabel("ALQUILERES", JLabel.CENTER);
-			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
-			horizontalPanel.add(titulo);		
+			title = new JLabel("NUEVO CONTRATO", JLabel.CENTER);
+			title.setFont(new Font("Montserrat Black", Font.BOLD, 46));
+			horizontalPanel.add(title);		
 			inputPanel.add(horizontalPanel);
-
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 9));
-			inputPanel.add(horizontalPanel);		
 			
-			horizontalPanel = new JPanel(new GridLayout());
+			horizontalPanel = new JPanel(new GridLayout(0,3));
+			
 			horizontalPanel.add(new JLabel("Vehiculo", JLabel.RIGHT));
 			vehicleTextField = new JTextField();
 			horizontalPanel.add(vehicleTextField);
-			horizontalPanel.add(new JLabel("Monto Total", JLabel.RIGHT));
-			priceTextField = new JTextField(10);
-			horizontalPanel.add(priceTextField);
-
-			//inputPanel.add(horizontalPanel);		
-			
-			//horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel("Kilometros Salida", JLabel.RIGHT));
-			kilometersDepartureTextField = new JTextField();
-			horizontalPanel.add(kilometersDepartureTextField);
-			horizontalPanel.add(new JLabel("Kilometros Retorno", JLabel.RIGHT));
-			kilometersReturnTextField = new JTextField();
-			horizontalPanel.add(kilometersReturnTextField);
 			horizontalPanel.add(new JLabel(""));
 			
-			inputPanel.add(horizontalPanel);		
-			
-			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Cliente", JLabel.RIGHT));
 			clientComboBox = new JComboBox<Cliente>();
 			horizontalPanel.add(clientComboBox);
+			horizontalPanel.add(new JLabel(""));
+			
 			horizontalPanel.add(new JLabel("Desde/Hasta", JLabel.RIGHT));
 			dp = new DatePicker();
 			dp.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
 			dp.setUsePanelOption(true);  
-			dates = new JFormattedTextField();
 			dp.setBackground(Color.GRAY); // Color de fondo oscuro
 			dp.setDateFormat("dd/MM/yyyy");
+			dp.addDateSelectionListener(new DateSelectionListener(){
+				@Override
+				public void dateSelected(DateSelectionEvent dateSelectionEvent) {
+					if( ! vehicleTextField.getText().isBlank()) {
+						VehiculoAlquilable vehicle = VehiculoDao.getVehiculoAlquilableByPlate(vehicleTextField.getText());
+						LocalDate[] date = dp.getSelectedDateRange(); 
+						long daysBetween = ChronoUnit.DAYS.between(date[0], date[1]);
+						int price = (int) (vehicle.getPrice() * daysBetween);
+						labelSuggestedAmount.setText("(Sugerido): " + String.valueOf(price));
+					}
+				}
+			});
+			dates = new JFormattedTextField();
 			dp.setEditor(dates);
 			horizontalPanel.add(dates);
-			horizontalPanel.add(new JLabel("Combustible Salida", JLabel.RIGHT));
-			gasExitTextField = new JTextField();
-			gasExitTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "1/8 - 1/4 - 1/2 - f");
-			horizontalPanel.add(gasExitTextField);
-			horizontalPanel.add(new JLabel("Combustible Retorno", JLabel.RIGHT));
-			gasReturnTextField = new JTextField();
-			gasReturnTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "1/8 - 1/4 - 1/2 - f");
-			horizontalPanel.add(gasReturnTextField);
 			horizontalPanel.add(new JLabel(""));
+			
+			horizontalPanel.add(new JLabel("Kilometros Salida", JLabel.RIGHT));
+			kilometersDepartureTextField = new JTextField();
+			horizontalPanel.add(kilometersDepartureTextField);
+			horizontalPanel.add(new JLabel(""));
+			
+			horizontalPanel.add(new JLabel("Kilometros Retorno", JLabel.RIGHT));
+			kilometersReturnTextField = new JTextField();
+			horizontalPanel.add(kilometersReturnTextField);
+			horizontalPanel.add(new JLabel(""));
+				
+			String[] values = {"RESERVA", "1/4", "1/2", "3/4", "FULL"};
+			
+			horizontalPanel.add(new JLabel("Combustible Salida", JLabel.RIGHT));
+			gasExitComboBox = new JComboBox<String>();
+			gasExitComboBox.setModel(new DefaultComboBoxModel<String>(values));
+			horizontalPanel.add(gasExitComboBox);
+			horizontalPanel.add(new JLabel(""));
+			
+			horizontalPanel.add(new JLabel("Combustible Retorno", JLabel.RIGHT));
+			gasReturnComboBox = new JComboBox<String>();
+			gasReturnComboBox.setModel(new DefaultComboBoxModel<String>(values));
+			horizontalPanel.add(gasReturnComboBox);
+			horizontalPanel.add(new JLabel(""));
+			
+			horizontalPanel.add(new JLabel("Monto Total", JLabel.RIGHT));
+			priceTextField = new JTextField(10);
+			priceTextField.setBackground(Color.YELLOW);
+			horizontalPanel.add(priceTextField);
+			labelSuggestedAmount = new JLabel("", JLabel.LEFT);
+			horizontalPanel.add(labelSuggestedAmount);
 
 			inputPanel.add(horizontalPanel);		
 			
@@ -179,106 +186,24 @@ private static final long serialVersionUID = 1L;
 			JButton confirm = new JButton("Confirmar");
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-
-					//if(table.getSelectedRow() == -1)
 						if(validateFields())
 								insert();
-							//else
-							//	update();					
-
 				}});
-	        confirm.setPreferredSize(new Dimension(250,40));
-			JButton delete = new JButton("Eliminar");
-			delete.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if(table.getSelectedRow() != -1)
-						delete();
-					else setMessage("Seleccione un Vehiculo para eliminar", false);
-				}
-			});
-			delete.setPreferredSize(new Dimension(250,40));
+	        confirm.setPreferredSize(new Dimension(250,80));
 			JButton cancel = new JButton("Cancelar");
 			cancel.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					clearFields();
 				}
 			});
-			cancel.setPreferredSize(new Dimension(250,40));
+			cancel.setPreferredSize(new Dimension(250,80));
 
 			horizontalPanel.add(confirm);
-			horizontalPanel.add(delete);
 			horizontalPanel.add(cancel);		
 			inputPanel.add(horizontalPanel);		
-			
-			
-			tableModel = new DefaultTableModel(){
-	            @Override
-	            public boolean isCellEditable(int row, int column) {
-	                return false; // Hacer que todas las celdas sean no editables
-	            }
-	        };
-	        tableModel.addColumn("Vehiculo");
-	        tableModel.addColumn("Inicio");
-	        tableModel.addColumn("Fin");
-	        tableModel.addColumn("Cliente");
-	        tableModel.addColumn("Monto Total");
-	        tableModel.addColumn("KM Salida");
-	        tableModel.addColumn("KM Retorno");
-	        tableModel.addColumn("Comb.Salida");
-	        tableModel.addColumn("Comb.Retorno");
-	        tableModel.addColumn("Id");
-	        
-			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(9).setMaxWidth(0);
-			table.getColumnModel().getColumn(9).setMinWidth(0);
-			table.getColumnModel().getColumn(9).setPreferredWidth(0);
-			table.getColumnModel().getColumn(3).setPreferredWidth(190);
-			table.getColumnModel().getColumn(4).setPreferredWidth(100);
-			table.getColumnModel().getColumn(5).setPreferredWidth(55);
-			table.getColumnModel().getColumn(6).setPreferredWidth(55);
-			table.getColumnModel().getColumn(7).setPreferredWidth(40);
-			table.getColumnModel().getColumn(8).setPreferredWidth(40);			
-			table.setShowGrid(true);
-			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-				@Override
-				public void valueChanged(ListSelectionEvent e) {
-	                if (!e.getValueIsAdjusting()) {
-	                	int row = table.getSelectedRow();
-	                	if(row != -1){
-	                		VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
-							LocalDate start = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-							LocalDate end = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-							Cliente client = (Cliente) tableModel.getValueAt(row, 3);
-							int price = (int) tableModel.getValueAt(row, 4);
-							int kmD = (int) tableModel.getValueAt(row, 5);
-							int kmR = (int) tableModel.getValueAt(row, 6);
-							String cbE = (String)tableModel.getValueAt(row,7);
-							String cbR = (String)tableModel.getValueAt(row, 8);
-							
-							vehicleTextField.setText(vehicle.getPlate());
-							dp.setSelectedDateRange(start, end);
-							clientComboBox.setSelectedItem(client);
-							priceTextField.setText(String.valueOf(price));
-							kilometersDepartureTextField.setText(String.valueOf(kmD));
-							kilometersReturnTextField.setText(String.valueOf(kmR));
-							gasExitTextField.setText(cbE);
-							gasReturnTextField.setText(cbR);
-	                	}
-	                }
-				}
-				
-			});
-			
-			tablePanel = new JPanel();
-			tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
-			contentPane.add(tablePanel, BorderLayout.CENTER);
-			
-			JScrollPane scroll = new JScrollPane(table);
-			
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(scroll);
-			tablePanel.add(horizontalPanel);			
-			
+
+//<-------------------------------------------------------SOUTH------------------------------------------------------------------------>
+
 	        JPanel south = new JPanel();
 	        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
 			
@@ -294,83 +219,11 @@ private static final long serialVersionUID = 1L;
 			south.add(horizontalPanel);
 			contentPane.add(south, BorderLayout.SOUTH);
 
-			west = new JPanel();
-			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
-			west.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Buscar/Filtrar", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
-			
-			JPanel vert = new JPanel(new GridLayout(0,1));
-			vert.add(new JLabel("Patente"));
-			searchTextField = new JTextField();
-			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
-			searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
-			vert.add(searchTextField);
-			vert.add(new JLabel("Fechas"));
-			dpFilters = new DatePicker();
-			dpFilters.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
-			dpFilters.setUsePanelOption(true);
-			dpFilters.setDateFormat("dd/MM/yyyy");
-			filterDatesField = new JFormattedTextField();
-			dpFilters.setEditor(filterDatesField);
-			vert.add(filterDatesField);
-			searchTextField.setPreferredSize(new Dimension(180, 80));
-			filterDatesField.setPreferredSize(new Dimension(180, 80));
-			vert.add(new JLabel(""));
-			searchButton =new JButton("Buscar");
-			searchButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					loadTable(searchTextField.getText(), dpFilters.getSelectedDateRange());
-				}
-			});
-			searchButton.setPreferredSize(new Dimension(180, 160));
-			vert.add(searchButton);
-			searchTextField.addKeyListener(new KeyAdapter() {
-				@Override
-				public void keyPressed(KeyEvent e) {
-					if(e.getKeyCode() == KeyEvent.VK_ENTER)
-						searchButton.doClick();
-				}
-			});
-			JButton excelButton = new JButton("Imprimir Contrato");
-			excelButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					if(table.getSelectedRow()==-1)
-						setMessage("Ningun Alquiler seleccionado", false);
-					else {
-						try {
-							int row =table.getSelectedRow();
-							VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
-							LocalDate start = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-							LocalDate end = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-							Cliente client = (Cliente) tableModel.getValueAt(row, 3);
-							int price = (int) tableModel.getValueAt(row, 4);
-							int kmD = (int) tableModel.getValueAt(row, 5);
-							int kmR = (int) tableModel.getValueAt(row, 6);
-							String cbE = (String)tableModel.getValueAt(row,7);
-							String cbR = (String)tableModel.getValueAt(row, 8);
-							
-							Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
-							alquiler.openExcelPrint();
-						} catch (FileNotFoundException ex) {
-							setMessage(ex.getMessage(), false);
-							ex.printStackTrace();
-						} catch (IOException ex) {
-							setMessage(ex.getMessage(), false);
-							ex.printStackTrace();
-						}	
-					}
-				}
-			});
-			excelButton.setPreferredSize(new Dimension(180, 160));
-			vert.add(excelButton);
-			
-			west.add(vert);
-			contentPane.add(west, BorderLayout.WEST);
-
+//<------------------------------------------------------------------------------------------------------------------------------->
 			fillClients();
 			clearFields();
-			searchButton.doClick();
 		}	
-	
+
 		private void fillClients() {
 			clientComboBox.addItem(new Cliente("Seleccione un Cliente", null, null, null, null));
 
@@ -378,6 +231,7 @@ private static final long serialVersionUID = 1L;
 			for(Cliente s : clientes) {
 				clientComboBox.addItem(s);
 			}
+
 		}
 
 		private void insert() {
@@ -390,24 +244,26 @@ private static final long serialVersionUID = 1L;
 			}
 			try {
 				LocalDate[] date = dp.getSelectedDateRange();
-				long daysBetween = ChronoUnit.DAYS.between(date[0], date[1]);
-				int price = (int) (vehicle.getPrice() * daysBetween);
 				LocalDate start = date[0];
 				LocalDate end = date[1];
+				int price = Integer.parseInt(priceTextField.getText());
 				Cliente client = (Cliente) clientComboBox.getSelectedItem();
 				int kmD = Integer.parseInt(kilometersDepartureTextField.getText());
 				int kmR = Integer.parseInt(kilometersReturnTextField.getText());
-				String cbE = gasExitTextField.getText();
-				String cbR = gasReturnTextField.getText();
+				String cbE = (String) gasExitComboBox.getSelectedItem();
+				String cbR = (String) gasReturnComboBox.getSelectedItem();
 				
 				Alquiler v = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
-				if(table.getSelectedRow() != -1) {
-					Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 9);
+				if(id != null) { 
 					v.setId(id);
-				}
-				AlquilerDao.save(v);
+					AlquilerDao.save(v);
+					title.setText("NUEVO ALQUILER");			
+					id = null;
+					setMessage("Modificado correctamente", true);
+				}else
+					AlquilerDao.save(v);
+
 				clearFields();
-				searchButton.doClick();
 				setMessage("Insertado correctamente", true);
 
 			} catch (NumberFormatException e2) {
@@ -418,32 +274,6 @@ private static final long serialVersionUID = 1L;
 				setMessage("Ha ocurrido un Error:" + e3.getLocalizedMessage(), false);
 			}
 
-		}
-		
-		private void delete() {
-			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 9);
-			
-			try {
-				if(JOptionPane.showConfirmDialog(null, "Desea eliminar el alquiler: "+id ,"", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
-					AlquilerDao.delete(id);
-					clearFields();
-					searchButton.doClick();
-					setMessage("Eliminado correctamente", true);
-				}
-			}catch(Exception e) {
-				setMessage(e.getCause().getMessage(), false);
-			}
-			
-		}
-		
-		private void loadTable(String plate, LocalDate[] dates) {
-	        tableModel.setRowCount(0);
-
-			List<Alquiler> alquileres = AlquilerDao.getAlquileresByPlateAndDate(plate, dates);
-			for(Alquiler a : alquileres) {
-				Object[] row = {a.getVehicle(), a.getStart().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getEnd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getClient(), a.getTotalPrice(), a.getDepartureKm(), a.getReturnKm(), a.getGasExit(), a.getGasReturn(), a.getId()};
-				tableModel.addRow(row);
-			}
 		}
 		
 		private boolean validateFields() {
@@ -493,20 +323,35 @@ private static final long serialVersionUID = 1L;
 			dp.clearSelectedDate();
 			kilometersDepartureTextField.setText("");
 			kilometersReturnTextField.setText("");
-			gasExitTextField.setText("");
-			gasReturnTextField.setText("");
-			/*searchTextField.setText("");
-			dpFilters.clearSelectedDate();*/
+			gasExitComboBox.setSelectedIndex(0);
+			gasReturnComboBox.setSelectedIndex(0);
 
+			labelSuggestedAmount.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
-	        table.clearSelection();
 		}
 
+		public void setUpdateForm(Alquiler alquiler) {
+			title.setText("MODIFICANDO ALQUILER");
+			id = alquiler.getId();
+			
+			vehicleTextField.setText(alquiler.getVehicle().getPlate());
+			dp.setSelectedDateRange(alquiler.getStart(), alquiler.getEnd());
+			clientComboBox.setSelectedItem(alquiler.getClient());
+			priceTextField.setText(String.valueOf(alquiler.getTotalPrice()));
+			kilometersDepartureTextField.setText(String.valueOf(alquiler.getDepartureKm()));
+			kilometersReturnTextField.setText(String.valueOf(alquiler.getReturnKm()));
+			gasExitComboBox.setSelectedItem(alquiler.getGasExit());
+			gasReturnComboBox.setSelectedItem(alquiler.getGasReturn());
+			
+		}
+		
 		public JTextField getSearchTextField() {
 			return searchTextField;
+		}	
+		public JTextField getVehicleTextField() {
+			return vehicleTextField;
 		}
-
 		public JButton getSearchButton() {
 			return searchButton;
 		}
