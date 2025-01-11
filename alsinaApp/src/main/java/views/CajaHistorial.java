@@ -15,7 +15,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import javax.swing.BoxLayout;
-import javax.swing.ButtonGroup;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
@@ -29,6 +28,8 @@ import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
+import javax.swing.border.LineBorder;
+import javax.swing.border.TitledBorder;
 import javax.swing.table.DefaultTableModel;
 
 import com.formdev.flatlaf.FlatClientProperties;
@@ -43,6 +44,7 @@ import entityManagers.DestinoDao;
 import entityManagers.GastoDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
+import interfaces.ViewUtils;
 import raven.datetime.DatePicker;
 
 public class CajaHistorial extends JPanel {
@@ -83,6 +85,8 @@ public class CajaHistorial extends JPanel {
 	private JTable tableIncome;
 
 	private JPanel tableIncomePanel;
+
+	private JTextField saldoTextField;
 	
 	
 	public CajaHistorial(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, SucursalDao SucursalDao, GastoDao GastoDao, DestinoDao DestinoDao) {
@@ -209,6 +213,7 @@ public class CajaHistorial extends JPanel {
 				loadTable(searchTextField.getText(), dpFilters.getSelectedDateRange(), (Sucursal)filterBranchComboBox.getSelectedItem(), (Destino)filterDestinationComboBox.getSelectedItem());
 			}
 		});
+		ViewUtils.setIconToButton(searchButton, "/resources/imgs/lupa.png", 32, 32);
 		horizontalPanel.add(searchButton);
 		searchTextField.addKeyListener(new KeyAdapter() {
 			@Override
@@ -227,6 +232,7 @@ public class CajaHistorial extends JPanel {
 			}
 		});
 		horizontalPanel.add(deleteButton);
+		ViewUtils.setIconToButton(deleteButton, "/resources/imgs/eliminar.png", 32, 32);
 		JButton updateButton = new JButton("Modificar");
 		updateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -237,6 +243,7 @@ public class CajaHistorial extends JPanel {
 			}
 		});
 		horizontalPanel.add(updateButton);
+		ViewUtils.setIconToButton(updateButton, "/resources/imgs/archivo-de-edicion.png", 32, 32);
 		horizontalPanel.setPreferredSize(new Dimension(WIDTH, 55));
 		horizontalPanel.add(new JLabel("", JLabel.RIGHT));		
 
@@ -265,6 +272,12 @@ public class CajaHistorial extends JPanel {
 		
 		tableIncomePanel = new JPanel();
 		tableIncomePanel.setLayout(new BoxLayout(tableIncomePanel, BoxLayout.Y_AXIS));
+		tableIncomePanel.setBorder(new TitledBorder(new LineBorder(Color.black, 0), "INGRESOS", TitledBorder.CENTER, TitledBorder.TOP, null, Color.WHITE));
+		tableIncomePanel.setBackground(Color.GREEN);
+
+		tablePanel.setBackground(Color.RED);
+		tablePanel.setBorder(new TitledBorder(new LineBorder(Color.black, 0), "EGRESOS", TitledBorder.CENTER, TitledBorder.TOP, null, Color.WHITE));
+		
 		contentPane.add(tableIncomePanel, BorderLayout.EAST);
 		
 		JScrollPane scrollp = new JScrollPane(tableIncome);
@@ -276,17 +289,30 @@ public class CajaHistorial extends JPanel {
 		JPanel south = new JPanel();
         south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
 
+        JPanel labels = new JPanel();
+        labels.setLayout(new GridLayout(0,3));
+
 		horizontalPanel = new JPanel(new GridLayout());
 		egresosLabel = new JLabel("Egresos: $", JLabel.CENTER);
 		egresosLabel.setFont(new Font("Montserrat", Font.BOLD, 23));
 		horizontalPanel.add(egresosLabel);
+		labels.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout());
+		saldoLabel = new JLabel("Saldo: $", JLabel.RIGHT);
+		saldoLabel.setFont(new Font("Montserrat", Font.BOLD, 23));
+		horizontalPanel.add(saldoLabel);
+		saldoTextField = new JTextField();
+		horizontalPanel.add(saldoTextField);
+		labels.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout());
 		ingresosLabel = new JLabel("Ingresos: $", JLabel.CENTER);
 		ingresosLabel.setFont(new Font("Montserrat", Font.BOLD, 23));
 		horizontalPanel.add(ingresosLabel);
-		saldoLabel = new JLabel("Saldo: $", JLabel.CENTER);
-		saldoLabel.setFont(new Font("Montserrat", Font.BOLD, 23));
-		horizontalPanel.add(saldoLabel);
-		south.add(horizontalPanel);
+		labels.add(horizontalPanel);
+		
+		south.add(labels);
 		
 		horizontalPanel = new JPanel(new GridLayout());
 		messageLabel = new JLabel("", SwingConstants.CENTER);
@@ -390,11 +416,13 @@ public class CajaHistorial extends JPanel {
 		}
 		ingresosLabel.setText("Ingresos: $"+ ingresos);
 		
-        saldoLabel.setText("SALDO: $"+ String.valueOf(ingresos - egresos));
-        if(ingresos - egresos < 0)
-        	saldoLabel.setForeground(Color.red);
+        saldoLabel.setText("SALDO: $");
+        saldoTextField.setText(String.valueOf(ingresos-egresos));
+    	saldoTextField.setForeground(Color.white);
+        if(ingresos - egresos < 0) 
+        	saldoTextField.setBackground(Color.red);
         else
-        	saldoLabel.setForeground(new Color(0,204,0));
+        	saldoTextField.setBackground(new Color(0,245,0));
 	}
 
 	private void setMessage(String message, boolean succes) {

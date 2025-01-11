@@ -51,6 +51,7 @@ import entityManagers.DestinoDao;
 import entityManagers.GastoDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
+import interfaces.ViewUtils;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
@@ -99,7 +100,7 @@ public class GastosForm extends JPanel{
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			title = new JLabel("GASTOS", JLabel.CENTER);
+			title = new JLabel("NUEVO GASTO", JLabel.CENTER);
 			title.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(title);		
 			inputPanel.add(horizontalPanel);	
@@ -181,6 +182,8 @@ public class GastosForm extends JPanel{
 			horizontalPanel.add(new JLabel(""));
 			horizontalPanel.add(new JLabel(""));
 
+			ViewUtils.setIconToButton(confirm, "/resources/imgs/confirmar.png", 32, 32);
+			ViewUtils.setIconToButton(cancel, "/resources/imgs/escoba.png", 32, 32);
 			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 80));
 			inputPanel.add(horizontalPanel);		
 			

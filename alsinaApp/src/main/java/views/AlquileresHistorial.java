@@ -43,6 +43,7 @@ import entities.VehiculoAlquilable;
 import entityManagers.AlquilerDao;
 import interfaces.ColorearTabla;
 import interfaces.GetTabbedPane;
+import interfaces.ViewUtils;
 import raven.datetime.DatePicker;
 
 public class AlquileresHistorial extends JPanel implements GetTabbedPane{
@@ -127,6 +128,39 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 					searchButton.doClick();
 			}
 		});
+		JButton deleteButton = new JButton("Eliminar Contrato");
+		deleteButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(table.getSelectedRow()==-1)
+					setMessage("Ningun Alquiler seleccionado", false);
+				else 
+					try {
+						delete();
+					}catch(Exception ee) {
+						ee.printStackTrace();
+					}
+			
+			}
+		});
+		horizontalPanel.add(deleteButton);
+		horizontalPanel.add(new JLabel(""));
+		horizontalPanel.setPreferredSize(new Dimension(WIDTH, 55));
+	
+		JButton updateButton = new JButton("Modificar Contrato");
+		updateButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(table.getSelectedRow()==-1)
+					setMessage("Ningun Alquiler seleccionado", false);
+				else {
+					try {
+						update();
+					}catch(Exception ee) {
+						ee.printStackTrace();
+					}
+			}
+			}
+		});
+		horizontalPanel.add(updateButton);
 		JButton excelButton = new JButton("Imprimir Contrato");
 		excelButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -158,39 +192,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 			}
 		});
 		horizontalPanel.add(excelButton);
-		JButton updateButton = new JButton("Modificar Contrato");
-		updateButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(table.getSelectedRow()==-1)
-					setMessage("Ningun Alquiler seleccionado", false);
-				else {
-					try {
-						update();
-					}catch(Exception ee) {
-						ee.printStackTrace();
-					}
-			}
-			}
-		});
-		horizontalPanel.add(updateButton);
-		JButton deleteButton = new JButton("Eliminar Contrato");
-		deleteButton.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				if(table.getSelectedRow()==-1)
-					setMessage("Ningun Alquiler seleccionado", false);
-				else 
-					try {
-						delete();
-					}catch(Exception ee) {
-						ee.printStackTrace();
-					}
-			
-			}
-		});
-		horizontalPanel.add(deleteButton);
-		horizontalPanel.add(new JLabel(""));
-		horizontalPanel.setPreferredSize(new Dimension(WIDTH, 55));
-		
+		ViewUtils.setIconToButton(excelButton, "/resources/imgs/sobresalir.png", 32, 32);
 		northPanel.add(horizontalPanel);
 			
 		tablePanel = new JPanel();
