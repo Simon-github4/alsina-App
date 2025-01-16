@@ -64,7 +64,7 @@ public class DestinoDao {
 		
 	}
 	
-	public void delete(long id) {
+	public void delete(long id) throws Exception{
 		
 		try(EntityManager manager = emf.createEntityManager()){ 
 			
@@ -78,8 +78,6 @@ public class DestinoDao {
 	        	        
 	        manager.getTransaction().commit();
 	        
-	    } catch (Exception e) {
-	        e.printStackTrace();
 	    }
 	}
 	

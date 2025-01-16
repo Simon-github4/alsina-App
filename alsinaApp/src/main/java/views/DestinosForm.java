@@ -39,7 +39,6 @@ public class DestinosForm extends JPanel{
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
-	private JTextField idTextField;
 	private JTextField descriptionTextField;
 
 	public DestinosForm(DestinoDao ddao) {
@@ -59,7 +58,7 @@ public class DestinosForm extends JPanel{
 				
 		JPanel horizontalPanel = new JPanel(new GridLayout());
 		
-		JLabel titulo = new JLabel("DESTINOS", JLabel.CENTER);
+		JLabel titulo = new JLabel("CATEGORIAS", JLabel.CENTER);
 		titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 		horizontalPanel.add(titulo);		
 		inputPanel.add(horizontalPanel);
@@ -68,9 +67,6 @@ public class DestinosForm extends JPanel{
 		horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
 		descriptionTextField = new JTextField("",30);
 		horizontalPanel.add(descriptionTextField);
-		horizontalPanel.add(new JLabel("Id", JLabel.RIGHT));
-		idTextField = new JTextField(10);	 idTextField.setEditable(false);
-		horizontalPanel.add(idTextField);
 		horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 		inputPanel.add(horizontalPanel);		
 		
@@ -133,10 +129,8 @@ public class DestinosForm extends JPanel{
                 	int row = table.getSelectedRow();
                 	if(row != -1){
 						String description = (String) tableModel.getValueAt(row, 0);
-						long id = (long)tableModel.getValueAt(row, 1);
 						
 						descriptionTextField.setText(description);
-						idTextField.setText(String.valueOf(id));
                 	}
                 }
 			}
@@ -174,6 +168,7 @@ public class DestinosForm extends JPanel{
 	
 	private void insert() {
 		String description = descriptionTextField.getText();
+		
 		Destino m = new Destino(description);
 		
 		DestinoDao.save(m);
@@ -183,7 +178,8 @@ public class DestinosForm extends JPanel{
 
 	private void update() {
 		String description = descriptionTextField.getText();
-		long id = Long.parseLong(idTextField.getText());
+		long id = (long)tableModel.getValueAt(table.getSelectedRow(), 1);
+		
 		Destino m = new Destino(id, description);
 
 		DestinoDao.save(m);
@@ -192,9 +188,10 @@ public class DestinosForm extends JPanel{
 	}
 	
 	private void delete() {
-		long id = Long.parseLong(idTextField.getText());
+		long id = (long)tableModel.getValueAt(table.getSelectedRow(), 1);
 		try {
-			if(JOptionPane.showConfirmDialog(DestinosForm.this, "Desea eliminar la marca con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+			if(JOptionPane.showConfirmDialog(DestinosForm.this, "Desea eliminar la Categoria: "+(String)tableModel.getValueAt(table.getSelectedRow(),0),
+											 "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 				DestinoDao.delete(id);
 				clearFields();
 				loadTable();
@@ -232,7 +229,7 @@ public class DestinosForm extends JPanel{
 
 	private void clearFields() {
 		table.clearSelection();
-		idTextField.setText("");
+
 		descriptionTextField.setText("");
 		messageLabel.setText("");
         messageLabel.setOpaque(false);

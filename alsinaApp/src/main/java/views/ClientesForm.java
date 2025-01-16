@@ -2,7 +2,6 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Font;
@@ -30,9 +29,7 @@ import javax.swing.table.DefaultTableModel;
 import com.formdev.flatlaf.FlatClientProperties;
 
 import entities.Cliente;
-import entities.Sucursal;
 import entityManagers.ClienteDao;
-import entityManagers.SucursalDao;
 
 public class ClientesForm extends JPanel{
 	
@@ -44,7 +41,6 @@ public class ClientesForm extends JPanel{
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
-	private JTextField idTextField;
 	private JTextField nameTextField;
 	private JTextField adressTextField;
 	private JTextField phoneTextField;
@@ -95,46 +91,45 @@ public class ClientesForm extends JPanel{
 			horizontalPanel.add(new JLabel("Domicilio", JLabel.RIGHT));
 			adressTextField = new JTextField("",30);
 			horizontalPanel.add(adressTextField);
-			horizontalPanel.add(new JLabel("Id", JLabel.RIGHT));
-			idTextField = new JTextField(10);	 idTextField.setEditable(false);
-			horizontalPanel.add(idTextField);
-			inputPanel.add(horizontalPanel);		
-			
-			horizontalPanel = new JPanel(new GridLayout());
-			
 			horizontalPanel.add(new JLabel("Telefono", JLabel.RIGHT));
 			phoneTextField = new JTextField(10);
 			horizontalPanel.add(phoneTextField);			
+			inputPanel.add(horizontalPanel);		
+			
+			horizontalPanel = new JPanel(new GridLayout());
+					
 			horizontalPanel.add(new JLabel("D.N.I", JLabel.RIGHT));
 			dniTextField = new JTextField("",30);
 			horizontalPanel.add(dniTextField);
 			horizontalPanel.add(new JLabel("Cuit/Cuil", JLabel.RIGHT));
 			cuitTextField = new JTextField(10);
 			horizontalPanel.add(cuitTextField);
-			inputPanel.add(horizontalPanel);	
-			
-			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Licencia de Conducir", JLabel.RIGHT));
 			licenseTextField = new JTextField(10);
-			horizontalPanel.add(licenseTextField);			
-			horizontalPanel.add(new JLabel("Vencimiento", JLabel.RIGHT));
+			horizontalPanel.add(licenseTextField);
+			inputPanel.add(horizontalPanel);	
+			
+			horizontalPanel = new JPanel(new GridLayout());			
+			horizontalPanel.add(new JLabel("Vencimiento de Licencia", JLabel.RIGHT));
 			expirationTextField = new JTextField("",30);
 			horizontalPanel.add(expirationTextField);
-			horizontalPanel.add(new JLabel("Cod.Seg./Autor", JLabel.RIGHT));
-			codTextField = new JTextField(10);
-			horizontalPanel.add(codTextField);
-			inputPanel.add(horizontalPanel);
-			
-			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Tarjeta", JLabel.RIGHT));
 			cardTextField = new JTextField(10);
-			horizontalPanel.add(cardTextField);			
+			horizontalPanel.add(cardTextField);		
 			horizontalPanel.add(new JLabel("Numero de Tarjeta", JLabel.RIGHT));
 			cardNumberTextField = new JTextField("",30);
 			horizontalPanel.add(cardNumberTextField);
+			inputPanel.add(horizontalPanel);
+			
+			horizontalPanel = new JPanel(new GridLayout());	
 			horizontalPanel.add(new JLabel("Tarjeta Vencimiento", JLabel.RIGHT));
 			cardExpirationTextField = new JTextField(10);
 			horizontalPanel.add(cardExpirationTextField);
+			horizontalPanel.add(new JLabel("Cod.Seg./Autor", JLabel.RIGHT));
+			codTextField = new JTextField(10);
+			horizontalPanel.add(codTextField);
+			horizontalPanel.add(new JLabel(""));
+			horizontalPanel.add(new JLabel(""));
 			inputPanel.add(horizontalPanel);	
 			
 			
@@ -206,9 +201,9 @@ public class ClientesForm extends JPanel{
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(11).setMaxWidth(10);
-			table.getColumnModel().getColumn(11).setMinWidth(10);
-			table.getColumnModel().getColumn(11).setPreferredWidth(10);
+			table.getColumnModel().getColumn(11).setMaxWidth(0);
+			table.getColumnModel().getColumn(11).setMinWidth(0);
+			table.getColumnModel().getColumn(11).setPreferredWidth(0);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -229,14 +224,11 @@ public class ClientesForm extends JPanel{
 							String cod = (String) tableModel.getValueAt(row, 9);
 							String cardExpiration = (String) tableModel.getValueAt(row, 10);
 							
-							long id = (long)tableModel.getValueAt(row, 11);
-
 							nameTextField.setText(name);
 							adressTextField.setText(adress);
 							phoneTextField.setText(phone);
 							dniTextField.setText(dni);
 							cuitTextField.setText(cuil);
-							idTextField.setText(String.valueOf(id));
 							
 							licenseTextField.setText(license);
 							expirationTextField.setText(expiration);
@@ -298,7 +290,7 @@ public class ClientesForm extends JPanel{
 			Cliente m = new Cliente(description, adress, phone, dni, cuil, license, expiration, cod, card, cardNumber, cardExpiration);
 
 			if(table.getSelectedRow() != -1) {
-				long id = Long.parseLong(idTextField.getText());
+				long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 11);
 				m.setId(id);
 			}
 			ClienteDao.save(m);
@@ -307,7 +299,7 @@ public class ClientesForm extends JPanel{
 		}
 		
 		private void delete() {
-			long id = Long.parseLong(idTextField.getText());
+			long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 11);
 			try {
 				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al cliente con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 					ClienteDao.delete(id);
@@ -355,7 +347,6 @@ public class ClientesForm extends JPanel{
 
 		private void clearFields() {
 			table.clearSelection();
-			idTextField.setText("");
 			nameTextField.setText("");
 			adressTextField.setText("");
 			phoneTextField.setText("");

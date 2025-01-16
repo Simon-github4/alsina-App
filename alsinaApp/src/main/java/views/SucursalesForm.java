@@ -39,7 +39,6 @@ public class SucursalesForm extends JPanel {
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
-	private JTextField idTextField;
 	private JTextField descriptionTextField;
 	private SucursalDao SucursalDao;
 
@@ -61,7 +60,7 @@ public class SucursalesForm extends JPanel {
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			JLabel titulo = new JLabel("SUCURSALES", JLabel.CENTER);
+			JLabel titulo = new JLabel("CONSECIONARIAS", JLabel.CENTER);
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(titulo);		
 			inputPanel.add(horizontalPanel);
@@ -70,9 +69,6 @@ public class SucursalesForm extends JPanel {
 			horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
 			descriptionTextField = new JTextField("",30);
 			horizontalPanel.add(descriptionTextField);
-			horizontalPanel.add(new JLabel("Id", JLabel.RIGHT));
-			idTextField = new JTextField(10);	 idTextField.setEditable(false);
-			horizontalPanel.add(idTextField);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -123,9 +119,9 @@ public class SucursalesForm extends JPanel {
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(1).setMaxWidth(100);
-			table.getColumnModel().getColumn(1).setMinWidth(100);
-			table.getColumnModel().getColumn(1).setPreferredWidth(100);
+			table.getColumnModel().getColumn(1).setMaxWidth(0);
+			table.getColumnModel().getColumn(1).setMinWidth(0);
+			table.getColumnModel().getColumn(1).setPreferredWidth(0);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -135,10 +131,8 @@ public class SucursalesForm extends JPanel {
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
 							String description = (String) tableModel.getValueAt(row, 0);
-							long id = (long)tableModel.getValueAt(row, 1);
 							
 							descriptionTextField.setText(description);
-							idTextField.setText(String.valueOf(id));
 	                	}
 	                }
 				}
@@ -178,6 +172,7 @@ public class SucursalesForm extends JPanel {
 		
 		private void insert() {
 			String description = descriptionTextField.getText();
+			
 			Sucursal m = new Sucursal(description);
 			
 			SucursalDao.save(m);
@@ -187,7 +182,8 @@ public class SucursalesForm extends JPanel {
 
 		private void update() {
 			String description = descriptionTextField.getText();
-			long id = Long.parseLong(idTextField.getText());
+			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 1);
+			
 			Sucursal m = new Sucursal(description, id);
 
 			SucursalDao.save(m);
@@ -196,9 +192,10 @@ public class SucursalesForm extends JPanel {
 		}
 		
 		private void delete() {
-			long id = Long.parseLong(idTextField.getText());
+			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 1);
 			try {
-				if(JOptionPane.showConfirmDialog(null, "Desea eliminar la marca con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+				if(JOptionPane.showConfirmDialog(null, "Desea eliminar la consecionaria: "+(String)tableModel.getValueAt(table.getSelectedRow(), 0),
+													"", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 					SucursalDao.delete(id);
 					clearFields();
 					loadTable();
@@ -237,7 +234,6 @@ public class SucursalesForm extends JPanel {
 
 		private void clearFields() {
 			table.clearSelection();
-			idTextField.setText("");
 			descriptionTextField.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);

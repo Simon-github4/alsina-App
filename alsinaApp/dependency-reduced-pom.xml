@@ -5,17 +5,6 @@
   <artifactId>alsinaApp</artifactId>
   <version>0.0.1-SNAPSHOT</version>
   <build>
-    <resources>
-  <!--<resource>
-        <directory>src/main/resources</directory>
-      </resource>-->
-      <resource>
-        <directory>META-INF</directory>
-        <includes>
-          <include>src/main/resources/META-INF/persistence.xml</include>
-        </includes>
-      </resource>
-    </resources>
     <plugins>
       <plugin>
         <artifactId>maven-shade-plugin</artifactId>

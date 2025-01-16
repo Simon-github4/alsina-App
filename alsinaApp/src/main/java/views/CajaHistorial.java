@@ -409,9 +409,9 @@ public class CajaHistorial extends JPanel {
 
 		if(ingresosRadioButton.isSelected()) {
 	        for(Alquiler a: AlquilerDao.getAlquileresByPlateAndDate(plate, dates)) {
-	        	Object[] row = {a.getVehicle(), a.getEnd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getClient(), a.getTotalPrice(), a.getId()};
+	        	Object[] row = {a.getVehicle(), a.getEnd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getClient(), a.getPricePaid(), a.getId()};
 				tableIncomeModel.addRow(row);
-				ingresos += a.getTotalPrice();
+				ingresos += a.getPricePaid();
 	        }
 		}
 		ingresosLabel.setText("Ingresos: $"+ ingresos);

@@ -72,10 +72,10 @@ private static final long serialVersionUID = 1L;
 	private JComboBox<String> gasExitComboBox;
 	private JComboBox<String> gasReturnComboBox;
 	private JLabel title;
-
 	private JLabel labelSuggestedAmount;
-
 	private JRadioButton reservaRadioButton;
+	
+	private Alquiler alquiler;
 
 	public AlquileresForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, ClienteDao clienteDao) {
 			this.AlquilerDao= alquilerDao;	
@@ -173,6 +173,7 @@ private static final long serialVersionUID = 1L;
 			priceTextField.setBackground(Color.YELLOW);
 			horizontalPanel.add(priceTextField);
 			labelSuggestedAmount = new JLabel("", JLabel.LEFT);
+			labelSuggestedAmount.setForeground(Color.RED);
 			horizontalPanel.add(labelSuggestedAmount);
 
 			inputPanel.add(horizontalPanel);		
@@ -258,11 +259,13 @@ private static final long serialVersionUID = 1L;
 					isBooked=true;
 				
 				Alquiler v = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR, isBooked);
-				if(id != null) { 
-					v.setId(id);
+				
+				if(alquiler != null) { 
+					v.setPricePaid(alquiler.getPricePaid());
+					v.setId(alquiler.getId());
 					AlquilerDao.save(v);
 					title.setText("NUEVO ALQUILER");			
-					id = null;
+					alquiler = null;
 					setMessage("Modificado correctamente", true);
 				}else {
 					AlquilerDao.save(v);
@@ -294,14 +297,6 @@ private static final long serialVersionUID = 1L;
 						setMessage("Seleccione Fechas validas", false);
 						return false;	
 					}
-					/*if(kilometersDepartureTextField.getText().isBlank() || kilometersReturnTextField.getText().isBlank()) {
-						setMessage("KM no pueden estar Vacio", false);
-						return false;
-					}
-					if(Integer.parseInt(kilometersDepartureTextField.getText()) > Integer.parseInt(kilometersReturnTextField.getText())) {
-						setMessage("KM de retorno no puede ser menor a Salida", false);
-						return false;
-					}*/
 			
 			}catch (NumberFormatException e) {
 				setMessage("Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)", false);
@@ -331,6 +326,8 @@ private static final long serialVersionUID = 1L;
 			gasReturnComboBox.setSelectedIndex(0);
 			reservaRadioButton.setSelected(false);
 			
+			alquiler = null;
+			
 			labelSuggestedAmount.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
@@ -338,7 +335,7 @@ private static final long serialVersionUID = 1L;
 
 		public void setUpdateForm(Alquiler alquiler) {
 			title.setText("MODIFICANDO ALQUILER");
-			id = alquiler.getId();
+			this.alquiler = alquiler;
 			
 			vehicleTextField.setText(alquiler.getVehicle().getPlate());
 			dp.setSelectedDateRange(alquiler.getStart(), alquiler.getEnd());
@@ -349,7 +346,7 @@ private static final long serialVersionUID = 1L;
 			gasExitComboBox.setSelectedItem(alquiler.getGasExit());
 			gasReturnComboBox.setSelectedItem(alquiler.getGasReturn());
 			reservaRadioButton.setSelected(alquiler.getIsBooked());
-
+			
 		}
 		
 		public JTextField getSearchTextField() {

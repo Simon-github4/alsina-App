@@ -37,7 +37,6 @@ public class MarcasForm extends JPanel{
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
-	private JTextField idTextField;
 	private JTextField descriptionTextField;
 	private MarcaDao MarcaDao;
 	
@@ -67,9 +66,6 @@ public class MarcasForm extends JPanel{
 		horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
 		descriptionTextField = new JTextField("",30);
 		horizontalPanel.add(descriptionTextField);
-		horizontalPanel.add(new JLabel("Id", JLabel.RIGHT));
-		idTextField = new JTextField(10);	 idTextField.setEditable(false);
-		horizontalPanel.add(idTextField);
 		horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 		inputPanel.add(horizontalPanel);		
 		
@@ -120,9 +116,9 @@ public class MarcasForm extends JPanel{
         tableModel.addColumn("Id");
         
 		table = new JTable(tableModel);
-		table.getColumnModel().getColumn(1).setMaxWidth(100);
-		table.getColumnModel().getColumn(1).setMinWidth(100);
-		table.getColumnModel().getColumn(1).setPreferredWidth(100);
+		table.getColumnModel().getColumn(1).setMaxWidth(0);
+		table.getColumnModel().getColumn(1).setMinWidth(0);
+		table.getColumnModel().getColumn(1).setPreferredWidth(0);
 		table.setShowGrid(true);
 		table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -132,10 +128,8 @@ public class MarcasForm extends JPanel{
                 	int row = table.getSelectedRow();
                 	if(row != -1){
 						String description = (String) tableModel.getValueAt(row, 0);
-						long id = (long)tableModel.getValueAt(row, 1);
 						
 						descriptionTextField.setText(description);
-						idTextField.setText(String.valueOf(id));
                 	}
                 }
 			}
@@ -163,15 +157,8 @@ public class MarcasForm extends JPanel{
         messageLabel.setBackground(Color.RED);
         messageLabel.setOpaque(false);		
         messageLabel.setPreferredSize(new Dimension(500,70));
-        /*JButton back = new JButton("Volver");
-        back.addActionListener(new ActionListener() {
-        	public void actionPerformed(ActionEvent e) {
-        		//dispose();
-        	}
-        });*/
 
 		horizontalPanel.add(messageLabel);
-		//horizontalPanel.add(back);
 		
 		south.add(horizontalPanel);
 
@@ -181,6 +168,7 @@ public class MarcasForm extends JPanel{
 	
 	private void insert() {
 		String description = descriptionTextField.getText();
+		
 		Marca m = new Marca(description);
 		
 		MarcaDao.save(m);
@@ -190,7 +178,8 @@ public class MarcasForm extends JPanel{
 
 	private void update() {
 		String description = descriptionTextField.getText();
-		long id = Long.parseLong(idTextField.getText());
+		long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 1);
+
 		Marca m = new Marca(description, id);
 
 		MarcaDao.save(m);
@@ -199,9 +188,9 @@ public class MarcasForm extends JPanel{
 	}
 	
 	private void delete() {
-		long id = Long.parseLong(idTextField.getText());
+		long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 1);
 		try {
-			if(JOptionPane.showConfirmDialog(MarcasForm.this, "Desea eliminar la marca con el id: "+id,  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
+			if(JOptionPane.showConfirmDialog(MarcasForm.this, "Desea eliminar la marca: "+(String)tableModel.getValueAt(table.getSelectedRow(), 0),  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 				MarcaDao.delete(id);
 				clearFields();
 				loadTable();
@@ -240,7 +229,7 @@ public class MarcasForm extends JPanel{
 
 	private void clearFields() {
 		table.clearSelection();
-		idTextField.setText("");
+
 		descriptionTextField.setText("");
 		messageLabel.setText("");
         messageLabel.setOpaque(false);

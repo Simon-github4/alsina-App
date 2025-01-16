@@ -67,7 +67,7 @@ public class SucursalDao {
 		
 	}
 	
-	public void delete(long id) {
+	public void delete(long id) throws Exception{
 		
 		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
 			EntityManager manager = emf.createEntityManager();){ 
@@ -82,9 +82,7 @@ public class SucursalDao {
 	        	        
 	        manager.getTransaction().commit();
 	        
-	    } catch (Exception e) {
-	        e.printStackTrace();
-	    }
+	    } 
 	}
 	
 }

@@ -61,8 +61,9 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	private JButton searchButton;
 	private AlquilerDao AlquilerDao;
 	private JLabel messageLabel;
-	private JTextField pricePaidUntilTextField;
+	private JTextField newPaymentTextField;
 	private JTextField remainingTextField;
+	private JTextField paidTextField;
 	
 	
 	public AlquileresHistorial(AlquilerDao AlquilerDao) {
@@ -174,15 +175,6 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 				else {
 					try {
 						int row =table.getSelectedRow();
-						/*VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
-						LocalDate start = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						LocalDate end = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-						Cliente client = (Cliente) tableModel.getValueAt(row, 3);
-						int price = (int) tableModel.getValueAt(row, 4);
-						int kmD = (int) tableModel.getValueAt(row, 5);
-						int kmR = (int) tableModel.getValueAt(row, 6);
-						String cbE = (String)tableModel.getValueAt(row,7);
-						String cbR = (String)tableModel.getValueAt(row, 8);*/
 						Long id = (Long)tableModel.getValueAt(row, 9);
 						
 						Alquiler alquiler = AlquilerDao.getAlquilerById(id);
@@ -238,7 +230,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
                 		int amount = (int) tableModel.getValueAt(row, 4);
                 		int paiduntil = AlquilerDao.getAlquilerById(id).getPricePaid();
 								
-						pricePaidUntilTextField.setText(String.valueOf(paiduntil));
+                		paidTextField.setText(String.valueOf(paiduntil));
 						remainingTextField.setText(String.valueOf(amount - paiduntil));
                 	}
                 }
@@ -270,17 +262,14 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		east.setPreferredSize(new Dimension(180, HEIGHT));
 		east.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Resumen", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0,43,255)));
 		
-		horizontalPanel = new JPanel(new GridLayout());
+		horizontalPanel = new JPanel(new GridLayout(1,0));
 		horizontalPanel.add(new JLabel("Pagado", JLabel.CENTER));
 		east.add(horizontalPanel);
-		
-		horizontalPanel = new JPanel(new GridLayout(1,0));
-		pricePaidUntilTextField = new JTextField();
-		horizontalPanel.add(pricePaidUntilTextField);
-		east.add(horizontalPanel);
 
-		horizontalPanel = new JPanel(new GridLayout(1,0));
-		horizontalPanel.add(new JLabel(""));
+		horizontalPanel = new JPanel(new GridLayout());
+		paidTextField = new JTextField();
+		paidTextField.setEditable(false);
+		horizontalPanel.add(paidTextField);
 		east.add(horizontalPanel);
 		
 		horizontalPanel = new JPanel(new GridLayout(1,0));
@@ -293,6 +282,15 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		horizontalPanel.add(remainingTextField);
 		east.add(horizontalPanel);
 		
+		horizontalPanel = new JPanel(new GridLayout());
+		horizontalPanel.add(new JLabel("Nuevo Pago", JLabel.CENTER));
+		east.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout(1,0));
+		newPaymentTextField = new JTextField();
+		horizontalPanel.add(newPaymentTextField);
+		east.add(horizontalPanel);
+
 		horizontalPanel = new JPanel(new GridLayout(1,0));
 		horizontalPanel.add(new JLabel(""));
 		east.add(horizontalPanel);
@@ -305,8 +303,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 					setMessage("Ningun Alquiler seleccionado", false);
 				else {
 					try {
-						int paid = Integer.parseInt(pricePaidUntilTextField.getText());
-						AlquilerDao.updatePricePaid((Long) tableModel.getValueAt(table.getSelectedRow(), 9), paid);
+						int newPayment = Integer.parseInt(newPaymentTextField.getText());
+						AlquilerDao.updatePricePaid((Long)tableModel.getValueAt(table.getSelectedRow(), 9), newPayment);
 						clearFields();
 					}catch(NumberFormatException e1) {
 						setMessage("Asegurese de introducir datos validos", false);
@@ -354,15 +352,6 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 
 	private void update() {
 		int row =table.getSelectedRow();
-		/*VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
-		LocalDate start = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		LocalDate end = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-		Cliente client = (Cliente) tableModel.getValueAt(row, 3);
-		int price = (int) tableModel.getValueAt(row, 4);
-		int kmD = (int) tableModel.getValueAt(row, 5);
-		int kmR = (int) tableModel.getValueAt(row, 6);
-		String cbE = (String)tableModel.getValueAt(row,7);
-		String cbR = (String)tableModel.getValueAt(row, 8);*/
 		
 		Long id = (Long) tableModel.getValueAt(row, 9);
 		Alquiler alquiler = AlquilerDao.getAlquilerById(id);
@@ -424,7 +413,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	private void clearFields() {
 		messageLabel.setText("");
 		messageLabel.setOpaque(false);
-		pricePaidUntilTextField.setText("");
+		paidTextField.setText("");
+		newPaymentTextField.setText("");
 		remainingTextField.setText("");
 		table.clearSelection();
 	}

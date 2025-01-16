@@ -84,10 +84,10 @@ public class ClienteDao {
 		
 	}
 	
-	public void delete(long id) {
+	public void delete(long id) throws Exception{
 		
 		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-			EntityManager manager = emf.createEntityManager();){ 
+			EntityManager manager = emf.createEntityManager()){ 
 			
 			manager.getTransaction().begin();
 	        
@@ -99,8 +99,6 @@ public class ClienteDao {
 	        	        
 	        manager.getTransaction().commit();
 	        
-	    } catch (Exception e) {
-	        e.printStackTrace();
 	    }
 	}
 	

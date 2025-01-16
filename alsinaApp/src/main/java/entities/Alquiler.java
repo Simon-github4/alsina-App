@@ -54,21 +54,6 @@ public class Alquiler {
 	private String gasReturn;
 	
 	public Alquiler() {}
-	
-	/*public Alquiler(LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR) {
-		super();
-		//this.id = id;
-		this.start = start;
-		this.end = end;
-		this.client = client;
-		this.vehicle = vehicle;
-		this.totalPrice = totalPrice;
-		this.departureKm = departureKm;
-		this.returnKm = returnKm;
-		this.gasExit=cbE;
-		this.gasReturn=cbR;
-		//this.isBooked = booked;
-	}*/
 
 	public Alquiler(LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR, Boolean booked) {
 		super();

@@ -23,7 +23,8 @@ public class ColorearTabla extends DefaultTableCellRenderer{
 
 		@Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
-       		long id = (long)table.getValueAt(row, 9);
+
+			long id = (long)table.getValueAt(row, 9);
        		
 	            if (isRentEnd(table, row)) {
 	            	this.setBackground(Color.GREEN); 
@@ -34,15 +35,21 @@ public class ColorearTabla extends DefaultTableCellRenderer{
 	            }else {
 	            	this.setBackground(Color.RED); 
 	            	this.setForeground(Color.WHITE); 
-	            	/*
-	            	this.setForeground(Color.BLACK);
-	            	if(row % 2 ==0)
-		            	this.setBackground(Color.WHITE); 
-		            else
-		            	this.setBackground(new Color(225,225,225)); */
-	            	}
-
-            super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+	            }
+	            if(isSelected) {
+		            if (isRentEnd(table, row)) {
+		            	this.setBackground(Color.GREEN); 
+		            	this.setForeground(Color.BLACK); 
+		            }else if(alquilerDao.getAlquilerById(id).getIsBooked()){
+		            	this.setBackground(Color.YELLOW); 
+		            	this.setForeground(Color.BLACK);
+		            }else {
+		            	this.setBackground(Color.RED); 
+		            	this.setForeground(Color.WHITE); 
+		            }
+	            }
+	            	
+	      	super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
             return this;
         }
     
@@ -58,6 +65,6 @@ public class ColorearTabla extends DefaultTableCellRenderer{
 			}        	
         	
 			LocalDate end = LocalDate.parse((CharSequence)table.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
-			return  end.isBefore(LocalDate.now()) && (amount==paiduntil);
+			return  end.isBefore(LocalDate.now()) && (amount <= paiduntil);
 		}
 }

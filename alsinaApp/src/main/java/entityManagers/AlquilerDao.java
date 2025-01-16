@@ -27,7 +27,7 @@ public class AlquilerDao {
 	        
 	    	manager.getTransaction().begin();
 	    	alquiler = manager.find(Alquiler.class, id);
-	    	alquiler.setPricePaid(pay);
+	    	alquiler.setPricePaid(alquiler.getPricePaid() + pay);
 	        manager.getTransaction().commit();
 	    }
 	}

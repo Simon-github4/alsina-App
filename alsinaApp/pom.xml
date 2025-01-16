@@ -128,18 +128,18 @@
 			</plugin>		
 						                
 		</plugins>	
-		<resources>
+		<!-- <resources>
 
-	        <resource>
+			<resource>
 	            <directory>src/main/resources</directory>
 	        </resource>
 	        <resource>
-	            <directory>src/main/resources</directory>
+	            <directory>META-INF</directory>
 	            <includes>
-	            <include>META-INF/persistence.xml</include>
+	            	<include>src/main/resources/META-INF/persistence.xml</include>
 	            </includes>
 	        </resource>
-    	</resources>
+    	</resources>-->
     
 	</build>
 	
