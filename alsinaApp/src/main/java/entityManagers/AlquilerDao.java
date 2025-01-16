@@ -21,6 +21,17 @@ public class AlquilerDao {
 		emf = emf2;
 	}
 
+	public void updatePricePaid(Long id, int pay) {
+		Alquiler alquiler = null;
+	    try (EntityManager manager = emf.createEntityManager();) {
+	        
+	    	manager.getTransaction().begin();
+	    	alquiler = manager.find(Alquiler.class, id);
+	    	alquiler.setPricePaid(pay);
+	        manager.getTransaction().commit();
+	    }
+	}
+	
 	public void save(Alquiler alquiler) throws Exception{
 		
 		try(EntityManager manager = emf.createEntityManager();){ 

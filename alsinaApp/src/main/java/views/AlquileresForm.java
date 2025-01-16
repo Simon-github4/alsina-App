@@ -3,17 +3,11 @@ package views;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
@@ -23,21 +17,14 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
+import javax.swing.JRadioButton;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
-
-import com.formdev.flatlaf.FlatClientProperties;
 
 import entities.Alquiler;
 import entities.Cliente;
@@ -45,7 +32,7 @@ import entities.VehiculoAlquilable;
 import entityManagers.AlquilerDao;
 import entityManagers.ClienteDao;
 import entityManagers.VehiculoDao;
-import interfaces.EnumCombustible;
+import interfaces.ViewUtils;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
@@ -88,6 +75,8 @@ private static final long serialVersionUID = 1L;
 
 	private JLabel labelSuggestedAmount;
 
+	private JRadioButton reservaRadioButton;
+
 	public AlquileresForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, ClienteDao clienteDao) {
 			this.AlquilerDao= alquilerDao;	
 			this.VehiculoDao = vehiculoDao;
@@ -106,12 +95,13 @@ private static final long serialVersionUID = 1L;
 			//inputPanel.setBorder(new LineBorder(new Color(84, 173, 253 ), 2, true));
 			inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
 			contentPane.add(inputPanel, BorderLayout.CENTER);		
-
-			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
+			JPanel horizontalPanel = new JPanel(new GridLayout());
 			title = new JLabel("NUEVO CONTRATO", JLabel.CENTER);
 			title.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(title);		
+			horizontalPanel.setPreferredSize(new Dimension(1920, 110));
+			horizontalPanel.setMaximumSize(new Dimension(1920, 110));
 			inputPanel.add(horizontalPanel);
 			
 			horizontalPanel = new JPanel(new GridLayout(0,3));
@@ -172,6 +162,11 @@ private static final long serialVersionUID = 1L;
 			gasReturnComboBox.setModel(new DefaultComboBoxModel<String>(values));
 			horizontalPanel.add(gasReturnComboBox);
 			horizontalPanel.add(new JLabel(""));
+
+			horizontalPanel.add(new JLabel("Alquiler de Reservacion", JLabel.RIGHT));
+			reservaRadioButton = new JRadioButton("");
+			horizontalPanel.add(reservaRadioButton);
+			horizontalPanel.add(new JLabel(""));
 			
 			horizontalPanel.add(new JLabel("Monto Total", JLabel.RIGHT));
 			priceTextField = new JTextField(10);
@@ -182,7 +177,14 @@ private static final long serialVersionUID = 1L;
 
 			inputPanel.add(horizontalPanel);		
 			
-			horizontalPanel = new JPanel(new FlowLayout());
+			
+//<-------------------------------------------------------SOUTH------------------------------------------------------------------------>
+
+	        JPanel south = new JPanel();
+	        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
+			
+	        horizontalPanel = new JPanel(new GridLayout(0,4));
+	        horizontalPanel.add(new JLabel(""));
 			JButton confirm = new JButton("Confirmar");
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -200,12 +202,11 @@ private static final long serialVersionUID = 1L;
 
 			horizontalPanel.add(confirm);
 			horizontalPanel.add(cancel);		
-			inputPanel.add(horizontalPanel);		
+			south.add(horizontalPanel);		
 
-//<-------------------------------------------------------SOUTH------------------------------------------------------------------------>
+			ViewUtils.setIconToButton(confirm, "/resources/imgs/confirmar.png", 32, 32);
+			ViewUtils.setIconToButton(cancel, "/resources/imgs/escoba.png", 32, 32);
 
-	        JPanel south = new JPanel();
-	        south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			messageLabel = new JLabel("", SwingConstants.CENTER);
@@ -252,19 +253,22 @@ private static final long serialVersionUID = 1L;
 				int kmR = Integer.parseInt(kilometersReturnTextField.getText());
 				String cbE = (String) gasExitComboBox.getSelectedItem();
 				String cbR = (String) gasReturnComboBox.getSelectedItem();
+				Boolean isBooked = false;
+				if(reservaRadioButton.isSelected())
+					isBooked=true;
 				
-				Alquiler v = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
+				Alquiler v = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR, isBooked);
 				if(id != null) { 
 					v.setId(id);
 					AlquilerDao.save(v);
 					title.setText("NUEVO ALQUILER");			
 					id = null;
 					setMessage("Modificado correctamente", true);
-				}else
+				}else {
 					AlquilerDao.save(v);
-
+					setMessage("Insertado correctamente", true);
+				}
 				clearFields();
-				setMessage("Insertado correctamente", true);
 
 			} catch (NumberFormatException e2) {
 				setMessage("Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)", false);
@@ -325,7 +329,8 @@ private static final long serialVersionUID = 1L;
 			kilometersReturnTextField.setText("");
 			gasExitComboBox.setSelectedIndex(0);
 			gasReturnComboBox.setSelectedIndex(0);
-
+			reservaRadioButton.setSelected(false);
+			
 			labelSuggestedAmount.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
@@ -343,7 +348,8 @@ private static final long serialVersionUID = 1L;
 			kilometersReturnTextField.setText(String.valueOf(alquiler.getReturnKm()));
 			gasExitComboBox.setSelectedItem(alquiler.getGasExit());
 			gasReturnComboBox.setSelectedItem(alquiler.getGasReturn());
-			
+			reservaRadioButton.setSelected(alquiler.getIsBooked());
+
 		}
 		
 		public JTextField getSearchTextField() {
@@ -354,5 +360,8 @@ private static final long serialVersionUID = 1L;
 		}
 		public JButton getSearchButton() {
 			return searchButton;
+		}
+		public JTextField getKilometersDepartureTextField() {
+			return kilometersDepartureTextField;
 		}
 }

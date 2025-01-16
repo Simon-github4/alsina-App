@@ -17,26 +17,7 @@ public class MarcaDao {
 	public MarcaDao(EntityManagerFactory emf2) {
 		emf = emf2;
 	}
-	
-	public static void main(String args[]) {
 
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory(("persistencia"))){ 
-		
-		//manager = emf.createEntityManager();    
-		//manager.getTransaction().begin();
-		
-		Marca m = new Marca("nashe2");
-		//m.setId(null);
-		//m.setNombre("nashe");
-		//save(m);
-		
-		//Marca u = new MarcaDao().getMarcaById(2);
-		//u.setNombre("999");	Hace luego el UPDATE en la BD
-		
-		//manager.getTransaction().commit();
-		
-		}
-	}
 
 	public void save(Marca marca) {
 		

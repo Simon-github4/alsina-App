@@ -243,7 +243,7 @@ public class CajaHistorial extends JPanel {
 			}
 		});
 		horizontalPanel.add(updateButton);
-		ViewUtils.setIconToButton(updateButton, "/resources/imgs/archivo-de-edicion.png", 32, 32);
+		ViewUtils.setIconToButton(updateButton, "/resources/imgs/modificar.png", 32, 32);
 		horizontalPanel.setPreferredSize(new Dimension(WIDTH, 55));
 		horizontalPanel.add(new JLabel("", JLabel.RIGHT));		
 
@@ -418,7 +418,7 @@ public class CajaHistorial extends JPanel {
 		
         saldoLabel.setText("SALDO: $");
         saldoTextField.setText(String.valueOf(ingresos-egresos));
-    	saldoTextField.setForeground(Color.white);
+    	saldoTextField.setForeground(Color.BLACK);
         if(ingresos - egresos < 0) 
         	saldoTextField.setBackground(Color.red);
         else

@@ -29,9 +29,16 @@
 	<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-core-jakarta -->
 		<dependency>
 		    <groupId>org.hibernate</groupId>
-		    <artifactId>hibernate-core-jakarta</artifactId>
-		    <version>5.6.15.Final</version>
+		    <artifactId>hibernate-core</artifactId>
+		    <version>6.6.4.Final</version>
 		</dependency>
+
+	<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-entitymanager -->
+	<dependency>
+	    <groupId>org.hibernate</groupId>
+	    <artifactId>hibernate-entitymanager</artifactId>
+	    <version>5.6.15.Final</version>
+	</dependency>
 
 	<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
 		<dependency>
@@ -92,7 +99,7 @@
 		    <version>5.3.0</version>
 		</dependency>
 		
-	<!-- <dependency>
+	<dependency>
     		<groupId>org.apache.logging.log4j</groupId>
     		<artifactId>log4j-core</artifactId>
     		<version>2.20.0</version> 
@@ -101,7 +108,40 @@
 		    <groupId>org.apache.logging.log4j</groupId>
 		    <artifactId>log4j-api</artifactId>
 		    <version>2.20.0</version> 
-		</dependency> 	-->
+		</dependency> 	
 	</dependencies>
+	
+	<build>
+		<plugins>
+			<plugin>
+				    <groupId>org.apache.maven.plugins</groupId>
+				    <artifactId>maven-shade-plugin</artifactId>
+				    <version>3.4.1</version>
+				    <executions>
+				        <execution>
+				            <phase>package</phase>
+				            <goals>
+				                <goal>shade</goal>
+				            </goals>
+				        </execution>
+				    </executions>			    				    
+			</plugin>		
+						                
+		</plugins>	
+		<resources>
+
+	        <resource>
+	            <directory>src/main/resources</directory>
+	        </resource>
+	        <resource>
+	            <directory>src/main/resources</directory>
+	            <includes>
+	            <include>META-INF/persistence.xml</include>
+	            </includes>
+	        </resource>
+    	</resources>
+    
+	</build>
+	
 	
 </project>

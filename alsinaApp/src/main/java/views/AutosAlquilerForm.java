@@ -50,6 +50,7 @@ import entityManagers.AlquilerDao;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
+import interfaces.ViewUtils;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
 
@@ -260,11 +261,11 @@ private static final long serialVersionUID = 1L;
 			south.add(horizontalPanel);
 			contentPane.add(south, BorderLayout.SOUTH);
 
-			west = new JPanel();
-			west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
+			//west = new JPanel();
+			//west.setLayout(new BoxLayout(west, BoxLayout.Y_AXIS));
 			
-			JPanel vert = new JPanel(new GridLayout(0,1));
-			//vert.add(new JLabel(""));
+			JPanel vert = new JPanel(new GridLayout(9,0));
+
 			vert.add(new JLabel("Patente"));
 			searchTextField = new JTextField();
 			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
@@ -317,7 +318,7 @@ private static final long serialVersionUID = 1L;
 					
 					panel.add(new JLabel("Seleccione Rango de fecha", JLabel.CENTER));
 					panel.add(dates);
-					JButton button = new JButton("Confirm");
+					JButton button = new JButton("Confirmar");
 					panel.add(button);
 					button.addActionListener(new ActionListener() {
 						public void actionPerformed(ActionEvent e) {
@@ -340,6 +341,7 @@ private static final long serialVersionUID = 1L;
 						t.setSelectedIndex(1);
 						AlquileresForm a = (AlquileresForm)t.getSelectedComponent();
 						a.getVehicleTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
+						a.getKilometersDepartureTextField().setText(String.valueOf(tableModel.getValueAt(table.getSelectedRow(), 4)));
 					}
 				}
 			});
@@ -370,17 +372,25 @@ private static final long serialVersionUID = 1L;
 					else { 
 							String plate = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
 							
-							//Dashboard.openGastos(plate);
+							Dashboard.getInstance().verGastos(plate);
 					}
 				}});
 			gastosButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(gastosButton);
-			//vert.add(new JLabel(""));
 			
-			west.setPreferredSize(new Dimension(215, 160));
-			west.add(vert);
-			contentPane.add(west, BorderLayout.WEST);
+			vert.setPreferredSize(new Dimension(225, 160));
+			//west.setPreferredSize(new Dimension(215, 160));
+			//west.add(vert);
+			contentPane.add(vert, BorderLayout.WEST);
 
+			ViewUtils.setIconToButton(confirm, "/resources/imgs/confirmar.png", 32, 32);
+			ViewUtils.setIconToButton(cancel, "/resources/imgs/escoba.png", 32, 32);
+			ViewUtils.setIconToButton(delete, "/resources/imgs/eliminar.png", 32, 32);
+
+			ViewUtils.setIconToButton(searchButton, "/resources/imgs/lupa.png", 32, 32);
+			ViewUtils.setIconToButton(gastosButton, "/resources/imgs/gastos-historial.png", 32, 32);
+			ViewUtils.setIconToButton(newRentButton, "/resources/imgs/nuevo-alquiler.png", 32, 32);
+			ViewUtils.setIconToButton(viewRentsButton, "/resources/imgs/alquileres-historial.png", 32, 32);
 
 			fillBrands();
 			fillBranches();

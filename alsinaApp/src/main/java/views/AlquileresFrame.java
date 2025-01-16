@@ -2,12 +2,15 @@ package views;
 
 import java.awt.Dimension;
 
+import javax.swing.ImageIcon;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
+import javax.swing.SwingUtilities;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
 
 import com.formdev.flatlaf.FlatClientProperties;
-import com.formdev.flatlaf.extras.FlatSVGIcon;
 
 import entityManagers.AlquilerDao;
 import entityManagers.ClienteDao;
@@ -31,9 +34,25 @@ public class AlquileresFrame extends JFrame{
 		getContentPane().add(tabbedPane);
 		
 		tabbedPane.addTab("Vehiculos de Alquiler", new AutosAlquilerForm(vehiculoDao, sucursalDao, marcaDao));
-		tabbedPane.setIconAt(0, new FlatSVGIcon("resources/imgs/car.svg"));;
+		tabbedPane.setIconAt(0, new ImageIcon(getClass().getResource("/resources/imgs/carro.png")));
 		tabbedPane.addTab("Nuevo Contrato", new AlquileresForm(alquilerDao, vehiculoDao, clienteDao));
+		tabbedPane.setIconAt(1, new ImageIcon(getClass().getResource("/resources/imgs/nuevo-alquiler.png")));
 		tabbedPane.addTab("Historial Alquileres", new AlquileresHistorial(alquilerDao));
+		tabbedPane.setIconAt(2, new ImageIcon(getClass().getResource("/resources/imgs/alquileres-historial.png")));
+		
+		tabbedPane.addChangeListener(new ChangeListener() {
+            @Override
+            public void stateChanged(ChangeEvent e) {
+                int selectedIndex = tabbedPane.getSelectedIndex(); // Índice de la pestaña seleccionada
+
+                if(selectedIndex==2) {
+					AlquileresHistorial a = (AlquileresHistorial)tabbedPane.getSelectedComponent();
+			          SwingUtilities.invokeLater(() -> {
+			                a.getSearchButton().doClick();
+			            });                	
+                }
+            }
+        });
 		
 		tabbedPane.putClientProperty(FlatClientProperties.TABBED_PANE_HAS_FULL_BORDER, new Boolean(true));
 		tabbedPane.putClientProperty(FlatClientProperties.TABBED_PANE_SHOW_TAB_SEPARATORS, true);

@@ -10,6 +10,7 @@ import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
+import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 
 import com.formdev.flatlaf.FlatClientProperties;
@@ -27,18 +28,38 @@ import jakarta.persistence.Persistence;
 
 public class Dashboard extends JFrame{
 
-	private static final EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-
-	private JPanel mainPanel;
-	private static AlquilerDao AlquilerDao = new AlquilerDao(emf);
-	private static VehiculoDao VehiculoDao = new VehiculoDao(emf);
-	private static ClienteDao ClienteDao = new ClienteDao(emf);
-	private static SucursalDao SucursalDao = new SucursalDao(emf);
-	private static MarcaDao MarcaDao = new MarcaDao(emf);
-	private static DestinoDao DestinoDao = new DestinoDao(emf);
-	private static GastoDao GastoDao = new GastoDao(emf);
+	private static Dashboard currentInstance;
+	private static EntityManagerFactory emf;
 	
+	private JPanel mainPanel;
+	private static AlquilerDao AlquilerDao;
+	private static VehiculoDao VehiculoDao;
+	private static ClienteDao ClienteDao;
+	private static SucursalDao SucursalDao;
+	private static MarcaDao MarcaDao;
+	private static DestinoDao DestinoDao;
+	private static GastoDao GastoDao;
+	
+	/*static {
+        try {
+    }*/
+
 	public Dashboard() {
+		try {
+        	SwingUtilities.invokeLater(() -> {
+        		 	emf = Persistence.createEntityManagerFactory(("persistencia"));
+        			AlquilerDao = new AlquilerDao(emf);
+        			VehiculoDao = new VehiculoDao(emf);
+        			ClienteDao = new ClienteDao(emf);
+        			SucursalDao = new SucursalDao(emf);
+        			MarcaDao = new MarcaDao(emf);
+        			DestinoDao = new DestinoDao(emf);
+        			GastoDao = new GastoDao(emf);            
+        			});                	
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new ExceptionInInitializerError("Failed to initialize EntityManagerFactory: " + e.getMessage());
+        }
 		
 		setStyling();
 		getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
@@ -62,7 +83,7 @@ public class Dashboard extends JFrame{
 		btnNewButton_2_9.setBounds(208, 194, 128, 100);
 		mainPanel.add(btnNewButton_2_9);
 		
-		JButton btnNewButton_2 = new JButton("Vehiculos Alquiler");
+		JButton btnNewButton_2 = new JButton("Rent A Car");
 		btnNewButton_2.setBounds(45, 35, 128, 100);
 		btnNewButton_2.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -79,7 +100,7 @@ public class Dashboard extends JFrame{
 		btnNewButton_2_5.setBounds(374, 194, 128, 100);
 		mainPanel.add(btnNewButton_2_5);
 		
-		JButton btnNewButton = new JButton("Gastos");
+		JButton btnNewButton = new JButton("Caja");
 		btnNewButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				CajaFrame g = new CajaFrame(GastoDao, SucursalDao, AlquilerDao, VehiculoDao, DestinoDao);
@@ -93,6 +114,16 @@ public class Dashboard extends JFrame{
 			//((JButton) b).setBorder(BorderFactory.createLineBorder(Color.ORANGE, 3, true));
 		}*/
 		
+	}
+	
+	public void verGastos(String plate) {
+		CajaFrame g = new CajaFrame(GastoDao, SucursalDao, AlquilerDao, VehiculoDao, DestinoDao);
+		g.getTabbedPane().setSelectedIndex(1);
+		CajaHistorial c = (CajaHistorial)g.getTabbedPane().getSelectedComponent();
+		c.getSearchTextField().setText(plate);
+		c.getSearchButton().doClick();
+		
+		g.setVisible(true);
 	}
 	
 	private void setStyling() {
@@ -115,4 +146,10 @@ public class Dashboard extends JFrame{
 		//contentPane.setBorder(BorderFactory.createLineBorder(Color.GRAY, 3, true)); // Soft shadow
 	}
 
+	public static Dashboard getInstance() {
+		if (currentInstance == null) {
+			currentInstance = new Dashboard();
+		}	
+		return currentInstance;
+	}
 }

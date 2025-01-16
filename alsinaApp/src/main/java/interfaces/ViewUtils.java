@@ -17,6 +17,7 @@ public class ViewUtils {
         } else {
             System.err.println("No se pudo encontrar la imagen en la ruta especificada");
         }
-        button.setHorizontalTextPosition(AbstractButton.LEADING);
+        button.setHorizontalTextPosition(AbstractButton.LEFT);
+        //button.setHorizontalAlignment(AbstractButton.CENTER);
     }
 }

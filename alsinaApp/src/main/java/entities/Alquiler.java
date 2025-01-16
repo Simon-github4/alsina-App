@@ -42,18 +42,22 @@ public class Alquiler {
 	@JoinColumn(name = "client")
 	private Cliente client;
 	private int totalPrice;
+	@Column(columnDefinition = "int default 0")
+	private int pricePaid;
+
 	private int departureKm;	
 	@Column(columnDefinition = "int default 0")
 	private int returnKm;	
+	private Boolean isBooked;	
 	
 	private String gasExit;
 	private String gasReturn;
 	
 	public Alquiler() {}
 	
-	public Alquiler(Long id, LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm) {
+	/*public Alquiler(LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR) {
 		super();
-		this.id = id;
+		//this.id = id;
 		this.start = start;
 		this.end = end;
 		this.client = client;
@@ -61,9 +65,12 @@ public class Alquiler {
 		this.totalPrice = totalPrice;
 		this.departureKm = departureKm;
 		this.returnKm = returnKm;
-	}
+		this.gasExit=cbE;
+		this.gasReturn=cbR;
+		//this.isBooked = booked;
+	}*/
 
-	public Alquiler(LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR) {
+	public Alquiler(LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR, Boolean booked) {
 		super();
 		this.id=null;
 		this.start = start;
@@ -75,6 +82,7 @@ public class Alquiler {
 		this.returnKm = returnKm;
 		this.gasExit=cbE;
 		this.gasReturn=cbR;
+		this.isBooked = booked;
 	}
 	
 
@@ -126,6 +134,15 @@ public class Alquiler {
 		this.totalPrice = totalPrice;
 	}
 	
+	
+	public int getPricePaid() {
+		return pricePaid;
+	}
+
+	public void setPricePaid(int pricePaid) {
+		this.pricePaid = pricePaid;
+	}
+	
 	public void openExcelPrint() throws FileNotFoundException, IOException {
 		final int returnrow = 13;
 		final int exitrow = 14;
@@ -158,7 +175,7 @@ public class Alquiler {
 			gasExitColumn=15;
 
 		int gasReturnColumn = -1;
-		if(getGasExit().equalsIgnoreCase("RESERVA"))
+		if(getGasReturn().equalsIgnoreCase("RESERVA"))
 			gasReturnColumn = 12;
 		else if(getGasReturn().equalsIgnoreCase("1/4"))
 			gasReturnColumn=13;
@@ -262,6 +279,14 @@ public class Alquiler {
 
 	public void setGasReturn(String gasReturn) {
 		this.gasReturn = gasReturn;
+	}
+
+	public Boolean getIsBooked() {
+		return isBooked;
+	}
+
+	public void setIsBooked(Boolean isBooked) {
+		this.isBooked = isBooked;
 	}
 	 
 }

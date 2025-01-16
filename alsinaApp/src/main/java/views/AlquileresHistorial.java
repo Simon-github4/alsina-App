@@ -16,7 +16,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 
-import javax.swing.AbstractButton;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JFormattedTextField;
@@ -27,6 +26,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.JToggleButton;
 import javax.swing.SwingConstants;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
@@ -48,8 +48,8 @@ import raven.datetime.DatePicker;
 
 public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	
-	
-	
+
+	private static final long serialVersionUID = 1L;
 	private JPanel tablePanel;
 	private DefaultTableModel tableModel;
 	private JTable table;
@@ -61,6 +61,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	private JButton searchButton;
 	private AlquilerDao AlquilerDao;
 	private JLabel messageLabel;
+	private JTextField pricePaidUntilTextField;
+	private JTextField remainingTextField;
 	
 	
 	public AlquileresHistorial(AlquilerDao AlquilerDao) {
@@ -118,9 +120,11 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		searchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadTable(searchTextField.getText(), dpFilters.getSelectedDateRange());
+				clearFields();
 			}
 		});
 		horizontalPanel.add(searchButton);
+		ViewUtils.setIconToButton(searchButton, "/resources/imgs/lupa.png", 32, 32);
 		searchTextField.addKeyListener(new KeyAdapter() {
 			@Override
 			public void keyPressed(KeyEvent e) {
@@ -143,7 +147,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 			}
 		});
 		horizontalPanel.add(deleteButton);
-		horizontalPanel.add(new JLabel(""));
+		ViewUtils.setIconToButton(deleteButton, "/resources/imgs/eliminar.png", 32, 32);
 		horizontalPanel.setPreferredSize(new Dimension(WIDTH, 55));
 	
 		JButton updateButton = new JButton("Modificar Contrato");
@@ -160,6 +164,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 			}
 			}
 		});
+		ViewUtils.setIconToButton(updateButton, "/resources/imgs/modificar.png", 32, 32);
 		horizontalPanel.add(updateButton);
 		JButton excelButton = new JButton("Imprimir Contrato");
 		excelButton.addActionListener(new ActionListener() {
@@ -169,7 +174,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 				else {
 					try {
 						int row =table.getSelectedRow();
-						VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
+						/*VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
 						LocalDate start = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 						LocalDate end = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 						Cliente client = (Cliente) tableModel.getValueAt(row, 3);
@@ -177,9 +182,10 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 						int kmD = (int) tableModel.getValueAt(row, 5);
 						int kmR = (int) tableModel.getValueAt(row, 6);
 						String cbE = (String)tableModel.getValueAt(row,7);
-						String cbR = (String)tableModel.getValueAt(row, 8);
+						String cbR = (String)tableModel.getValueAt(row, 8);*/
+						Long id = (Long)tableModel.getValueAt(row, 9);
 						
-						Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
+						Alquiler alquiler = AlquilerDao.getAlquilerById(id);
 						alquiler.openExcelPrint();
 					} catch (FileNotFoundException ex) {
 						setMessage(ex.getMessage(), false);
@@ -193,8 +199,11 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		});
 		horizontalPanel.add(excelButton);
 		ViewUtils.setIconToButton(excelButton, "/resources/imgs/sobresalir.png", 32, 32);
+		horizontalPanel.add(new JLabel(""));
 		northPanel.add(horizontalPanel);
-			
+		
+/*------------------------------------------------------------------------------------------------------------------------------------------------------*/
+		
 		tablePanel = new JPanel();
 		tablePanel.setLayout(new BoxLayout(tablePanel, BoxLayout.Y_AXIS));
 		contentPane.add(tablePanel, BorderLayout.CENTER);
@@ -217,7 +226,26 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
         tableModel.addColumn("Id");
         
 		table = new JTable(tableModel);
-		table.getColumnModel().getColumn(2).setCellRenderer(new ColorearTabla());
+        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+			@Override
+			public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                	int row = table.getSelectedRow();
+                	if(row != -1){
+                		long id = (long)tableModel.getValueAt(row, 9);
+
+                		int amount = (int) tableModel.getValueAt(row, 4);
+                		int paiduntil = AlquilerDao.getAlquilerById(id).getPricePaid();
+								
+						pricePaidUntilTextField.setText(String.valueOf(paiduntil));
+						remainingTextField.setText(String.valueOf(amount - paiduntil));
+                	}
+                }
+			}
+			
+		});
+		table.getColumnModel().getColumn(4).setCellRenderer(new ColorearTabla(AlquilerDao));
 		table.getColumnModel().getColumn(9).setMaxWidth(0);
 		table.getColumnModel().getColumn(9).setMinWidth(0);
 		table.getColumnModel().getColumn(9).setPreferredWidth(0);
@@ -234,7 +262,68 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		horizontalPanel = new JPanel(new GridLayout());
 		horizontalPanel.add(scroll);
 		tablePanel.add(horizontalPanel);
+
+/*------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
+		JPanel east = new JPanel();
+		east.setLayout(new BoxLayout(east, BoxLayout.Y_AXIS));
+		east.setPreferredSize(new Dimension(180, HEIGHT));
+		east.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Resumen", TitledBorder.CENTER, TitledBorder.TOP, null, new Color(0,43,255)));
 		
+		horizontalPanel = new JPanel(new GridLayout());
+		horizontalPanel.add(new JLabel("Pagado", JLabel.CENTER));
+		east.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout(1,0));
+		pricePaidUntilTextField = new JTextField();
+		horizontalPanel.add(pricePaidUntilTextField);
+		east.add(horizontalPanel);
+
+		horizontalPanel = new JPanel(new GridLayout(1,0));
+		horizontalPanel.add(new JLabel(""));
+		east.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout(1,0));
+		horizontalPanel.add(new JLabel("Restante", JLabel.CENTER));
+		east.add(horizontalPanel);
+
+		horizontalPanel = new JPanel(new GridLayout());
+		remainingTextField = new JTextField();
+		remainingTextField.setEditable(false);
+		horizontalPanel.add(remainingTextField);
+		east.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout(1,0));
+		horizontalPanel.add(new JLabel(""));
+		east.add(horizontalPanel);
+
+		horizontalPanel = new JPanel(new GridLayout(1,0));
+		JButton confirm = new JButton("Actualizar");
+		confirm.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if(table.getSelectedRow()==-1)
+					setMessage("Ningun Alquiler seleccionado", false);
+				else {
+					try {
+						int paid = Integer.parseInt(pricePaidUntilTextField.getText());
+						AlquilerDao.updatePricePaid((Long) tableModel.getValueAt(table.getSelectedRow(), 9), paid);
+						clearFields();
+					}catch(NumberFormatException e1) {
+						setMessage("Asegurese de introducir datos validos", false);
+					}catch(Exception e1) {
+						setMessage("Ocurrio un Error:"+e1.getMessage(), false);						
+					}
+				}
+			}
+
+		});
+		horizontalPanel.add(confirm);
+		east.add(horizontalPanel);
+		
+		contentPane.add(east, BorderLayout.EAST);
+		
+/*------------------------------------------------------------------------------------------------------------------------------------------------------*/
+
 		JPanel south = new JPanel();
         south.setLayout(new BoxLayout(south, BoxLayout.Y_AXIS));
 		
@@ -265,7 +354,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 
 	private void update() {
 		int row =table.getSelectedRow();
-		VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
+		/*VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
 		LocalDate start = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 1), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		LocalDate end = LocalDate.parse((CharSequence) tableModel.getValueAt(row, 2), DateTimeFormatter.ofPattern("dd/MM/yyyy"));
 		Cliente client = (Cliente) tableModel.getValueAt(row, 3);
@@ -273,11 +362,13 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		int kmD = (int) tableModel.getValueAt(row, 5);
 		int kmR = (int) tableModel.getValueAt(row, 6);
 		String cbE = (String)tableModel.getValueAt(row,7);
-		String cbR = (String)tableModel.getValueAt(row, 8);
-		Long id = (Long) tableModel.getValueAt(row, 9);
+		String cbR = (String)tableModel.getValueAt(row, 8);*/
 		
-		Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
-		alquiler.setId(id);
+		Long id = (Long) tableModel.getValueAt(row, 9);
+		Alquiler alquiler = AlquilerDao.getAlquilerById(id);
+		
+		//Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
+		//alquiler.setId(id);
 		
 		JTabbedPane t = getTabbedPane();
 		t.setSelectedIndex(1);
@@ -329,5 +420,13 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
         return null; // Return null if not found
     }
 	
+
+	private void clearFields() {
+		messageLabel.setText("");
+		messageLabel.setOpaque(false);
+		pricePaidUntilTextField.setText("");
+		remainingTextField.setText("");
+		table.clearSelection();
+	}
 	
 }

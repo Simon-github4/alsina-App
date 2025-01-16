@@ -10,7 +10,14 @@
   	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> 
   	<!--<provider>com.zaxxer.hikari.hibernate.HikariConnectionProvider</provider> -->
     
+    <class>entities.Alquiler</class>
+    <class>entities.Cliente</class>
+    <class>entities.Destino</class>
+    <class>entities.Gasto</class>
     <class>entities.Marca</class>
+    <class>entities.Sucursal</class>
+    <class>entities.Vehiculo</class>
+    <class>entities.VehiculoAlquilable</class>
   
     <properties>
         <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
@@ -22,7 +29,7 @@
         <property name="hibernate.show_sql" value="true"/>
         <property name="hibernate.format_sql" value="true"/>
         <property name="hibernate.use_sql_comments" value="true"/>
-        
+    <!--    
         <property name="hibernate.hikari.dataSource.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
         <property name="hibernate.hikari.dataSource.user" value="postgres"/>
         <property name="hibernate.hikari.pool-name" value="HikariPool"/>
@@ -33,7 +40,7 @@
         <property name="hibernate.hikari.dataSource.cachePrepStmts" value="true" />
         <property name="hibernate.hikari.dataSource.prepStmtCacheSize" value="250" />
         <property name="hibernate.hikari.dataSource.prepStmtCacheSqlLimit" value="2048" />
-   
+   -->
     </properties>
   </persistence-unit>
 
