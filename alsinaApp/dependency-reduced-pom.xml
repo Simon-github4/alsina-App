@@ -6,13 +6,13 @@
   <version>0.0.1-SNAPSHOT</version>
   <build>
     <resources>
-      <resource>
+  <!--<resource>
         <directory>src/main/resources</directory>
-      </resource>
+      </resource>-->
       <resource>
-        <directory>src/main/resources</directory>
+        <directory>META-INF</directory>
         <includes>
-          <include>META-INF/persistence.xml</include>
+          <include>src/main/resources/META-INF/persistence.xml</include>
         </includes>
       </resource>
     </resources>

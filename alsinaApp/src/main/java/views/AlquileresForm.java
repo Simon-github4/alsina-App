@@ -226,7 +226,7 @@ private static final long serialVersionUID = 1L;
 		}	
 
 		private void fillClients() {
-			clientComboBox.addItem(new Cliente("Seleccione un Cliente", null, null, null, null));
+			clientComboBox.addItem(new Cliente("Seleccione un Cliente", null, null, null, null, null, null, null, null, null, null));
 
 			List<Cliente> clientes = ClienteDao.getClientes();
 			for(Cliente s : clientes) {

@@ -53,6 +53,18 @@ public class ClientesForm extends JPanel{
 	private JTextField cuitTextField;
 	private JTextField searchTextField;
 
+	private JTextField licenseTextField;
+
+	private JTextField codTextField;
+
+	private JTextField expirationTextField;
+
+	private JTextField cardTextField;
+
+	private JTextField cardNumberTextField;
+
+	private JTextField cardExpirationTextField;
+
 
 	public ClientesForm(ClienteDao cdao) {
 			ClienteDao=cdao;
@@ -103,26 +115,26 @@ public class ClientesForm extends JPanel{
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Licencia de Conducir", JLabel.RIGHT));
-			phoneTextField = new JTextField(10);
-			horizontalPanel.add(phoneTextField);			
+			licenseTextField = new JTextField(10);
+			horizontalPanel.add(licenseTextField);			
 			horizontalPanel.add(new JLabel("Vencimiento", JLabel.RIGHT));
-			dniTextField = new JTextField("",30);
-			horizontalPanel.add(dniTextField);
+			expirationTextField = new JTextField("",30);
+			horizontalPanel.add(expirationTextField);
 			horizontalPanel.add(new JLabel("Cod.Seg./Autor", JLabel.RIGHT));
-			cuitTextField = new JTextField(10);
-			horizontalPanel.add(cuitTextField);
+			codTextField = new JTextField(10);
+			horizontalPanel.add(codTextField);
 			inputPanel.add(horizontalPanel);
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Tarjeta", JLabel.RIGHT));
-			phoneTextField = new JTextField(10);
-			horizontalPanel.add(phoneTextField);			
-			horizontalPanel.add(new JLabel("Codigo Tarjeta", JLabel.RIGHT));
-			dniTextField = new JTextField("",30);
-			horizontalPanel.add(dniTextField);
+			cardTextField = new JTextField(10);
+			horizontalPanel.add(cardTextField);			
+			horizontalPanel.add(new JLabel("Numero de Tarjeta", JLabel.RIGHT));
+			cardNumberTextField = new JTextField("",30);
+			horizontalPanel.add(cardNumberTextField);
 			horizontalPanel.add(new JLabel("Tarjeta Vencimiento", JLabel.RIGHT));
-			cuitTextField = new JTextField(10);
-			horizontalPanel.add(cuitTextField);
+			cardExpirationTextField = new JTextField(10);
+			horizontalPanel.add(cardExpirationTextField);
 			inputPanel.add(horizontalPanel);	
 			
 			
@@ -149,10 +161,7 @@ public class ClientesForm extends JPanel{
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(validateFields())
-						if(table.getSelectedRow() == -1)
 							insert();
-						else
-							update();
 				}
 			});
 	        confirm.setPreferredSize(new Dimension(250,40));
@@ -188,12 +197,18 @@ public class ClientesForm extends JPanel{
 	        tableModel.addColumn("Telefono");
 	        tableModel.addColumn("D.N.I");
 	        tableModel.addColumn("Cuit/Cuil");
+	        tableModel.addColumn("Licencia");
+	        tableModel.addColumn("Vencimiento");
+	        tableModel.addColumn("Tarjeta");
+	        tableModel.addColumn("Numero");
+	        tableModel.addColumn("Cod seguridad");
+	        tableModel.addColumn("Vencimiento");
 	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(5).setMaxWidth(100);
-			table.getColumnModel().getColumn(5).setMinWidth(100);
-			table.getColumnModel().getColumn(5).setPreferredWidth(100);
+			table.getColumnModel().getColumn(11).setMaxWidth(10);
+			table.getColumnModel().getColumn(11).setMinWidth(10);
+			table.getColumnModel().getColumn(11).setPreferredWidth(10);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -207,14 +222,28 @@ public class ClientesForm extends JPanel{
 							String adress = (String) tableModel.getValueAt(row, 2);
 							String dni = (String) tableModel.getValueAt(row, 3);
 							String cuil = (String) tableModel.getValueAt(row, 4);
-							long id = (long)tableModel.getValueAt(row, 5);
-									
+							String license = (String) tableModel.getValueAt(row, 5);
+							String expiration = (String) tableModel.getValueAt(row, 6);
+							String card = (String) tableModel.getValueAt(row, 7);
+							String cardNumber = (String) tableModel.getValueAt(row, 8);
+							String cod = (String) tableModel.getValueAt(row, 9);
+							String cardExpiration = (String) tableModel.getValueAt(row, 10);
+							
+							long id = (long)tableModel.getValueAt(row, 11);
+
 							nameTextField.setText(name);
 							adressTextField.setText(adress);
 							phoneTextField.setText(phone);
 							dniTextField.setText(dni);
 							cuitTextField.setText(cuil);
 							idTextField.setText(String.valueOf(id));
+							
+							licenseTextField.setText(license);
+							expirationTextField.setText(expiration);
+							codTextField.setText(cod);
+							cardTextField.setText(card);
+							cardNumberTextField.setText(cardNumber);
+							cardExpirationTextField.setText(cardExpiration);
 	                	}
 	                }
 				}
@@ -259,23 +288,19 @@ public class ClientesForm extends JPanel{
 			String dni = dniTextField.getText();
 			String cuil = cuitTextField.getText();
 
-			Cliente m = new Cliente(description, adress, phone, dni, cuil);
+			String license = licenseTextField.getText();
+			String expiration = expirationTextField.getText();
+			String cod = codTextField.getText();
+			String card = cardTextField.getText();
+			String cardNumber = cardNumberTextField.getText();
+			String cardExpiration = cardExpirationTextField.getText();
 			
-			ClienteDao.save(m);
-			clearFields();
-			loadTable(searchTextField.getText());
-		}
+			Cliente m = new Cliente(description, adress, phone, dni, cuil, license, expiration, cod, card, cardNumber, cardExpiration);
 
-		private void update() {
-			String description = nameTextField.getText();
-			long id = Long.parseLong(idTextField.getText());
-			String adress = adressTextField.getText();
-			String phone = phoneTextField.getText();
-			String dni = dniTextField.getText();
-			String cuil = cuitTextField.getText();
-
-			Cliente m = new Cliente(id, description, phone, adress, dni, cuil);
-
+			if(table.getSelectedRow() != -1) {
+				long id = Long.parseLong(idTextField.getText());
+				m.setId(id);
+			}
 			ClienteDao.save(m);
 			clearFields();
 			loadTable(searchTextField.getText());
@@ -301,7 +326,7 @@ public class ClientesForm extends JPanel{
 
 			List<Cliente> clientes = ClienteDao.getClientes(name);
 			for(Cliente m : clientes) {
-				Object[] row = {m.getName(), m.getAdress(), m.getPhone(), m.getDni(), m.getCuil(), m.getId()};
+				Object[] row = {m.getName(), m.getAdress(), m.getPhone(), m.getDni(), m.getCuil(), m.getLicense(), m.getExpiration(), m.getCard(), m.getCardNumber(), m.getCod(), m.getCardExpiration(), m.getId()};
 				tableModel.addRow(row);
 			}
 		}
@@ -336,6 +361,14 @@ public class ClientesForm extends JPanel{
 			phoneTextField.setText("");
 			dniTextField.setText("");
 			cuitTextField.setText("");
+			
+			licenseTextField.setText("");
+			expirationTextField.setText("");
+			codTextField.setText("");
+			cardTextField.setText("");
+			cardNumberTextField.setText("");
+			cardExpirationTextField.setText("");
+			
 			searchTextField.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);

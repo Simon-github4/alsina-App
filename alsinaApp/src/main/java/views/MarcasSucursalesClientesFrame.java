@@ -24,6 +24,7 @@ public class MarcasSucursalesClientesFrame extends JFrame {
 		//super("Informacion");
 		setVisible(true);
 		setBounds(100, 100, 1110, 860);
+		setLocationRelativeTo(null);
 		
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));

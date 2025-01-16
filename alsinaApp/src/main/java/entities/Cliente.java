@@ -23,6 +23,13 @@ public class Cliente {
 	private String dni;
 	private String cuil;
 
+	private String license;
+	private String expiration;
+	private String cod;
+	private String card;
+	private String cardNumber;
+	private String cardExpiration;	
+
 		public Cliente() {
 			//Constructor por defecto NECESARIO
 		}
@@ -37,7 +44,7 @@ public class Cliente {
 			this.cuil=cuil;
 		}
 
-		public Cliente(String name, String adress, String phone, String dni,  String cuil) {
+		public Cliente(String name, String adress, String phone, String dni,  String cuil, String license, String expiration, String cod, String card, String cardNumber, String cardExpiration) {
 			super();
 			this.id=null;
 			this.name = name;
@@ -45,6 +52,12 @@ public class Cliente {
 			this.phone = phone;
 			this.dni=dni;
 			this.cuil=cuil;
+			this.license=license;
+			this.expiration=expiration;
+			this.cod=cod;
+			this.card=card;
+			this.cardNumber=cardNumber;
+			this.cardExpiration=cardExpiration;
 		}
 
 		public Long getId() {
@@ -77,6 +90,54 @@ public class Cliente {
 
 		public void setPhone(String phone) {
 			this.phone = phone;
+		}
+		
+		public String getLicense() {
+			return license;
+		}
+
+		public void setLicense(String license) {
+			this.license = license;
+		}
+
+		public String getExpiration() {
+			return expiration;
+		}
+
+		public void setExpiration(String expiration) {
+			this.expiration = expiration;
+		}
+
+		public String getCod() {
+			return cod;
+		}
+
+		public void setCod(String cod) {
+			this.cod = cod;
+		}
+
+		public String getCard() {
+			return card;
+		}
+
+		public void setCard(String card) {
+			this.card = card;
+		}
+
+		public String getCardNumber() {
+			return cardNumber;
+		}
+
+		public void setCardNumber(String cardNumber) {
+			this.cardNumber = cardNumber;
+		}
+
+		public String getCardExpiration() {
+			return cardExpiration;
+		}
+
+		public void setCardExpiration(String cardExpiration) {
+			this.cardExpiration = cardExpiration;
 		}
 
 		@Override
