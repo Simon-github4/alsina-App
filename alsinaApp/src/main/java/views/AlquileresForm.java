@@ -77,6 +77,8 @@ private static final long serialVersionUID = 1L;
 	
 	private Alquiler alquiler;
 
+	private JTextField placeTextField;
+
 	public AlquileresForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, ClienteDao clienteDao) {
 			this.AlquilerDao= alquilerDao;	
 			this.VehiculoDao = vehiculoDao;
@@ -137,6 +139,11 @@ private static final long serialVersionUID = 1L;
 			dates = new JFormattedTextField();
 			dp.setEditor(dates);
 			horizontalPanel.add(dates);
+			horizontalPanel.add(new JLabel(""));
+			
+			horizontalPanel.add(new JLabel("Lugar de Destino", JLabel.RIGHT));
+			placeTextField = new JTextField();
+			horizontalPanel.add(placeTextField);
 			horizontalPanel.add(new JLabel(""));
 			
 			horizontalPanel.add(new JLabel("Kilometros Salida", JLabel.RIGHT));
@@ -248,6 +255,7 @@ private static final long serialVersionUID = 1L;
 				LocalDate[] date = dp.getSelectedDateRange();
 				LocalDate start = date[0];
 				LocalDate end = date[1];
+				String place = placeTextField.getText();
 				int price = Integer.parseInt(priceTextField.getText());
 				Cliente client = (Cliente) clientComboBox.getSelectedItem();
 				int kmD = Integer.parseInt(kilometersDepartureTextField.getText());
@@ -258,7 +266,7 @@ private static final long serialVersionUID = 1L;
 				if(reservaRadioButton.isSelected())
 					isBooked=true;
 				
-				Alquiler v = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR, isBooked);
+				Alquiler v = new Alquiler(start, end, place, client, vehicle, price, kmD, kmR, cbE, cbR, isBooked);
 				
 				if(alquiler != null) { 
 					v.setPricePaid(alquiler.getPricePaid());
@@ -296,8 +304,7 @@ private static final long serialVersionUID = 1L;
 					if(!dp.isDateSelected()) {
 						setMessage("Seleccione Fechas validas", false);
 						return false;	
-					}
-			
+					}			
 			}catch (NumberFormatException e) {
 				setMessage("Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)", false);
 				return false;
@@ -316,10 +323,11 @@ private static final long serialVersionUID = 1L;
 
 		private void clearFields() {
 			vehicleTextField.setText("");
+			dp.clearSelectedDate();
+			placeTextField.setText("");
 			kilometersDepartureTextField.setText("");
 			clientComboBox.setSelectedIndex(0);
 			priceTextField.setText("");
-			dp.clearSelectedDate();
 			kilometersDepartureTextField.setText("");
 			kilometersReturnTextField.setText("");
 			gasExitComboBox.setSelectedIndex(0);
@@ -346,7 +354,7 @@ private static final long serialVersionUID = 1L;
 			gasExitComboBox.setSelectedItem(alquiler.getGasExit());
 			gasReturnComboBox.setSelectedItem(alquiler.getGasReturn());
 			reservaRadioButton.setSelected(alquiler.getIsBooked());
-			
+			placeTextField.setText(alquiler.getPlace());
 		}
 		
 		public JTextField getSearchTextField() {

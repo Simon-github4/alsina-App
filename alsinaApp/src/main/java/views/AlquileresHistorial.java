@@ -43,6 +43,7 @@ import entities.VehiculoAlquilable;
 import entityManagers.AlquilerDao;
 import interfaces.ColorearTabla;
 import interfaces.GetTabbedPane;
+import interfaces.PdfUtils;
 import interfaces.ViewUtils;
 import raven.datetime.DatePicker;
 
@@ -175,14 +176,18 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 				else {
 					try {
 						int row =table.getSelectedRow();
-						Long id = (Long)tableModel.getValueAt(row, 9);
+						Long id = (Long)tableModel.getValueAt(row, 10);
 						
 						Alquiler alquiler = AlquilerDao.getAlquilerById(id);
-						alquiler.openExcelPrint();
-					} catch (FileNotFoundException ex) {
+						//alquiler.openExcelPrint();
+						PdfUtils.openPdfToPrint(alquiler);
+					/*} catch (FileNotFoundException ex) {
 						setMessage(ex.getMessage(), false);
 						ex.printStackTrace();
-					} catch (IOException ex) {
+					*/  } catch(IllegalArgumentException il) {
+							setMessage("Los datos a imprimirse NO pueden estar Vacios", false);
+							il.printStackTrace();
+						} catch (/*IO*/Exception ex) {
 						setMessage(ex.getMessage(), false);
 						ex.printStackTrace();
 					}	
@@ -211,6 +216,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
         tableModel.addColumn("Fin");
         tableModel.addColumn("Cliente");
         tableModel.addColumn("Monto Total");
+        tableModel.addColumn("Lugar Destino");
         tableModel.addColumn("KM Salida");
         tableModel.addColumn("KM Retorno");
         tableModel.addColumn("Comb.Salida");
@@ -225,7 +231,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
                 if (!e.getValueIsAdjusting()) {
                 	int row = table.getSelectedRow();
                 	if(row != -1){
-                		long id = (long)tableModel.getValueAt(row, 9);
+                		long id = (long)tableModel.getValueAt(row, 10);
 
                 		int amount = (int) tableModel.getValueAt(row, 4);
                 		int paiduntil = AlquilerDao.getAlquilerById(id).getPricePaid();
@@ -238,9 +244,9 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 			
 		});
 		table.getColumnModel().getColumn(4).setCellRenderer(new ColorearTabla(AlquilerDao));
-		table.getColumnModel().getColumn(9).setMaxWidth(0);
-		table.getColumnModel().getColumn(9).setMinWidth(0);
-		table.getColumnModel().getColumn(9).setPreferredWidth(0);
+		table.getColumnModel().getColumn(10).setMaxWidth(0);
+		table.getColumnModel().getColumn(10).setMinWidth(0);
+		table.getColumnModel().getColumn(10).setPreferredWidth(0);
 		table.getColumnModel().getColumn(3).setPreferredWidth(190);
 		table.getColumnModel().getColumn(4).setPreferredWidth(100);
 		table.getColumnModel().getColumn(5).setPreferredWidth(55);
@@ -304,7 +310,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 				else {
 					try {
 						int newPayment = Integer.parseInt(newPaymentTextField.getText());
-						AlquilerDao.updatePricePaid((Long)tableModel.getValueAt(table.getSelectedRow(), 9), newPayment);
+						AlquilerDao.updatePricePaid((Long)tableModel.getValueAt(table.getSelectedRow(), 10), newPayment);
 						clearFields();
 					}catch(NumberFormatException e1) {
 						setMessage("Asegurese de introducir datos validos", false);
@@ -345,7 +351,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 
 		List<Alquiler> alquileres = AlquilerDao.getAlquileresByPlateAndDate(plate, dates);
 		for(Alquiler a : alquileres) {
-			Object[] row = {a.getVehicle(), a.getStart().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getEnd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getClient(), a.getTotalPrice(), a.getDepartureKm(), a.getReturnKm(), a.getGasExit(), a.getGasReturn(), a.getId()};
+			Object[] row = {a.getVehicle(), a.getStart().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getEnd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")),
+							a.getClient(), a.getTotalPrice(),a.getPlace(), a.getDepartureKm(), a.getReturnKm(), a.getGasExit(), a.getGasReturn(), a.getId()};
 			tableModel.addRow(row);
 		}
 	}
@@ -353,7 +360,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	private void update() {
 		int row =table.getSelectedRow();
 		
-		Long id = (Long) tableModel.getValueAt(row, 9);
+		Long id = (Long) tableModel.getValueAt(row, 10);
 		Alquiler alquiler = AlquilerDao.getAlquilerById(id);
 		
 		//Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
@@ -367,7 +374,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	}
 	
 	private void delete() {
-		long id = (long)tableModel.getValueAt(table.getSelectedRow(), 9);
+		long id = (long)tableModel.getValueAt(table.getSelectedRow(), 10);
 		
 		try {
 			if(JOptionPane.showConfirmDialog(null, "Desea eliminar el alquiler: "+id ,"", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){

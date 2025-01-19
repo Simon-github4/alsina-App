@@ -24,7 +24,7 @@ public class ColorearTabla extends DefaultTableCellRenderer{
 		@Override
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
-			long id = (long)table.getValueAt(row, 9);
+			long id = (long)table.getValueAt(row, 10);
        		
 	            if (isRentEnd(table, row)) {
 	            	this.setBackground(Color.GREEN); 
@@ -54,7 +54,7 @@ public class ColorearTabla extends DefaultTableCellRenderer{
         }
     
 		public boolean isRentEnd(JTable table, int row) {
-       		long id = (long)table.getValueAt(row, 9);
+       		long id = (long)table.getValueAt(row, 10);
 
        		int amount = (int) table.getValueAt(row, 4);
        		int paiduntil = 0;

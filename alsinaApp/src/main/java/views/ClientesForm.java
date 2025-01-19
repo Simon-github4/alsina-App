@@ -188,7 +188,7 @@ public class ClientesForm extends JPanel{
 	            }
 	        };
 	        tableModel.addColumn("Descripcion");
-	        tableModel.addColumn("Direccion");
+	        tableModel.addColumn("Domicilio");
 	        tableModel.addColumn("Telefono");
 	        tableModel.addColumn("D.N.I");
 	        tableModel.addColumn("Cuit/Cuil");
@@ -213,8 +213,8 @@ public class ClientesForm extends JPanel{
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
 							String name = (String) tableModel.getValueAt(row, 0);
-							String phone = (String) tableModel.getValueAt(row, 1);
-							String adress = (String) tableModel.getValueAt(row, 2);
+							String adress = (String) tableModel.getValueAt(row, 1);
+							String phone = (String) tableModel.getValueAt(row, 2);
 							String dni = (String) tableModel.getValueAt(row, 3);
 							String cuil = (String) tableModel.getValueAt(row, 4);
 							String license = (String) tableModel.getValueAt(row, 5);

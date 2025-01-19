@@ -11,8 +11,8 @@ import jakarta.persistence.Entity;
 public class VehiculoAlquilable extends Vehiculo{
 
 	private int price;
-	//private int pricePaidUntil;
 	private String ensurance;
+	
 	@Column(columnDefinition = "int default 18")
 	private int ensuranceFranchise;
 	
@@ -22,7 +22,6 @@ public class VehiculoAlquilable extends Vehiculo{
 		super(id, year, kilometers, plate, model, brand, branch);
 		this.price = price;
 		this.ensurance = ensurance;
-		//this.pricePaidUntil=0;
 	}
 	
 	public VehiculoAlquilable(int price, String ensurance, int franchise, int year, int kilometers,  String plate, String model, Marca brand, Sucursal branch) {
@@ -30,7 +29,6 @@ public class VehiculoAlquilable extends Vehiculo{
 		this.ensuranceFranchise=franchise;
 		this.price = price;
 		this.ensurance = ensurance;
-		//this.pricePaidUntil=0;
 	}
 
 	public int getPrice() {
@@ -76,14 +74,5 @@ public class VehiculoAlquilable extends Vehiculo{
 	public void setEnsuranceFranchise(int ensuranceFranchise) {
 		this.ensuranceFranchise = ensuranceFranchise;
 	}
-
-	/*public int getPricePaidUntil() {
-		return pricePaidUntil;
-	}
-
-	public void setPricePaidUntil(int pricePaidUntil) {
-		this.pricePaidUntil = pricePaidUntil;
-	}
-*/
 	
 }

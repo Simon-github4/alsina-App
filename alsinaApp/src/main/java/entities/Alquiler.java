@@ -1,4 +1,4 @@
-package entities;
+ package entities;
 
 import java.awt.Desktop;
 import java.io.File;
@@ -38,6 +38,9 @@ public class Alquiler {
 	private LocalDate start;
 	@Column(name  = "end_date")
 	private LocalDate end;
+	
+	private String place;
+
 	@ManyToOne
 	@JoinColumn(name = "client")
 	private Cliente client;
@@ -55,7 +58,7 @@ public class Alquiler {
 	
 	public Alquiler() {}
 
-	public Alquiler(LocalDate start, LocalDate end, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR, Boolean booked) {
+	public Alquiler(LocalDate start, LocalDate end, String place, Cliente client, VehiculoAlquilable vehicle, int totalPrice, int departureKm, int returnKm, String cbE, String cbR, Boolean booked) {
 		super();
 		this.id=null;
 		this.start = start;
@@ -68,64 +71,7 @@ public class Alquiler {
 		this.gasExit=cbE;
 		this.gasReturn=cbR;
 		this.isBooked = booked;
-	}
-	
-
-	public Long getId() {
-		return id;
-	}
-
-	public void setId(Long id) {
-		this.id = id;
-	}
-
-	public LocalDate getStart() {
-		return start;
-	}
-
-	public void setStart(LocalDate start) {
-		this.start = start;
-	}
-
-	public LocalDate getEnd() {
-		return end;
-	}
-
-	public void setEnd(LocalDate end) {
-		this.end = end;
-	}
-
-	public Cliente getClient() {
-		return client;
-	}
-
-	public void setClient(Cliente client) {
-		this.client = client;
-	}
-
-	public VehiculoAlquilable getVehicle() {
-		return vehicle;
-	}
-
-	public void setVehicle(VehiculoAlquilable vehicle) {
-		this.vehicle = vehicle;
-	}
-
-	public int getTotalPrice() {
-		return totalPrice;
-	}
-
-	public void setTotalPrice(int totalPrice) {
-		this.totalPrice = totalPrice;
-	}
-	
-	
-	public int getPricePaid() {
-		return pricePaid;
-	}
-
-	public void setPricePaid(int pricePaid) {
-		this.pricePaid = pricePaid;
+		this.place=place;
 	}
 	
 	public void openExcelPrint() throws FileNotFoundException, IOException {
@@ -135,6 +81,9 @@ public class Alquiler {
 		Workbook libro = new XSSFWorkbook();
 		Sheet hoja = libro.createSheet("Hoja 1");
 		hoja.setDefaultColumnWidth(5);
+		//for(int i=0; i<= 30;i++)
+			//hoja.setColumnWidth(i, 10);
+		
 		Row row = hoja.createRow(4);
 		Cell actualCell = row.createCell(1);
 		actualCell.setCellValue(client.getName());
@@ -175,7 +124,7 @@ public class Alquiler {
 		hoja.getRow(returnrow).createCell(gasReturnColumn).setCellValue("X");
 		
 		String user = System.getProperty("user.home");
-		final String nombreArchivo = user + "\\OneDrive\\.AA-Escritorio\\Imprimir Contrato.xlsx";//"\\Desktop\\Imprimir Contrato.xlsx"; // \\OneDrive\\.AA-Escritorio\\Imprimir Contrato.xlsx
+		final String nombreArchivo = user + "\\OneDrive\\.AA-Escritorio\\Imprimir Contrato.xlsx";//"\\Desktop\\Imprimir Contrato.xlsx";  \\OneDrive\\.AA-Escritorio\\Imprimir Contrato.xlsx
 		File directorioActual = new File(nombreArchivo);
 		FileOutputStream outputStream = null;
 		
@@ -234,6 +183,63 @@ public class Alquiler {
 	        }
 	    }
 
+	public Long getId() {
+		return id;
+	}
+
+	public void setId(Long id) {
+		this.id = id;
+	}
+
+	public LocalDate getStart() {
+		return start;
+	}
+
+	public void setStart(LocalDate start) {
+		this.start = start;
+	}
+
+	public LocalDate getEnd() {
+		return end;
+	}
+
+	public void setEnd(LocalDate end) {
+		this.end = end;
+	}
+
+	public Cliente getClient() {
+		return client;
+	}
+
+	public void setClient(Cliente client) {
+		this.client = client;
+	}
+
+	public VehiculoAlquilable getVehicle() {
+		return vehicle;
+	}
+
+	public void setVehicle(VehiculoAlquilable vehicle) {
+		this.vehicle = vehicle;
+	}
+
+	public int getTotalPrice() {
+		return totalPrice;
+	}
+
+	public void setTotalPrice(int totalPrice) {
+		this.totalPrice = totalPrice;
+	}
+	
+	
+	public int getPricePaid() {
+		return pricePaid;
+	}
+
+	public void setPricePaid(int pricePaid) {
+		this.pricePaid = pricePaid;
+	}
+
 	public int getDepartureKm() {
 		return departureKm;
 	}
@@ -272,6 +278,14 @@ public class Alquiler {
 
 	public void setIsBooked(Boolean isBooked) {
 		this.isBooked = isBooked;
+	}
+
+	public String getPlace() {
+		return place;
+	}
+
+	public void setPlace(String place) {
+		this.place = place;
 	}
 	 
 }
