@@ -38,7 +38,9 @@ public class AlquilerDao {
 			
 			manager.getTransaction().begin();
 			
-			if(alquiler.getId() == null) {
+			if(alquiler.getVehicle() == null && alquiler.getId() == null)
+				manager.persist(alquiler);				
+			else if(alquiler.getId() == null) {
 					List<VehiculoAlquilable> availables = new VehiculoDao(emf).getVehiculosAlquilablesAvailable(alquiler.getStart(), alquiler.getEnd());			
 					HashSet<VehiculoAlquilable> hs = new HashSet<VehiculoAlquilable>(availables);
 					if(hs.contains(alquiler.getVehicle())) 
@@ -68,7 +70,10 @@ public class AlquilerDao {
 		List<Alquiler> alquileres = null;
 		try (EntityManager manager = emf.createEntityManager();) {
 		        
-				StringBuilder query = new StringBuilder("select a FROM Alquiler a WHERE lower(a.vehicle.plate) like :filterplate ");
+				StringBuilder query = new StringBuilder("select a FROM Alquiler a WHERE 1=1 ");
+					
+				if(!plate.isBlank())
+					query.append("AND lower(a.vehicle.plate) like :filterplate ");
 		    	
 				if(dates != null)
 					query.append("AND a.start BETWEEN :start AND :end OR a.end BETWEEN :start AND :end OR (a.start < :start AND a.end > :end) ");
@@ -76,8 +81,10 @@ public class AlquilerDao {
 				query.append("ORDER BY a.end desc");
 		    					
 				manager.getTransaction().begin();
-		        TypedQuery<Alquiler> queryResult = manager.createQuery(query.toString() , Alquiler.class)
-		    					   									.setParameter("filterplate", plate.toLowerCase()+ "%");       
+		        TypedQuery<Alquiler> queryResult = manager.createQuery(query.toString(), Alquiler.class);
+
+		        if(!plate.isBlank())
+		        	queryResult.setParameter("filterplate", plate.toLowerCase()+ "%");       
 				
 		        if(dates != null)
 					queryResult.setParameter("start", dates[0]).setParameter("end", dates[1]);

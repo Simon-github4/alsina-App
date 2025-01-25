@@ -1,19 +1,13 @@
  package entities;
 
-import java.awt.Desktop;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.LocalDate;
+import java.time.temporal.ChronoUnit;
 
 import javax.swing.JOptionPane;
-
-import org.apache.poi.ss.usermodel.Cell;
-import org.apache.poi.ss.usermodel.Row;
-import org.apache.poi.ss.usermodel.Sheet;
-import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -32,7 +26,7 @@ public class Alquiler {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	@ManyToOne
-	@JoinColumn(name = "vehicle", nullable = false)
+	@JoinColumn(name = "vehicle", nullable = true)
 	private VehiculoAlquilable vehicle;
 	@Column(name  = "start_date")
 	private LocalDate start;
@@ -51,10 +45,11 @@ public class Alquiler {
 	private int departureKm;	
 	@Column(columnDefinition = "int default 0")
 	private int returnKm;	
-	private Boolean isBooked;	
-	
+	private Boolean isBooked;		
 	private String gasExit;
 	private String gasReturn;
+	
+	private static final int CHARGE_X_KM = 300;
 	
 	public Alquiler() {}
 
@@ -74,6 +69,24 @@ public class Alquiler {
 		this.place=place;
 	}
 	
+	public long getDurationDays() {
+		return  ChronoUnit.DAYS.between(start, end);
+	}
+	
+	public int getKMCharge() {
+		try {
+			int kmPerDay = (returnKm - departureKm) / (int)(getDurationDays());
+			
+			if(kmPerDay > 200) 
+				return (kmPerDay - 200) * (int)getDurationDays() * CHARGE_X_KM;
+
+		} catch(ArithmeticException e) {
+			e.printStackTrace();
+		}
+		return 0;
+
+	}
+	/*
 	public void openExcelPrint() throws FileNotFoundException, IOException {
 		final int returnrow = 13;
 		final int exitrow = 14;
@@ -135,7 +148,7 @@ public class Alquiler {
 	    
 		Desktop.getDesktop().open(directorioActual);
 
-		/*String user = System.getProperty("user.home");
+		String user = System.getProperty("user.home");
 		final String nombreArchivo = user + "\\OneDrive\\.AA-Escritorio\\Imprimir ContratoFASTEXCEL.xlsx";// \\OneDrive\\.AA-Escritorio\\Imprimir Contrato.xlsx
 		File directorioActual = new File(nombreArchivo);
 
@@ -156,9 +169,9 @@ public class Alquiler {
 
 		        workbook.finish();
 		        Desktop.getDesktop().open(directorioActual);
-		}FastExcel*/
+		}FastExcel
 		
-	}
+	}*/
 	
 	 public static boolean isFileOpen(String filePath) {
 	        File file = new File(filePath);

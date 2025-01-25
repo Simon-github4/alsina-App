@@ -4,12 +4,11 @@
              http://java.sun.com/xml/ns/persistence/persistence_2_0.xsd"
              version="2.0" xmlns="http://java.sun.com/xml/ns/persistence">
 
-  <persistence-unit name="persistencia">
+  <persistence-unit name="persistencia">  	
   	
-  	
-  	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider> 
-  	<!--<provider>com.zaxxer.hikari.hibernate.HikariConnectionProvider</provider> -->
-    
+  	<provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
+	<!--<provider>com.zaxxer.hikari.hibernate.HikariConnectionProvider</provider> 
+    -->  
     <class>entities.Alquiler</class>
     <class>entities.Cliente</class>
     <class>entities.Destino</class>
@@ -18,17 +17,35 @@
     <class>entities.Sucursal</class>
     <class>entities.Vehiculo</class>
     <class>entities.VehiculoAlquilable</class>
-  
+ 
     <properties>
+			      
         <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
         <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
         <property name="jakarta.persistence.jdbc.user" value="postgres" />
-        <property name="jakarta.persistence.jdbc.password" value="niidea2004" />
+        <property name="jakarta.persistence.jdbc.password" value="niidea2004" />   
         <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
-        <property name="hibernate.hbm2ddl.auto" value="update" />
+        <property name="hibernate.hbm2ddl.auto" value="none" />
         <property name="hibernate.show_sql" value="true"/>
-        <property name="hibernate.format_sql" value="true"/>
-        <property name="hibernate.use_sql_comments" value="true"/>
+        <property name="hibernate.format_sql" value="false"/>		<!-- false to reduce init start --> 
+        <property name="hibernate.use_sql_comments" value="false"/>
+
+        <property name="hibernate.hikari.dataSource.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
+        <property name="hibernate.hikari.dataSource.user" value="postgres"/>
+        <property name="hibernate.hikari.dataSource.password" value="niidea2004"/> 
+        <property name="hibernate.hikari.maximumPoolSize" value="5"/>
+		<property name="hibernate.hikari.connectionTimeout" value="30000"/> <!-- 30 seconds -->
+		<property name="hibernate.hikari.minimumIdle" value="1"/>
+		<property name="hibernate.hikari.idleTimeout" value="600000"/> <!-- 10 minutes -->
+		<property name="hibernate.hikari.maxLifetime" value="1800000"/> <!-- 30 minutes -->
+				
+		<property name="hibernate.archive.autodetection" value="class"/>
+		<property name="hibernate.ejb.packagesToScan" value="src/main/java/entities"/>		
+		
+    </properties>
+  </persistence-unit>
+
+</persistence>
     <!--    
         <property name="hibernate.hikari.dataSource.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
         <property name="hibernate.hikari.dataSource.user" value="postgres"/>
@@ -41,7 +58,3 @@
         <property name="hibernate.hikari.dataSource.prepStmtCacheSize" value="250" />
         <property name="hibernate.hikari.dataSource.prepStmtCacheSqlLimit" value="2048" />
    -->
-    </properties>
-  </persistence-unit>
-
-</persistence>

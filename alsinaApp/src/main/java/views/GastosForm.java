@@ -51,13 +51,15 @@ import entityManagers.DestinoDao;
 import entityManagers.GastoDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
-import interfaces.ViewUtils;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
+import utils.ViewUtils;
 
 public class GastosForm extends JPanel{
 
+	private static final long serialVersionUID = 1L;
+	
 	private JPanel contentPane;
 	private JPanel inputPanel;
 	private JLabel messageLabel;
@@ -88,7 +90,7 @@ public class GastosForm extends JPanel{
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));
-			contentPane.setPreferredSize(new Dimension(1100, 750));
+			contentPane.setPreferredSize(new Dimension(1050, 670));
 			this.setSize(1100, 850);
 			this.setLayout(new BorderLayout());
 			this.add(contentPane, BorderLayout.CENTER);

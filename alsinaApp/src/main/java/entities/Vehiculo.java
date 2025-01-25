@@ -2,6 +2,8 @@ package entities;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.DiscriminatorType;
@@ -17,13 +19,12 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
-//@Table()
 @Entity
 @Table(name = "vehiculos", uniqueConstraints = @UniqueConstraint(columnNames = {"plate"}))
 @DiscriminatorColumn(name = "esalquilable", discriminatorType = DiscriminatorType.STRING) 
-@DiscriminatorValue(value= "no")
+//@Where(clause = "is_deleted = false")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
-public class Vehiculo {
+public abstract class Vehiculo {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)

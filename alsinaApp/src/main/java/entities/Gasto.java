@@ -19,7 +19,7 @@ public class Gasto {
 	private Long id;
 	@ManyToOne
 	@JoinColumn(name = "vehicle", nullable = true)
-	private VehiculoAlquilable vehicle;
+	private Vehiculo vehicle;
 
 	private int amount;	
 	private LocalDate date;
@@ -34,7 +34,7 @@ public class Gasto {
 	@JoinColumn(name = "branch", nullable = false)
 	private Sucursal branch;
 
-	public Gasto(Long id, VehiculoAlquilable vehicle, int amount, LocalDate date, String description, String payment,
+	public Gasto(Long id, Vehiculo vehicle, int amount, LocalDate date, String description, String payment,
 			Destino destination, Sucursal branch) {
 		super();
 		this.id = id;
@@ -47,7 +47,7 @@ public class Gasto {
 		this.branch = branch;
 	}
 	
-	public Gasto(VehiculoAlquilable vehicle, int amount, LocalDate date, String description, String payment,
+	public Gasto(Vehiculo vehicle, int amount, LocalDate date, String description, String payment,
 			Destino destination, Sucursal branch) {
 		super();
 		this.vehicle = vehicle;
@@ -69,11 +69,11 @@ public class Gasto {
 		this.id = id;
 	}
 
-	public VehiculoAlquilable getVehicle() {
+	public Vehiculo getVehicle() {
 		return vehicle;
 	}
 
-	public void setVehicle(VehiculoAlquilable vehicle) {
+	public void setVehicle(Vehiculo vehicle) {
 		this.vehicle = vehicle;
 	}
 

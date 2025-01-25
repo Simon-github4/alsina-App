@@ -44,8 +44,8 @@ import entityManagers.DestinoDao;
 import entityManagers.GastoDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
-import interfaces.ViewUtils;
 import raven.datetime.DatePicker;
+import utils.ViewUtils;
 
 public class CajaHistorial extends JPanel {
 
@@ -99,7 +99,7 @@ public class CajaHistorial extends JPanel {
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 5));
-		contentPane.setPreferredSize(new Dimension(1100, 750));
+		contentPane.setPreferredSize(new Dimension(1050, 670));
 		this.setSize(1100, 850);
 		this.setLayout(new BorderLayout());
 		this.add(contentPane, BorderLayout.CENTER);
@@ -397,7 +397,7 @@ public class CajaHistorial extends JPanel {
 		if(egresosRadioButton.isSelected()) {
 			List<Gasto> gastos = GastoDao.getGastosByFilters(plate.toLowerCase(), dates, branch, desination);			
 			for(Gasto a : gastos) {
-				Object[] row = {a.getVehicle(), a.getDate(), a.getDescription(), a.getAmount(), a.getDestination(), a.getPayment(), a.getBranch(), a.getId()};
+				Object[] row = {a.getVehicle(), a.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getDescription(), a.getAmount(), a.getDestination(), a.getPayment(), a.getBranch(), a.getId()};
 				tableModel.addRow(row);
 				egresos += a.getAmount();
 			}

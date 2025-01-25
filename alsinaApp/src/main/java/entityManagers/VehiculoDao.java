@@ -115,10 +115,10 @@ public class VehiculoDao {
 		        			    "   (SELECT COUNT(a2.id) " +
 		        			    "    FROM Alquiler a2 " +
 		        			    "    WHERE a2.vehicle.id = v.id"+
-		        			    "			AND(a2.start NOT BETWEEN :startDate AND :endDate) " +
-		        			    "       	AND (a2.end NOT BETWEEN :startDate AND :endDate) " +
-		        			    "       	AND (NOT (a2.start < :startDate AND a2.end > :endDate)) " +
-		        			    "       	AND (NOT (a2.start > :startDate AND a2.end < :endDate)) " +
+		        			    "			AND (NOT (a2.start > :startDate AND a2.start < :endDate)) " +//S(--------xx)Exxxx    NOT BETWEEN no incluiria start en mismo dia con endDate
+		        			    "       	AND (NOT (a2.end > :startDate AND a2.end < :endDate)) " + //   xxxS(xxx--------)E	 NOT BETWEEN no incluiria end en mismo dia con startDate
+		        			    "       	AND (NOT (a2.start < :startDate AND a2.end > :endDate)) " +//  xxS(xxxxxxxxxx)Exxxx
+		        			    "       	AND (NOT (a2.start > :startDate AND a2.end < :endDate)) " +//  S(---xxxx---)E
 		        			    "       	)) " +
 		        			    "OR (COUNT(a.id) = 0) " +
 		        			    "ORDER BY v.plate ASC" , VehiculoAlquilable.class);

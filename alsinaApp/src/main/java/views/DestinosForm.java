@@ -47,7 +47,7 @@ public class DestinosForm extends JPanel{
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 5));
-		contentPane.setPreferredSize(new Dimension(1100, 750));
+		contentPane.setPreferredSize(new Dimension(1050, 670));
 		this.setSize(1100, 850);
 		this.setLayout(new BorderLayout());
 		this.add(contentPane, BorderLayout.CENTER);

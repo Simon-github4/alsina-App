@@ -7,6 +7,7 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.time.LocalDate;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -18,6 +19,7 @@ import javax.swing.UIManager;
 import com.formdev.flatlaf.FlatClientProperties;
 import com.formdev.flatlaf.FlatIntelliJLaf;
 
+import entities.Cliente;
 import entityManagers.AlquilerDao;
 import entityManagers.ClienteDao;
 import entityManagers.DestinoDao;
@@ -25,9 +27,9 @@ import entityManagers.GastoDao;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
 import entityManagers.VehiculoDao;
-import interfaces.ViewUtils;
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import utils.ViewUtils;
 
 public class Dashboard extends JFrame{
 
@@ -58,13 +60,13 @@ public class Dashboard extends JFrame{
         			SucursalDao = new SucursalDao(emf);
         			MarcaDao = new MarcaDao(emf);
         			DestinoDao = new DestinoDao(emf);
-        			GastoDao = new GastoDao(emf);            
-        			});                	
+        			GastoDao = new GastoDao(emf);         			
+        	});                	
         } catch (Exception e) {
             e.printStackTrace();
             throw new ExceptionInInitializerError("Failed to initialize EntityManagerFactory: " + e.getMessage());
         }
-		
+
 		setStyling();
 		getRootPane().putClientProperty(FlatClientProperties.FULL_WINDOW_CONTENT, true);
 		getRootPane().putClientProperty(FlatClientProperties.TITLE_BAR_BACKGROUND, new Color(84, 173, 253 ));

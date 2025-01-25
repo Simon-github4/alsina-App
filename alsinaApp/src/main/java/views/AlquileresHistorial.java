@@ -41,11 +41,12 @@ import entities.Alquiler;
 import entities.Cliente;
 import entities.VehiculoAlquilable;
 import entityManagers.AlquilerDao;
-import interfaces.ColorearTabla;
-import interfaces.GetTabbedPane;
-import interfaces.PdfUtils;
-import interfaces.ViewUtils;
 import raven.datetime.DatePicker;
+import raven.datetime.PanelDateOptionLabel.LabelCallback;
+import utils.ColorearTabla;
+import utils.GetTabbedPane;
+import utils.PdfUtils;
+import utils.ViewUtils;
 
 public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	
@@ -65,6 +66,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 	private JTextField newPaymentTextField;
 	private JTextField remainingTextField;
 	private JTextField paidTextField;
+	private JLabel chargeLabel;
+	private JLabel chargeLabel2;
 	
 	
 	public AlquileresHistorial(AlquilerDao AlquilerDao) {
@@ -73,7 +76,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 		contentPane.setLayout(new BorderLayout(0, 5));
-		contentPane.setPreferredSize(new Dimension(1100, 750));
+		contentPane.setPreferredSize(new Dimension(1050, 670));
 		this.setSize(1100, 850);
 		this.setLayout(new BorderLayout());
 		this.add(contentPane, BorderLayout.CENTER);
@@ -175,19 +178,15 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 					setMessage("Ningun Alquiler seleccionado", false);
 				else {
 					try {
-						int row =table.getSelectedRow();
-						Long id = (Long)tableModel.getValueAt(row, 10);
-						
+						Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 10);		
 						Alquiler alquiler = AlquilerDao.getAlquilerById(id);
-						//alquiler.openExcelPrint();
 						PdfUtils.openPdfToPrint(alquiler);
-					/*} catch (FileNotFoundException ex) {
-						setMessage(ex.getMessage(), false);
-						ex.printStackTrace();
-					*/  } catch(IllegalArgumentException il) {
-							setMessage("Los datos a imprimirse NO pueden estar Vacios", false);
-							il.printStackTrace();
-						} catch (/*IO*/Exception ex) {
+						
+						//alquiler.openExcelPrint();
+					} catch(IllegalArgumentException il) {
+						setMessage("Los datos a imprimirse NO pueden estar Vacios", false);
+						il.printStackTrace();
+					} catch (Exception ex) {
 						setMessage(ex.getMessage(), false);
 						ex.printStackTrace();
 					}	
@@ -195,7 +194,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 			}
 		});
 		horizontalPanel.add(excelButton);
-		ViewUtils.setIconToButton(excelButton, "/resources/imgs/sobresalir.png", 32, 32);
+		//ViewUtils.setIconToButton(excelButton, "/resources/imgs/sobresalir.png", 32, 32);
+		ViewUtils.setIconToButton(excelButton, "/resources/imgs/pdf.png", 32, 32);
 		horizontalPanel.add(new JLabel(""));
 		northPanel.add(horizontalPanel);
 		
@@ -225,23 +225,31 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
         
 		table = new JTable(tableModel);
         table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-
 			@Override
 			public void valueChanged(ListSelectionEvent e) {
                 if (!e.getValueIsAdjusting()) {
                 	int row = table.getSelectedRow();
                 	if(row != -1){
                 		long id = (long)tableModel.getValueAt(row, 10);
+                		Alquiler alquiler = AlquilerDao.getAlquilerById(id);
 
-                		int amount = (int) tableModel.getValueAt(row, 4);
-                		int paiduntil = AlquilerDao.getAlquilerById(id).getPricePaid();
-								
+                		int paiduntil = alquiler.getPricePaid();
                 		paidTextField.setText(String.valueOf(paiduntil));
-						remainingTextField.setText(String.valueOf(amount - paiduntil));
+
+                		int amount = alquiler.getTotalPrice();		
+                		if(alquiler.getKMCharge() > 0) {
+                			amount += alquiler.getKMCharge();
+                			chargeLabel.setText("Recargo por exceso");
+                			chargeLabel2.setText("de KM: "+ String.valueOf(alquiler.getKMCharge()));
+                		} else {
+                			chargeLabel.setText("");
+                			chargeLabel2.setText("");
+                		}
+						
+                		remainingTextField.setText(String.valueOf(amount - paiduntil));
                 	}
                 }
-			}
-			
+			}		
 		});
 		table.getColumnModel().getColumn(4).setCellRenderer(new ColorearTabla(AlquilerDao));
 		table.getColumnModel().getColumn(10).setMaxWidth(0);
@@ -287,6 +295,15 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		remainingTextField.setEditable(false);
 		horizontalPanel.add(remainingTextField);
 		east.add(horizontalPanel);
+
+		horizontalPanel = new JPanel(new GridLayout(2,1));
+		chargeLabel = new JLabel("");
+		chargeLabel.setForeground(Color.red);
+		horizontalPanel.add(chargeLabel);
+		chargeLabel2 = new JLabel("");
+		chargeLabel2.setForeground(Color.red);
+		horizontalPanel.add(chargeLabel2);		
+		east.add(horizontalPanel);
 		
 		horizontalPanel = new JPanel(new GridLayout());
 		horizontalPanel.add(new JLabel("Nuevo Pago", JLabel.CENTER));
@@ -298,10 +315,6 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		east.add(horizontalPanel);
 
 		horizontalPanel = new JPanel(new GridLayout(1,0));
-		horizontalPanel.add(new JLabel(""));
-		east.add(horizontalPanel);
-
-		horizontalPanel = new JPanel(new GridLayout(1,0));
 		JButton confirm = new JButton("Actualizar");
 		confirm.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -310,6 +323,7 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 				else {
 					try {
 						int newPayment = Integer.parseInt(newPaymentTextField.getText());
+						
 						AlquilerDao.updatePricePaid((Long)tableModel.getValueAt(table.getSelectedRow(), 10), newPayment);
 						clearFields();
 					}catch(NumberFormatException e1) {
@@ -361,11 +375,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		int row =table.getSelectedRow();
 		
 		Long id = (Long) tableModel.getValueAt(row, 10);
-		Alquiler alquiler = AlquilerDao.getAlquilerById(id);
-		
-		//Alquiler alquiler = new Alquiler(start, end, client, vehicle, price, kmD, kmR, cbE, cbR);
-		//alquiler.setId(id);
-		
+		Alquiler alquiler = AlquilerDao.getAlquilerById(id);		
+
 		JTabbedPane t = getTabbedPane();
 		t.setSelectedIndex(1);
 		AlquileresForm a = (AlquileresForm)t.getSelectedComponent();
@@ -423,6 +434,8 @@ public class AlquileresHistorial extends JPanel implements GetTabbedPane{
 		paidTextField.setText("");
 		newPaymentTextField.setText("");
 		remainingTextField.setText("");
+		chargeLabel.setText("");
+		chargeLabel2.setText("");
 		table.clearSelection();
 	}
 	

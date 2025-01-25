@@ -73,7 +73,7 @@ public class GastoDao {
 		          if (destination.getId() != null) 
 		              queryString.append(" AND e.destination = :destination ");
 		   
-		          queryString.append("ORDER BY e.id desc ");
+		          queryString.append("ORDER BY e.date desc ");
 		          
 		          TypedQuery<Gasto> query = manager.createQuery(queryString.toString(), Gasto.class);
 		          

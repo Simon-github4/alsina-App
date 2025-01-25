@@ -1,4 +1,4 @@
-package interfaces;
+package utils;
 
 import java.awt.Color;
 import java.awt.Component;
@@ -25,11 +25,12 @@ public class ColorearTabla extends DefaultTableCellRenderer{
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 
 			long id = (long)table.getValueAt(row, 10);
-       		
-	            if (isRentEnd(table, row)) {
+			Alquiler alquiler = alquilerDao.getAlquilerById(id);
+			
+	            if (isRentEnd(table, row, alquiler)) {
 	            	this.setBackground(Color.GREEN); 
 	            	this.setForeground(Color.BLACK); 
-	            }else if(alquilerDao.getAlquilerById(id).getIsBooked()){
+	            }else if(alquiler.getIsBooked()){
 	            	this.setBackground(Color.YELLOW); 
 	            	this.setForeground(Color.BLACK);
 	            }else {
@@ -37,10 +38,10 @@ public class ColorearTabla extends DefaultTableCellRenderer{
 	            	this.setForeground(Color.WHITE); 
 	            }
 	            if(isSelected) {
-		            if (isRentEnd(table, row)) {
+		            if (isRentEnd(table, row, alquiler)) {
 		            	this.setBackground(Color.GREEN); 
 		            	this.setForeground(Color.BLACK); 
-		            }else if(alquilerDao.getAlquilerById(id).getIsBooked()){
+		            }else if(alquiler.getIsBooked()){
 		            	this.setBackground(Color.YELLOW); 
 		            	this.setForeground(Color.BLACK);
 		            }else {
@@ -53,13 +54,12 @@ public class ColorearTabla extends DefaultTableCellRenderer{
             return this;
         }
     
-		public boolean isRentEnd(JTable table, int row) {
-       		long id = (long)table.getValueAt(row, 10);
+		public boolean isRentEnd(JTable table, int row, Alquiler alquiler) {
 
-       		int amount = (int) table.getValueAt(row, 4);
+       		int amount = alquiler.getTotalPrice() + alquiler.getKMCharge();
        		int paiduntil = 0;
        		try {
-				paiduntil = alquilerDao.getAlquilerById(id).getPricePaid();
+				paiduntil = alquiler.getPricePaid();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}        	

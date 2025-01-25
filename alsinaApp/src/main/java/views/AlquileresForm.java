@@ -32,12 +32,12 @@ import entities.VehiculoAlquilable;
 import entityManagers.AlquilerDao;
 import entityManagers.ClienteDao;
 import entityManagers.VehiculoDao;
-import interfaces.ViewUtils;
 import jakarta.persistence.NoResultException;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
 import raven.datetime.event.DateSelectionEvent;
 import raven.datetime.event.DateSelectionListener;
+import utils.ViewUtils;
 
 public class AlquileresForm extends JPanel{
 	
@@ -88,7 +88,7 @@ private static final long serialVersionUID = 1L;
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
 			contentPane.setLayout(new BorderLayout(0, 5));
-			contentPane.setPreferredSize(new Dimension(1100, 750));
+			contentPane.setPreferredSize(new Dimension(1050, 670));
 			this.setSize(1100, 850);
 			this.setLayout(new BorderLayout());
 			this.add(contentPane, BorderLayout.CENTER);
@@ -156,7 +156,7 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(kilometersReturnTextField);
 			horizontalPanel.add(new JLabel(""));
 				
-			String[] values = {"RESERVA", "1/4", "1/2", "3/4", "FULL"};
+			String[] values = {"1/8", "1/4","3/8", "1/2","5/8", "7/8", "FULL"};
 			
 			horizontalPanel.add(new JLabel("Combustible Salida", JLabel.RIGHT));
 			gasExitComboBox = new JComboBox<String>();
@@ -170,7 +170,7 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(gasReturnComboBox);
 			horizontalPanel.add(new JLabel(""));
 
-			horizontalPanel.add(new JLabel("Alquiler de Reservacion", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("Reserva ", JLabel.RIGHT));
 			reservaRadioButton = new JRadioButton("");
 			horizontalPanel.add(reservaRadioButton);
 			horizontalPanel.add(new JLabel(""));
@@ -244,12 +244,20 @@ private static final long serialVersionUID = 1L;
 		}
 
 		private void insert() {
-			VehiculoAlquilable vehicle;
+			VehiculoAlquilable vehicle = null;
+
 			try {
 				vehicle = VehiculoDao.getVehiculoAlquilableByPlate(vehicleTextField.getText());
 			} catch (NoResultException p) {
-				SwingUtilities.invokeLater(() -> setMessage("Vehiculo Inexistente", false));
-				throw p;
+				if(! reservaRadioButton.isSelected()) {
+					SwingUtilities.invokeLater(() -> setMessage("Vehiculo Inexistente", false));
+					throw p;
+				}else
+					if(! vehicleTextField.getText().isBlank()) {
+						SwingUtilities.invokeLater(() -> setMessage("Vehiculo Inexistente", false));
+						throw p;
+					}
+					
 			}
 			try {
 				LocalDate[] date = dp.getSelectedDateRange();
@@ -285,6 +293,7 @@ private static final long serialVersionUID = 1L;
 				setMessage("Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)", false);
 			} catch (PersistenceException e5) {
 				setMessage("ya existe un Vehiculo con esa Patente", false);
+				e5.printStackTrace();
 			} catch (Exception e3) {
 				setMessage("Ha ocurrido un Error:" + e3.getLocalizedMessage(), false);
 			}
@@ -293,7 +302,7 @@ private static final long serialVersionUID = 1L;
 		
 		private boolean validateFields() {
 			try {
-					if(vehicleTextField.getText().length() < 6 || vehicleTextField.getText().isBlank()) {
+					if((vehicleTextField.getText().length() < 6 || vehicleTextField.getText().isBlank()) && !reservaRadioButton.isSelected()) {
 						setMessage("la Patente no puede tener menos de 6 caracteres", false);
 						return false;
 					}				
@@ -345,7 +354,7 @@ private static final long serialVersionUID = 1L;
 			title.setText("MODIFICANDO ALQUILER");
 			this.alquiler = alquiler;
 			
-			vehicleTextField.setText(alquiler.getVehicle().getPlate());
+			vehicleTextField.setText( (alquiler.getVehicle()== null)? "" : alquiler.getVehicle().getPlate());
 			dp.setSelectedDateRange(alquiler.getStart(), alquiler.getEnd());
 			clientComboBox.setSelectedItem(alquiler.getClient());
 			priceTextField.setText(String.valueOf(alquiler.getTotalPrice()));

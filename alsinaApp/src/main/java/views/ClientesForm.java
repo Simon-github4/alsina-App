@@ -67,7 +67,7 @@ public class ClientesForm extends JPanel{
 		
 			contentPane = new JPanel();
 			contentPane.setLayout(new BorderLayout(0, 5));
-			contentPane.setPreferredSize(new Dimension(1100, 750));
+			contentPane.setPreferredSize(new Dimension(1050, 670));
 			this.setSize(1100, 850);
 			this.setLayout(new BorderLayout());
 			this.add(contentPane, BorderLayout.CENTER);
@@ -84,6 +84,13 @@ public class ClientesForm extends JPanel{
 			horizontalPanel.add(titulo);		
 			inputPanel.add(horizontalPanel);
 
+			horizontalPanel = new JPanel(new GridLayout());
+			JLabel z = new JLabel("agregar un USUARIO, ej: ALSINA - juan", JLabel.CENTER);
+			z.setForeground(Color.GRAY);
+			horizontalPanel.add(z);
+			horizontalPanel.add(new JLabel(""));
+			inputPanel.add(horizontalPanel);
+			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Nombre/s", JLabel.RIGHT));
 			nameTextField = new JTextField("",30);
@@ -204,6 +211,9 @@ public class ClientesForm extends JPanel{
 			table.getColumnModel().getColumn(11).setMaxWidth(0);
 			table.getColumnModel().getColumn(11).setMinWidth(0);
 			table.getColumnModel().getColumn(11).setPreferredWidth(0);
+			table.getColumnModel().getColumn(10).setPreferredWidth(40);
+			table.getColumnModel().getColumn(9).setPreferredWidth(40);
+			table.getColumnModel().getColumn(6).setPreferredWidth(40);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -236,6 +246,7 @@ public class ClientesForm extends JPanel{
 							cardTextField.setText(card);
 							cardNumberTextField.setText(cardNumber);
 							cardExpirationTextField.setText(cardExpiration);
+
 	                	}
 	                }
 				}
