@@ -60,10 +60,7 @@ private static final long serialVersionUID = 1L;
 	private Long id;
 	
 	private JTextField searchTextField;
-	private JFormattedTextField filterDatesField;
-	private DatePicker dpFilters;
 	private DatePicker dp;
-	private JButton searchButton;
 	
 	private AlquilerDao AlquilerDao;
 	private VehiculoDao VehiculoDao;
@@ -73,11 +70,10 @@ private static final long serialVersionUID = 1L;
 	private JComboBox<String> gasReturnComboBox;
 	private JLabel title;
 	private JLabel labelSuggestedAmount;
-	private JRadioButton reservaRadioButton;
-	
+	private JRadioButton reservaRadioButton;	
 	private Alquiler alquiler;
-
 	private JTextField placeTextField;
+
 
 	public AlquileresForm(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, ClienteDao clienteDao) {
 			this.AlquilerDao= alquilerDao;	
@@ -229,11 +225,11 @@ private static final long serialVersionUID = 1L;
 			contentPane.add(south, BorderLayout.SOUTH);
 
 //<------------------------------------------------------------------------------------------------------------------------------->
-			fillClients();
 			clearFields();
 		}	
 
-		private void fillClients() {
+		public void fillClients() {
+			clientComboBox.removeAllItems();
 			clientComboBox.addItem(new Cliente("Seleccione un Cliente", null, null, null, null, null, null, null, null, null, null));
 
 			List<Cliente> clientes = ClienteDao.getClientes();
@@ -296,6 +292,7 @@ private static final long serialVersionUID = 1L;
 				e5.printStackTrace();
 			} catch (Exception e3) {
 				setMessage("Ha ocurrido un Error:" + e3.getLocalizedMessage(), false);
+				e3.printStackTrace();;
 			}
 
 		}
@@ -331,6 +328,7 @@ private static final long serialVersionUID = 1L;
 		}
 
 		private void clearFields() {
+			fillClients();
 			vehicleTextField.setText("");
 			dp.clearSelectedDate();
 			placeTextField.setText("");
@@ -372,9 +370,7 @@ private static final long serialVersionUID = 1L;
 		public JTextField getVehicleTextField() {
 			return vehicleTextField;
 		}
-		public JButton getSearchButton() {
-			return searchButton;
-		}
+
 		public JTextField getKilometersDepartureTextField() {
 			return kilometersDepartureTextField;
 		}

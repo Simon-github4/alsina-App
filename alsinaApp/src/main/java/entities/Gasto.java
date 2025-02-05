@@ -2,6 +2,9 @@ package entities;
 
 import java.time.LocalDate;
 
+import org.hibernate.annotations.Where;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -12,6 +15,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table
+@Where(clause = "is_deleted = false")
 public class Gasto {
 
 	@Id
@@ -33,7 +37,9 @@ public class Gasto {
 	@ManyToOne
 	@JoinColumn(name = "branch", nullable = false)
 	private Sucursal branch;
-
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	private Boolean isDeleted;
+	
 	public Gasto(Long id, Vehiculo vehicle, int amount, LocalDate date, String description, String payment,
 			Destino destination, Sucursal branch) {
 		super();
@@ -45,6 +51,8 @@ public class Gasto {
 		this.payment = payment;
 		this.destination = destination;
 		this.branch = branch;
+		this.isDeleted= false;
+
 	}
 	
 	public Gasto(Vehiculo vehicle, int amount, LocalDate date, String description, String payment,
@@ -57,6 +65,8 @@ public class Gasto {
 		this.payment = payment;
 		this.destination = destination;
 		this.branch = branch;
+		this.isDeleted= false;
+
 	}
 
 	public Gasto() {}
@@ -125,5 +135,13 @@ public class Gasto {
 		this.branch = branch;
 	}
 	
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	
 }

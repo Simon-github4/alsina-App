@@ -27,6 +27,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -47,7 +48,7 @@ import entityManagers.VehiculoDao;
 import raven.datetime.DatePicker;
 import utils.ViewUtils;
 
-public class CajaHistorial extends JPanel {
+public class CajaHistorialAlquileres extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 
@@ -70,26 +71,19 @@ public class CajaHistorial extends JPanel {
 	private DestinoDao DestinoDao;
 	private JComboBox<Sucursal> filterBranchComboBox;
 	private JComboBox<Destino> filterDestinationComboBox;
-	private JLabel egresosLabel;
 
 	private JLabel saldoLabel;
-
 	private JLabel ingresosLabel;
-
-	private JRadioButton egresosRadioButton;
-
-	private JRadioButton ingresosRadioButton;
-
-	private DefaultTableModel tableIncomeModel;
-
-	private JTable tableIncome;
-
-	private JPanel tableIncomePanel;
-
+	private JLabel egresosLabel;
 	private JTextField saldoTextField;
+	private JRadioButton egresosRadioButton;
+	private JRadioButton ingresosRadioButton;
+	private DefaultTableModel tableIncomeModel;
+	private JTable tableIncome;
+	private JPanel tableIncomePanel;
 	
 	
-	public CajaHistorial(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, SucursalDao SucursalDao, GastoDao GastoDao, DestinoDao DestinoDao) {
+	public CajaHistorialAlquileres(AlquilerDao alquilerDao, VehiculoDao vehiculoDao, SucursalDao SucursalDao, GastoDao GastoDao, DestinoDao DestinoDao) {
 		this.AlquilerDao= alquilerDao;	
 		this.VehiculoDao = vehiculoDao;
 		this.SucursalDao = SucursalDao;
@@ -156,7 +150,6 @@ public class CajaHistorial extends JPanel {
 		label.setHorizontalAlignment(SwingConstants.RIGHT);
 		horizontalPanel.add(label);
 		searchTextField = new JTextField();
-		searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
 		searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
 		horizontalPanel.add(searchTextField);
 		JLabel label_1 = new JLabel("Fechas");
@@ -192,17 +185,6 @@ public class CajaHistorial extends JPanel {
 
 		ingresosRadioButton.setSelected(true);
 		egresosRadioButton.setSelected(true);
-		/*horizontalPanel = new JPanel(new GridLayout(1,0));
-		horizontalPanel.add(new JLabel("", JLabel.RIGHT));		
-		egresosRadioButton.setSelected(true);
-		ingresosRadioButton = new JRadioButton("Ingresos");
-		ingresosRadioButton.setSelected(true);
-		horizontalPanel.add(egresosRadioButton);
-		horizontalPanel.add(new JLabel("", JLabel.RIGHT));		
-		horizontalPanel.add(ingresosRadioButton);
-		horizontalPanel.add(new JLabel("", JLabel.RIGHT));		
-
-		west.add(horizontalPanel);*/
 		
 		horizontalPanel = new JPanel(new GridLayout(1,0));
 
@@ -211,15 +193,16 @@ public class CajaHistorial extends JPanel {
 		searchButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadTable(searchTextField.getText(), dpFilters.getSelectedDateRange(), (Sucursal)filterBranchComboBox.getSelectedItem(), (Destino)filterDestinationComboBox.getSelectedItem());
+				fillDestinations();
+				fillBranchs();
 			}
 		});
 		ViewUtils.setIconToButton(searchButton, "/resources/imgs/lupa.png", 32, 32);
 		horizontalPanel.add(searchButton);
 		searchTextField.addKeyListener(new KeyAdapter() {
 			@Override
-			public void keyPressed(KeyEvent e) {
-				if(e.getKeyCode() == KeyEvent.VK_ENTER)
-					searchButton.doClick();
+			public void keyPressed(KeyEvent e) {	
+				SwingUtilities.invokeLater(()-> searchButton.doClick());
 			}
 		});
 		JButton deleteButton = new JButton("Eliminar");
@@ -334,7 +317,8 @@ public class CajaHistorial extends JPanel {
 	}
 
 	private void fillBranchs() {
-		filterBranchComboBox.addItem(new Sucursal("Seleccione una Consecionaria"));
+		filterBranchComboBox.removeAllItems();
+		filterBranchComboBox.addItem(new Sucursal("Seleccione una Consecionaria", null));
 
 		List<Sucursal> sucursales = SucursalDao.getSucursales();
 		for(Sucursal s : sucursales) 
@@ -343,6 +327,7 @@ public class CajaHistorial extends JPanel {
 	}
 
 	private void fillDestinations() {
+		filterDestinationComboBox.removeAllItems();
 		filterDestinationComboBox.addItem(new Destino("Seleccione un Destino"));
 		
 		List<Destino> destinos = DestinoDao.getDestinos();
@@ -353,17 +338,9 @@ public class CajaHistorial extends JPanel {
 	
 	private void update() {
 		try {
-        	int row = table.getSelectedRow();
-			VehiculoAlquilable vehicle = (VehiculoAlquilable) tableModel.getValueAt(row, 0);
-			LocalDate date = (LocalDate) tableModel.getValueAt(row, 1);
-			String description = (String) tableModel.getValueAt(row, 2);
-			int amount = (int) tableModel.getValueAt(row, 3);
-			Destino destination = (Destino) tableModel.getValueAt(row, 4);
-			String pay = (String) tableModel.getValueAt(row, 5);
-			Sucursal branch = (Sucursal) tableModel.getValueAt(row, 6);
-			
 			Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 7);
-			Gasto g = new Gasto(id, vehicle, amount, date, description, pay, destination, branch);
+
+			Gasto g = GastoDao.getGastoById(id);
 
 			JTabbedPane t = getTabbedPane();
 			t.setSelectedIndex(0);

@@ -2,6 +2,9 @@ package entities;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Where;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -10,24 +13,31 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table
+@Where(clause = "is_deleted = false")
 public class Destino {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long id;
 	private String description;
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	private Boolean isDeleted;
 	
 	public Destino() {}
 	
 	public Destino(String description) {
 		super();
 		this.description = description;
+		this.isDeleted= false;
+
 	}
 	
 	public Destino(Long id, String description) {
 		super();
 		this.id = id;
 		this.description = description;
+		this.isDeleted= false;
+
 	}
 	public Long getId() {
 		return id;
@@ -64,5 +74,13 @@ public class Destino {
 		return Objects.equals(description, other.description) && Objects.equals(id, other.id);
 	}
 	
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+
 	
 }

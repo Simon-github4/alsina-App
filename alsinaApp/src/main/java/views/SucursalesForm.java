@@ -42,6 +42,8 @@ public class SucursalesForm extends JPanel {
 	private JTextField descriptionTextField;
 	private SucursalDao SucursalDao;
 
+	private JTextField adressTextField;
+
 	public SucursalesForm(SucursalDao sdao) {
 			SucursalDao = sdao;
 			
@@ -60,7 +62,7 @@ public class SucursalesForm extends JPanel {
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			JLabel titulo = new JLabel("CONSECIONARIAS", JLabel.CENTER);
+			JLabel titulo = new JLabel("CONCESIONARIAS", JLabel.CENTER);
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(titulo);		
 			inputPanel.add(horizontalPanel);
@@ -69,6 +71,9 @@ public class SucursalesForm extends JPanel {
 			horizontalPanel.add(new JLabel("Descripcion", JLabel.RIGHT));
 			descriptionTextField = new JTextField("",30);
 			horizontalPanel.add(descriptionTextField);
+			horizontalPanel.add(new JLabel("Domicilio", JLabel.RIGHT));
+			adressTextField = new JTextField("",30);
+			horizontalPanel.add(adressTextField);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -81,10 +86,8 @@ public class SucursalesForm extends JPanel {
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(validateFields())
-						if(table.getSelectedRow() == -1)
-							insert();
-						else
-							update();
+						insert();
+
 				}
 			});
 	        confirm.setPreferredSize(new Dimension(250,40));
@@ -115,13 +118,14 @@ public class SucursalesForm extends JPanel {
 	                return false; // Hacer que todas las celdas sean no editables
 	            }
 	        };
-	        tableModel.addColumn("Descripcion");
 	        tableModel.addColumn("Id");
+	        tableModel.addColumn("Descripcion");
+	        tableModel.addColumn("Domicilio");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(1).setMaxWidth(0);
-			table.getColumnModel().getColumn(1).setMinWidth(0);
-			table.getColumnModel().getColumn(1).setPreferredWidth(0);
+			table.getColumnModel().getColumn(0).setMaxWidth(0);
+			table.getColumnModel().getColumn(0).setMinWidth(0);
+			table.getColumnModel().getColumn(0).setPreferredWidth(0);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 
@@ -130,9 +134,11 @@ public class SucursalesForm extends JPanel {
 	                if (!e.getValueIsAdjusting()) {
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
-							String description = (String) tableModel.getValueAt(row, 0);
+							String description = (String) tableModel.getValueAt(row, 1);
+							String adress = (String) tableModel.getValueAt(row, 2);
 							
 							descriptionTextField.setText(description);
+							adressTextField.setText(adress);
 	                	}
 	                }
 				}
@@ -172,20 +178,15 @@ public class SucursalesForm extends JPanel {
 		
 		private void insert() {
 			String description = descriptionTextField.getText();
-			
-			Sucursal m = new Sucursal(description);
-			
-			SucursalDao.save(m);
-			clearFields();
-			loadTable();
-		}
+			String adress = adressTextField.getText();
 
-		private void update() {
-			String description = descriptionTextField.getText();
-			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 1);
+			Sucursal m = new Sucursal(description, adress);
 			
-			Sucursal m = new Sucursal(description, id);
-
+			if(table.getSelectedRow() != -1) {
+				long id = (long)tableModel.getValueAt(table.getSelectedRow(), 0);
+				m.setId(id);
+				m.setLogoPath(SucursalDao.getSucursalById(id).getLogoPath());
+			}
 			SucursalDao.save(m);
 			clearFields();
 			loadTable();
@@ -194,7 +195,7 @@ public class SucursalesForm extends JPanel {
 		private void delete() {
 			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 1);
 			try {
-				if(JOptionPane.showConfirmDialog(null, "Desea eliminar la consecionaria: "+(String)tableModel.getValueAt(table.getSelectedRow(), 0),
+				if(JOptionPane.showConfirmDialog(null, "Desea eliminar la consecionaria: "+(String)tableModel.getValueAt(table.getSelectedRow(), 1),
 													"", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
 					SucursalDao.delete(id);
 					clearFields();
@@ -212,7 +213,7 @@ public class SucursalesForm extends JPanel {
 
 			List<Sucursal> sucursales = SucursalDao.getSucursales();
 			for(Sucursal m : sucursales) {
-				Object[] row = {m.getDescription(), m.getId()};
+				Object[] row = {m.getId(), m.getDescription(), m.getAdress()};
 				tableModel.addRow(row);
 			}
 		}
@@ -235,6 +236,7 @@ public class SucursalesForm extends JPanel {
 		private void clearFields() {
 			table.clearSelection();
 			descriptionTextField.setText("");
+			adressTextField.setText("");
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
 		}

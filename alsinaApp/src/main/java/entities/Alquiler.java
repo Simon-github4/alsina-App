@@ -9,6 +9,8 @@ import java.time.temporal.ChronoUnit;
 
 import javax.swing.JOptionPane;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -20,6 +22,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "alquileres")
+@Where(clause = "is_deleted = false")
 public class Alquiler {
 	
 	@Id
@@ -49,6 +52,9 @@ public class Alquiler {
 	private String gasExit;
 	private String gasReturn;
 	
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	private Boolean isDeleted;
+
 	private static final int CHARGE_X_KM = 300;
 	
 	public Alquiler() {}
@@ -67,6 +73,8 @@ public class Alquiler {
 		this.gasReturn=cbR;
 		this.isBooked = booked;
 		this.place=place;
+		this.isDeleted= false;
+
 	}
 	
 	public long getDurationDays() {
@@ -300,5 +308,13 @@ public class Alquiler {
 	public void setPlace(String place) {
 		this.place = place;
 	}
-	 
+	
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
+	}
+ 
 }

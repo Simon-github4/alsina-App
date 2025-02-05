@@ -2,14 +2,15 @@ package entityManagers;
 
 import java.time.LocalDate;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import entities.Destino;
 import entities.Gasto;
-import entities.Marca;
 import entities.Sucursal;
+import entities.Vehiculo;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 
 public class GastoDao {
@@ -52,7 +53,6 @@ public class GastoDao {
 		return gasto;
 	}
 
-	
 	public List<Gasto> getGastosByFilters(String plate, LocalDate[] dates, Sucursal branch, Destino destination){
 		List<Gasto> gastos = null;
 		try (EntityManager manager = emf.createEntityManager();) {
@@ -100,9 +100,30 @@ public class GastoDao {
 		return gastos;	
 	}
 	
-	public void delete(long id) {
+	public List<Gasto> getGastosByVehicle(Vehiculo vehicle){
+		List<Gasto> gastos = null;
+		try (EntityManager manager = emf.createEntityManager();) {
+		        
+		    	manager.getTransaction().begin();
+		    	
+		    	  StringBuilder queryString = new StringBuilder("select e FROM Gasto e WHERE e.vehicle = :vehicle ORDER BY e.date desc ");
+		   		          
+		          TypedQuery<Gasto> query = manager.createQuery(queryString.toString(), Gasto.class);
+		          
+		          gastos = query.setParameter("vehicle", vehicle).getResultList();       
+		        
+		        manager.getTransaction().commit();
+		        		        
+		    } catch (Exception e) {
+		        e.printStackTrace();
+		    }
+			
+		return gastos;	
+	}
+	
+	public void delete(long id) throws Exception {
 		
-		try(EntityManager manager = emf.createEntityManager();){ 
+		try(EntityManager manager = emf.createEntityManager()){ 
 			
 			manager.getTransaction().begin();
 	        
@@ -110,12 +131,19 @@ public class GastoDao {
 	        if (gasto != null) 
 	        	manager.remove(gasto);
 	        else 
-	            throw new Exception("Gasto with ID " + id + " not found.");
+	            throw new NoSuchElementException("Gasto with ID " + id + " not found.");
 	        	        
 	        manager.getTransaction().commit();
 	        
-	    } catch (Exception e) {
-	        e.printStackTrace();
+	    } catch(PersistenceException e) {
+	    	EntityManager manager = emf.createEntityManager();
+				
+			manager.getTransaction().begin();
+		        
+			Gasto gasto = manager.find(Gasto.class, id);    
+			gasto.setIsDeleted(true);
+			
+		    manager.getTransaction().commit();
 	    }
 	}
 	

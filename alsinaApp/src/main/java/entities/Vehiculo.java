@@ -41,7 +41,9 @@ public abstract class Vehiculo {
 	@ManyToOne
 	@JoinColumn(name = "branch")
 	private Sucursal branch;
-
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	private Boolean isDeleted;
+	
 	public Vehiculo() {}
 
 	public Vehiculo(long id, int year, int kilometers, String plate, String model, Marca brand, Sucursal branch) {
@@ -53,6 +55,8 @@ public abstract class Vehiculo {
 		this.model = model;
 		this.brand = brand;
 		this.branch = branch;
+		this.isDeleted= false;
+
 	}
 
 	public Vehiculo(int year, int kilometers, String plate, String model, Marca brand, Sucursal branch) {
@@ -64,6 +68,8 @@ public abstract class Vehiculo {
 		this.model = model;
 		this.brand = brand;
 		this.branch = branch;
+		this.isDeleted= false;
+
 	}
 
 	public Long getId() {
@@ -113,6 +119,14 @@ public abstract class Vehiculo {
 	}
 	public void setModel(String model) {
 		this.model = model;
+	}
+	
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override

@@ -5,19 +5,31 @@ import java.io.File;
 import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 
+import javax.swing.JOptionPane;
+
+import com.itextpdf.io.image.ImageData;
+import com.itextpdf.io.image.ImageDataFactory;
+import com.itextpdf.kernel.font.PdfFont;
+import com.itextpdf.kernel.font.PdfFontFactory;
 import com.itextpdf.kernel.geom.Rectangle;
 import com.itextpdf.kernel.pdf.PdfDocument;
 import com.itextpdf.kernel.pdf.PdfPage;
-import com.itextpdf.kernel.pdf.PdfReader;
 import com.itextpdf.kernel.pdf.PdfWriter;
 import com.itextpdf.kernel.pdf.canvas.PdfCanvas;
 import com.itextpdf.kernel.pdf.extgstate.PdfExtGState;
 import com.itextpdf.layout.Document;
+import com.itextpdf.layout.element.Cell;
+import com.itextpdf.layout.element.Image;
 import com.itextpdf.layout.element.Paragraph;
+import com.itextpdf.layout.element.Tab;
+import com.itextpdf.layout.element.Table;
+import com.itextpdf.layout.properties.HorizontalAlignment;
 import com.itextpdf.layout.properties.TextAlignment;
 import com.itextpdf.layout.properties.VerticalAlignment;
 
 import entities.Alquiler;
+import entities.Compra;
+import entities.Transaccion;
 
 public class PdfUtils {
 	
@@ -25,10 +37,12 @@ public class PdfUtils {
 		openPdfToPrint(new Alquiler());
 	}*/
 
+	private static final String[] monthName = {"Enero", "Febrero", "Marzo", "Abril", "Mayo", "Junio", "Julio", "Agosto", "Septiembre", "Octubre", "Noviembre", "Diciembre"};
+
 	public static void openPdfToPrint(Alquiler a) throws IOException, IllegalArgumentException {
 		String user = System.getProperty("user.home");
-		final String dest = user + "\\OneDrive\\.AA-Escritorio\\printwithpdf.pdf" ;
-		final String src  = user + "\\OneDrive\\.AA-Escritorio\\Scan.pdf"; 
+		final String dest = user + "\\Desktop\\printwithpdf.pdf" ;
+		//final String src  = user + "\\OneDrive\\.AA-Escritorio\\Scan.pdf"; 
 		//final int width = 595;
 		//final int height = 842;
 		final float lineY = -17.9f; //-15
@@ -154,7 +168,6 @@ public class PdfUtils {
 			    
 			    canvas.restoreState();
 
-			/*    */
 			Desktop desktop = Desktop.getDesktop();
             try {
                 desktop.open(file);
@@ -189,16 +202,71 @@ public class PdfUtils {
 
 	}
 
-	public void createPdf() throws IOException {
-		final String dest = "C:\\Users\\simon\\Desktop\\escribesolonecesario.pdf";
+	public static void createTransactionPdf(Transaccion t) throws IOException {
+		String amountInWords = JOptionPane.showInputDialog("Ingrese el Monto: "+ String.valueOf(t.getAmount())+ " en palabras");
+		String pagaderos = JOptionPane.showInputDialog("Ingrese la forma de Cobro:");
+		
+		ImageData data = ImageDataFactory.create(PdfUtils.class.getResource(t.getVehicle().getBranch().getLogoPath()));
+		Image img = new Image(data);
+        img.setHeight(150).setWidth(275);
+        
+		PdfFont font = PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.HELVETICA);
+		PdfFont fontBold = PdfFontFactory.createFont(com.itextpdf.io.font.constants.StandardFonts.HELVETICA_BOLD);
 
-		File file = new File(dest);
+		String user = System.getProperty("user.home");
+		final String path = user + "\\Desktop\\Boletos Compra - Venta\\";
+		final String fileName = t.getClass().getSimpleName() +"_"+ t.getVehicle().getPlate()+"_"
+							  + t.getClient().getName()+"_"+ t.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) +".pdf";
+									// \\Desktop
+		File file = new File(path + fileName);
         file.getParentFile().mkdirs();
         
-        PdfDocument pdf = new PdfDocument(new PdfWriter(dest));
+        PdfDocument pdf = new PdfDocument(new PdfWriter(path + fileName));
 		Document document = new Document(pdf);
 
+		Paragraph text = new Paragraph(" ").add(" Boleto de Compra - Venta")
+				.setFontSize(19).setFont(fontBold);
+
+        Table table = new Table(2);
+        table.addCell(new Cell().add(img).setBorder(null));  // Image in first column
+        table.addCell(new Cell().add(text).setBorder(null).setVerticalAlignment(VerticalAlignment.MIDDLE).setHorizontalAlignment(HorizontalAlignment.RIGHT));
+
+        document.add(table);
+		document.setMargins(40,55,55,40);
 		
+		String voc;
+		if(t instanceof Compra) {
+			voc = "Compra ";
+		}else {
+			voc = "Vende ";			
+		}
+		StringBuilder sb = new StringBuilder("\nConste por el presente que el señor : ");
+		sb.append(t.getVehicle().getBranch().getDescription()).append(" domiciliado en: ").append(t.getVehicle().getBranch().getAdress());
+		sb.append(" de Necochea "+voc+"al señor: ").append(t.getClient().getName()).append(" D.N.I: ").append(t.getClient().getDni());
+		sb.append(" domiciliado en: ").append(t.getClient().getAdress()).append(" de Necochea, Telefono: ");
+		sb.append(t.getClient().getPhone()).append(" lo siguiente: un automotor Marca: ").append(t.getVehicle().getBrand())
+		.append(" Modelo: ").append(t.getVehicle().getModel()).append(" Dominio: ").append(t.getVehicle().getPlate())
+		.append(" en el estado que se encuentra, por el cual presta conformidad. El precio de venta pactado es $ ")
+		.append(t.getAmount()).append(".-(").append(amountInWords).append(") pagaderos de la siguiente forma: "+ pagaderos)
+		.append("\n\nEl vendedor declara expresamente que el automotor motivo del presente boleto no reconoce gravamenes de ninguna indole")
+		.append(" por prenda, embargo o deposito, responsabilizando, por cualquier inconveniente que impidiera disponer libremente del mismo")
+		.append("\n\nEn prueba de conformidad se firman dos ejemplares del mismo tenor y a un solo efecto en Necochea a los ").append(t.getDate().getDayOfMonth())
+		.append(" dias del mes ").append(monthName[t.getDate().getMonthValue() - 1]).append(" de "+t.getDate().getYear())
+		.append("\n\n\n\n\n"); 
+		
+				
+		Paragraph p = new Paragraph(sb.toString()).add(new Tab()).add("Firma comprador").add(new Tab()).add(new Tab()).add(new Tab()).add("Firma vendedor");
+		p.setFontSize(13.5f).setFixedLeading(25).setFont(font);
+
+		document.add(p);
+		
+		Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.open(file);
+        } catch (IOException e3) {
+            e3.printStackTrace();
+        }
+		pdf.close();
 		document.close();
 
 	}

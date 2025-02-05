@@ -1,14 +1,12 @@
 package entityManagers;
 
-import java.util.Collection;
 import java.util.List;
-
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
-import jakarta.persistence.PersistenceContext;
+import java.util.NoSuchElementException;
 
 import entities.Marca;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.EntityManagerFactory;
+import jakarta.persistence.PersistenceException;
 
 public class MarcaDao {
 
@@ -72,8 +70,7 @@ public class MarcaDao {
 	
 	public void delete(long id) throws Exception{
 		
-		try(//EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-			EntityManager manager = emf.createEntityManager();){ 
+		try(EntityManager manager = emf.createEntityManager();){ 
 			
 			manager.getTransaction().begin();
 	        
@@ -85,6 +82,18 @@ public class MarcaDao {
 	        	        
 	        manager.getTransaction().commit();
 	        
+	    }catch(PersistenceException e) {
+	    	EntityManager manager = emf.createEntityManager();
+				
+			manager.getTransaction().begin();
+		        
+		    Marca marca = manager.find(Marca.class, id);    
+		    if (marca != null) 
+		    	marca.setIsDeleted(true);
+		    else 
+		    	throw new NoSuchElementException("Marca with ID " + id + " not found.");
+		        	        
+		    manager.getTransaction().commit();
 	    }
 	}
 	

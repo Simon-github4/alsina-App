@@ -2,6 +2,8 @@ package entities;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "marcas")
+@Where(clause = "is_deleted = false")
 public class Marca {
 
 @Id
@@ -21,6 +24,9 @@ private Long id;
 @Column(name = "description")
 private String description;
 
+@Column(name = "is_deleted", columnDefinition = "boolean default false")
+private Boolean isDeleted;
+
 	public Marca() {
 		//Constructor por defecto NECESARIO
 	}
@@ -29,12 +35,14 @@ private String description;
 		super();
 		this.description = description;
 		this.id=null;
+		this.isDeleted= false;
 	}
 
 	public Marca(String description, long id) {
 		super();
 		this.description = description;
 		this.id = id;
+		this.isDeleted= false;
 	}
 	
 	public Long getId() {
@@ -73,6 +81,14 @@ private String description;
 			return false;
 		Marca other = (Marca) obj;
 		return Objects.equals(description, other.description) && id == other.id;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 }

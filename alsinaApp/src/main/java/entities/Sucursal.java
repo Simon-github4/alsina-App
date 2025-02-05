@@ -2,6 +2,8 @@ package entities;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name="sucursales")
+@Where(clause = "is_deleted = false")
 public class Sucursal {
 
 	@Id
@@ -18,21 +21,31 @@ public class Sucursal {
 	@Column(name = "id")
 	private Long id;
 	
-	private String  description;
-
+	private String logoPath;
+	private String adress;
+	private String description;
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	private Boolean isDeleted;
+	
 	public Sucursal() {
 	}	
 	
-	public Sucursal(String description, long id) {
+	public Sucursal(String description, String adress, long id) {
 		super();
 		this.id = id;
 		this.description = description;
+		this.adress = adress;
+		this.isDeleted= false;
+
 	}
 
-	public Sucursal(String description) {
+	public Sucursal(String description, String adress) {
 		super();
 		this.id = null;
 		this.description = description;
+		this.adress = adress;
+		this.isDeleted= false;
+
 	}
 	
 	public Long getId() {
@@ -49,6 +62,22 @@ public class Sucursal {
 
 	public void setDescription(String description) {
 		this.description = description;
+	}
+	
+	public String getAdress() {
+		return adress;
+	}
+
+	public void setAdress(String adress) {
+		this.adress = adress;
+	}
+
+	public Boolean getIsDeleted() {
+		return isDeleted;
+	}
+
+	public void setIsDeleted(Boolean isDeleted) {
+		this.isDeleted = isDeleted;
 	}
 
 	@Override
@@ -71,6 +100,14 @@ public class Sucursal {
 			return false;
 		Sucursal other = (Sucursal) obj;
 		return Objects.equals(description, other.description) && id == other.id;
+	}
+
+	public String getLogoPath() {
+		return logoPath;
+	}
+
+	public void setLogoPath(String logoPath) {
+		this.logoPath = logoPath;
 	}
 
 	

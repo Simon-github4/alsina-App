@@ -1,12 +1,12 @@
 package entityManagers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
-import entities.Marca;
 import entities.Sucursal;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
 
 public class SucursalDao {
 	
@@ -78,11 +78,20 @@ public class SucursalDao {
 	        if (sucursal != null) 
 	        	manager.remove(sucursal);
 	        else 
-	            throw new Exception("Sucursal with ID " + id + " not found.");
+	            throw new NoSuchElementException("Sucursal with ID " + id + " not found.");
 	        	        
 	        manager.getTransaction().commit();
 	        
-	    } 
+	    } catch(PersistenceException e) {
+	    	EntityManager manager = emf.createEntityManager();
+				
+			manager.getTransaction().begin();
+		        
+			Sucursal sucursal = manager.find(Sucursal.class, id);    
+			sucursal.setIsDeleted(true);
+			
+		    manager.getTransaction().commit();
+	    }
 	}
 	
 }

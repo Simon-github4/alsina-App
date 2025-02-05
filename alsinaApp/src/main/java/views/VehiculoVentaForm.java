@@ -11,15 +11,11 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.time.LocalDate;
 import java.util.List;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
-import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -29,6 +25,7 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.border.LineBorder;
 import javax.swing.border.TitledBorder;
@@ -36,25 +33,22 @@ import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
 
-import org.hibernate.exception.ConstraintViolationException;
-import org.postgresql.util.PSQLException;
-
 import com.formdev.flatlaf.FlatClientProperties;
 
-import entities.Alquiler;
-import entities.Cliente;
+import entities.Compra;
 import entities.Marca;
 import entities.Sucursal;
-import entities.VehiculoAlquilable;
-import entityManagers.AlquilerDao;
+import entities.Vehiculo;
+import entities.VehiculoVenta;
 import entityManagers.MarcaDao;
 import entityManagers.SucursalDao;
+import entityManagers.TransaccionDao;
 import entityManagers.VehiculoDao;
 import jakarta.persistence.PersistenceException;
-import raven.datetime.DatePicker;
 import utils.ViewUtils;
+import views.temporalFrames.VehiculoVentaResumenFrame;
 
-public class AutosAlquilerForm extends JPanel{
+public class VehiculoVentaForm extends JPanel{
 	
 private static final long serialVersionUID = 1L;
 	
@@ -69,22 +63,24 @@ private static final long serialVersionUID = 1L;
 	private JTextField patenteTextField;
 	private JTextField modelTextField;
 	private JTextField kilometersTextField;
-	private JTextField franchiseTextField;
 	private JComboBox<Marca> brandComboBox;
-	private JTextField ensuranceTextField;
-	private JTextField priceTextField;
 	private JComboBox<Sucursal> branchComboBox;
 	private JTextField searchTextField;
 	private JComboBox<Marca> filterBrandComboBox;
 	private VehiculoDao VehiculoDao;
 	private SucursalDao SucursalDao;
 	private MarcaDao MarcaDao;
+	private TransaccionDao transaccionDao;
 	private JButton searchButton;
+
+	private JTextField sellingPriceTextField;
 	
-	public AutosAlquilerForm(VehiculoDao vehiculoDao, SucursalDao sucursalDao, MarcaDao marcaDao) {
+	//@SuppressWarnings("serial")
+	public VehiculoVentaForm(VehiculoDao vehiculoDao, SucursalDao sucursalDao, MarcaDao marcaDao, TransaccionDao tDao) {
 			this.VehiculoDao = vehiculoDao;
 			this.SucursalDao = sucursalDao;
 			this.MarcaDao = marcaDao;
+			this.transaccionDao = tDao;
 			
 			contentPane = new JPanel();
 			contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
@@ -103,7 +99,7 @@ private static final long serialVersionUID = 1L;
 
 			JPanel horizontalPanel = new JPanel(new GridLayout());
 			
-			JLabel titulo = new JLabel("VEHICULOS DE ALQUILER", JLabel.CENTER);
+			JLabel titulo = new JLabel("VEHICULOS DE VENTA", JLabel.CENTER);
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(titulo);		
 			inputPanel.add(horizontalPanel);
@@ -120,9 +116,9 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(new JLabel("Año", JLabel.RIGHT));
 			yearTextField = new JTextField(10);	 
 			horizontalPanel.add(yearTextField);
-			horizontalPanel.add(new JLabel("tarifa alquiler", JLabel.RIGHT));
-			priceTextField = new JTextField(10);
-			horizontalPanel.add(priceTextField);
+			horizontalPanel.add(new JLabel("Marca", JLabel.RIGHT));
+			brandComboBox = new JComboBox<Marca>();
+			horizontalPanel.add(brandComboBox);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -133,22 +129,23 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(new JLabel("Kilometros", JLabel.RIGHT));
 			kilometersTextField = new JTextField(10);
 			horizontalPanel.add(kilometersTextField);
-			horizontalPanel.add(new JLabel("Sucursal", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("Concesionaria", JLabel.RIGHT));
 			branchComboBox = new JComboBox<Sucursal>();
 			horizontalPanel.add(branchComboBox);
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
 			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.add(new JLabel("Marca", JLabel.RIGHT));
-			brandComboBox = new JComboBox<Marca>();
-			horizontalPanel.add(brandComboBox);
-			horizontalPanel.add(new JLabel("Seguro", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("Precio de venta", JLabel.RIGHT));
+			sellingPriceTextField = new JTextField();
+			horizontalPanel.add(sellingPriceTextField);
+			/*horizontalPanel.add(new JLabel("Seguro", JLabel.RIGHT));
 			ensuranceTextField = new JTextField(20);
-			horizontalPanel.add(ensuranceTextField);
-			horizontalPanel.add(new JLabel("Franquicia", JLabel.RIGHT));
-			franchiseTextField = new JTextField(20);
-			horizontalPanel.add(franchiseTextField);
+			horizontalPanel.add(ensuranceTextField);*/
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			inputPanel.add(horizontalPanel);		
 			
@@ -189,21 +186,21 @@ private static final long serialVersionUID = 1L;
 	                return false; // Hacer que todas las celdas sean no editables
 	            }
 	        };
+	        tableModel.addColumn("Id");
 	        tableModel.addColumn("Patente");
 	        tableModel.addColumn("Marca");
 	        tableModel.addColumn("Modelo");
 	        tableModel.addColumn("Año");
 	        tableModel.addColumn("KM");
-	        tableModel.addColumn("Tarifa Alquiler");
-	        tableModel.addColumn("Seguro");
-	        tableModel.addColumn("Franquicia");
+	        tableModel.addColumn("Precio Venta");
+	        tableModel.addColumn("Precio Compra");
+	        //tableModel.addColumn("Seguro");
 	        tableModel.addColumn("Consecionaria");
-	        tableModel.addColumn("Id");
 	        
 			table = new JTable(tableModel);
-			table.getColumnModel().getColumn(9).setMaxWidth(0);
-			table.getColumnModel().getColumn(9).setMinWidth(0);
-			table.getColumnModel().getColumn(9).setPreferredWidth(0);
+			table.getColumnModel().getColumn(0).setMaxWidth(0);
+			table.getColumnModel().getColumn(0).setMinWidth(0);
+			table.getColumnModel().getColumn(0).setPreferredWidth(0);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
 				@Override
@@ -211,25 +208,22 @@ private static final long serialVersionUID = 1L;
 	                if (!e.getValueIsAdjusting()) {
 	                	int row = table.getSelectedRow();
 	                	if(row != -1){
-							String plate = (String) tableModel.getValueAt(row, 0);
-							Marca m = (Marca) tableModel.getValueAt(row, 1);
-							String model = (String) tableModel.getValueAt(row, 2);
-							int year = (int) tableModel.getValueAt(row, 3);
-							int km = (int) tableModel.getValueAt(row, 4);
-							int price = (int) tableModel.getValueAt(row, 5);
-							String ensurance = (String) tableModel.getValueAt(row, 6);
-							int franch = (int)tableModel.getValueAt(row, 7);
+							String plate = (String) tableModel.getValueAt(row, 1);
+							Marca m = (Marca) tableModel.getValueAt(row, 2);
+							String model = (String) tableModel.getValueAt(row, 3);
+							int year = (int) tableModel.getValueAt(row, 4);
+							int km = (int) tableModel.getValueAt(row, 5);
+							Long sellPrice = (Long) tableModel.getValueAt(row, 6);
 							Sucursal branch = (Sucursal) tableModel.getValueAt(row, 8);
 							
 							patenteTextField.setText(plate);
 							yearTextField.setText(String.valueOf(year));
 							modelTextField.setText(model);
-							priceTextField.setText(String.valueOf(price));
+							sellingPriceTextField.setText(String.valueOf(sellPrice));
 							kilometersTextField.setText(String.valueOf(km));
 							brandComboBox.setSelectedItem(m);
-							ensuranceTextField.setText(ensurance);
+							//ensuranceTextField.setText(ensurance);
 							branchComboBox.setSelectedItem(branch);
-							franchiseTextField.setText(String.valueOf(franch));
 	                	}
 	                }
 				}
@@ -268,7 +262,7 @@ private static final long serialVersionUID = 1L;
 
 			vert.add(new JLabel("Patente"));
 			searchTextField = new JTextField();
-			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
+			//searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "(opcional)");
 			searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
 			filterBrandComboBox = new JComboBox<Marca>();
 			vert.add(searchTextField);
@@ -277,110 +271,86 @@ private static final long serialVersionUID = 1L;
 			searchTextField.setPreferredSize(new Dimension(180, 80));
 			filterBrandComboBox.setPreferredSize(new Dimension(180, 80));
 			vert.setBorder(new TitledBorder(new LineBorder(Color.black, 2), "Buscar/Filtrar", TitledBorder.CENTER, TitledBorder.TOP, null, Color.BLACK));
-			//vert.add(new JLabel(""));
 			searchButton =new JButton("Buscar");
 			searchButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					loadTable(searchTextField.getText(), (Marca) filterBrandComboBox.getSelectedItem());
+					clearFields();
 				}
 			});
 			searchButton.setPreferredSize(new Dimension(180, 160));
 			vert.add(searchButton);
+
 			searchTextField.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
-					if(e.getKeyCode() == KeyEvent.VK_ENTER)
-						searchButton.doClick();
+					SwingUtilities.invokeLater(()-> searchButton.doClick());
 				}
 			});
-			JButton viewAvailableCarsButton =new JButton("Ver Autos Disponibles");
-			viewAvailableCarsButton.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					JFrame dateFrame = new JFrame();
-					dateFrame.setLayout(new BorderLayout());
-					dateFrame.setSize(500, 350);
-					dateFrame.setVisible(true);
-					dateFrame.setLocationRelativeTo(null);
-					dateFrame.setAlwaysOnTop(true);
-					dateFrame.setAutoRequestFocus(true);
-					
-					DatePicker dp = new DatePicker();
-					dp.setDateSelectionMode(DatePicker.DateSelectionMode.BETWEEN_DATE_SELECTED);
-					dp.setUsePanelOption(true);
-					dp.setDateFormat("dd/MM/yyyy");
-					dp.setCloseAfterSelected(true);
-					dp.setBackground(Color.LIGHT_GRAY);
-					JFormattedTextField dates = new JFormattedTextField();
-					dp.setEditor(dates);
-					
-					JPanel panel = new JPanel(new GridLayout(0,1));
-					dateFrame.add(panel, BorderLayout.CENTER);
-					
-					panel.add(new JLabel("Seleccione Rango de fecha", JLabel.CENTER));
-					panel.add(dates);
-					JButton button = new JButton("Confirmar");
-					panel.add(button);
-					button.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							loadTableAvailableCars(dp.getSelectedDateRange()[0], dp.getSelectedDateRange()[1]);
-							dateFrame.dispose();
-							}
-					});
-	
-				}
-			});
-			viewAvailableCarsButton.setPreferredSize(new Dimension(180, 160));
-			vert.add(viewAvailableCarsButton);
-			JButton newRentButton =new JButton("Nuevo Contrato");
-			newRentButton.addActionListener(new ActionListener() {
+			JButton newSaleButton =new JButton("Nueva Venta");
+			newSaleButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(table.getSelectedRow()==-1)
 						setMessage("Ningun Vehiculo seleccionado", false);
 					else { 
 						JTabbedPane t = getTabbedPane();
-						t.setSelectedIndex(1);
-						AlquileresForm a = (AlquileresForm)t.getSelectedComponent();
-						a.getVehicleTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
-						a.getKilometersDepartureTextField().setText(String.valueOf(tableModel.getValueAt(table.getSelectedRow(), 4)));
+						VentaFrame v =(VentaFrame) t.getParent().getParent().getParent().getParent();
+						Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 0);
+						v.openNuevaVenta(VehiculoDao.getVehiculoById(id), null, "VENTA");
 					}
 				}
 			});
-			newRentButton.setPreferredSize(new Dimension(180, 160));
-			vert.add(newRentButton);
-			JButton viewRentsButton =new JButton("Ver Alquileres");
-			viewRentsButton.addActionListener(new ActionListener() {
+			vert.add(newSaleButton);
+			JButton newPurchaseButton =new JButton("Nueva Compra");
+			newPurchaseButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					if(table.getSelectedRow()==-1)
 						setMessage("Ningun Vehiculo seleccionado", false);
 					else { 
 						JTabbedPane t = getTabbedPane();
-						t.setSelectedIndex(2);
-						AlquileresHistorial a = (AlquileresHistorial)t.getSelectedComponent();
-						a.getSearchTextField().setText((String)tableModel.getValueAt(table.getSelectedRow(), 0));
-						a.getSearchButton().doClick();
+						VentaFrame v =(VentaFrame) t.getParent().getParent().getParent().getParent();
+						Long id = (Long) tableModel.getValueAt(table.getSelectedRow(), 0);
+						v.openNuevaVenta(VehiculoDao.getVehiculoById(id), null, "COMPRA");
 					}
 				}
 			});
-			viewRentsButton.setPreferredSize(new Dimension(180, 160));
-			vert.add(viewRentsButton);
+			vert.add(newPurchaseButton);
 			
-			JButton gastosButton = new JButton("ver Gastos");
+			JButton gastosButton = new JButton("Ver Resumen");
 			gastosButton.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if(table.getSelectedRow()==-1)
-						setMessage("Ningun Vehiculo seleccionado", false);
+					String plate;
+					if(table.getSelectedRow() == -1)
+						plate = JOptionPane.showInputDialog("Seleccione un Vehiculo de la grilla o \n Ingrese la Patente manualmente:");
 					else { 
-							String plate = (String) tableModel.getValueAt(table.getSelectedRow(), 0);
-							
-							Dashboard.getInstance().verGastos(plate);
+						plate = (String) tableModel.getValueAt(table.getSelectedRow(), 1);
+						//Dashboard.getInstance().verGastosByPlate(plate);
+					}
+					Vehiculo v = vehiculoDao.getVehiculoAndDeletedByPlate(plate);
+					if(v != null)
+						new VehiculoVentaResumenFrame(transaccionDao, Dashboard.getGastoDao(), v).setVisible(true);
+					else
+						setMessage("Vehiculo no encontrado", false);
+				}});
+			vert.add(gastosButton);
+			JButton NewGastoButton = new JButton("Agregar Gasto");
+			NewGastoButton.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					String plate;
+					if(table.getSelectedRow() == -1)
+						plate = JOptionPane.showInputDialog("Seleccione un Vehiculo de la grilla o \n Ingrese la Patente manualmente:");
+					else { 
+						plate = (String)tableModel.getValueAt(table.getSelectedRow(), 1);
+						Dashboard.getInstance().nuevoGastoByPlate(plate);
+						JFrame frame = new JFrame();
+						frame.setVisible(false);
+						frame.setSize(1250, 650);
+						frame.setContentPane(new GastosForm(vehiculoDao, sucursalDao, Dashboard.getGastoDao(), Dashboard.getDestinoDao()));
 					}
 				}});
-			gastosButton.setPreferredSize(new Dimension(180, 160));
-			vert.add(gastosButton);
+			vert.add(NewGastoButton);
 			
 			vert.setPreferredSize(new Dimension(225, 160));
-			//west.setPreferredSize(new Dimension(215, 160));
-			//west.add(vert);
 			contentPane.add(vert, BorderLayout.WEST);
 
 			ViewUtils.setIconToButton(confirm, "/resources/imgs/confirmar.png", 32, 32);
@@ -389,8 +359,8 @@ private static final long serialVersionUID = 1L;
 
 			ViewUtils.setIconToButton(searchButton, "/resources/imgs/lupa.png", 32, 32);
 			ViewUtils.setIconToButton(gastosButton, "/resources/imgs/gastos-historial.png", 32, 32);
-			ViewUtils.setIconToButton(newRentButton, "/resources/imgs/nuevo-alquiler.png", 32, 32);
-			ViewUtils.setIconToButton(viewRentsButton, "/resources/imgs/alquileres-historial.png", 32, 32);
+			ViewUtils.setIconToButton(newSaleButton, "/resources/imgs/nuevo-alquiler.png", 32, 32);
+			ViewUtils.setIconToButton(newPurchaseButton, "/resources/imgs/nuevo-alquiler.png", 32, 32);
 
 			fillBrands();
 			fillBranches();
@@ -398,7 +368,8 @@ private static final long serialVersionUID = 1L;
 		}
 		
 		private void fillBranches() {
-			branchComboBox.addItem(new Sucursal("Seleccione una Sucursal"));
+			branchComboBox.removeAllItems();
+			branchComboBox.addItem(new Sucursal("Seleccione una Concesionaria", null));
 
 			List<Sucursal> sucursales = SucursalDao.getSucursales();
 			for(Sucursal s : sucursales) {
@@ -407,6 +378,8 @@ private static final long serialVersionUID = 1L;
 		}
 
 		private void fillBrands() {
+			brandComboBox.removeAllItems();
+			filterBrandComboBox.removeAllItems();
 			brandComboBox.addItem(new Marca("Seleccione una Marca"));
 			filterBrandComboBox.addItem(new Marca("Filtre por Marca"));
 
@@ -421,17 +394,16 @@ private static final long serialVersionUID = 1L;
 			try {
 				int year = Integer.parseInt(yearTextField.getText());
 				int km = Integer.parseInt(kilometersTextField.getText());
-				int price = Integer.parseInt(priceTextField.getText());
+				Long sellPrice = Long.parseLong(sellingPriceTextField.getText());
 				String plate = patenteTextField.getText().toUpperCase();
 				String model = modelTextField.getText();
-				String ensurance = ensuranceTextField.getText();
+				//String ensurance = ensuranceTextField.getText();
 				Marca m = (Marca)brandComboBox.getSelectedItem();
 				Sucursal s = (Sucursal)branchComboBox.getSelectedItem();			
-				int franchise = Integer.parseInt(franchiseTextField.getText());
 				
-				VehiculoAlquilable v = new VehiculoAlquilable(price, ensurance, franchise, year, km,  plate, model,  m, s);
+				VehiculoVenta v = new VehiculoVenta(sellPrice, year, km,  plate, model,  m, s);
 				if(table.getSelectedRow() != -1) {
-					Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 9);
+					Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 0);
 					v.setId(id);
 				}
 				VehiculoDao.save(v);
@@ -450,7 +422,7 @@ private static final long serialVersionUID = 1L;
 		}
 		
 		private void delete() {
-			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 9);
+			long id = (long)tableModel.getValueAt(table.getSelectedRow(), 0);
 			
 			try {
 				if(JOptionPane.showConfirmDialog(null, "Desea eliminar al vehiculo: "+VehiculoDao.getVehiculoById(id).getPlate(),  "", JOptionPane.YES_NO_OPTION) == JOptionPane.YES_OPTION){
@@ -458,32 +430,21 @@ private static final long serialVersionUID = 1L;
 					clearFields();
 					searchButton.doClick();
 					setMessage("Eliminado correctamente", true);
-
 				}
 			}catch(Exception e) {
 				setMessage(e.getCause().getMessage(), false);
 			}
-			
 		}
 
 		private void loadTable(String plate, Marca marca) {
 	        tableModel.setRowCount(0);
 
-			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesByPlate(plate, marca);
-			for(VehiculoAlquilable v : vehiculos) {
-				Object[] row = {v.getPlate(), v.getBrand(), v.getModel(), v.getYear(), v.getKilometers(), v.getPrice(), v.getEnsurance(), v.getEnsuranceFranchise(), v.getBranch(), v.getId()};
+			List<VehiculoVenta> vehiculos = VehiculoDao.getVehiculosVenta(plate, marca);
+			for(VehiculoVenta v : vehiculos) {
+				Compra c = transaccionDao.getCompraByVehicle(v);
+				long buyPrice = (c != null)?c.getAmount(): 0;
+				Object[] row = {v.getId(), v.getPlate(), v.getBrand(), v.getModel(), v.getYear(), v.getKilometers(), v.getSellPrice(), buyPrice, v.getBranch()};
 				tableModel.addRow(row);
-			}
-
-		}
-
-		private void loadTableAvailableCars(LocalDate startDate, LocalDate endDate) {
-	        tableModel.setRowCount(0);
-
-			List<VehiculoAlquilable> vehiculos = VehiculoDao.getVehiculosAlquilablesAvailable(startDate, endDate);
-			for(VehiculoAlquilable v : vehiculos) {
-				Object[] row = {v.getPlate(), v.getBrand(), v.getModel(), v.getYear(), v.getKilometers(), v.getPrice(), v.getEnsurance(), v.getEnsuranceFranchise(), v.getBranch(), v.getId()};
-		        tableModel.addRow(row);
 			}
 
 		}
@@ -505,10 +466,6 @@ private static final long serialVersionUID = 1L;
 						setMessage("Seleccione una Sucursal valida", false);
 						return false;
 					}
-					if(franchiseTextField.getText().isBlank()) {
-						setMessage("La Franquicia no puede estar vacia", false);
-						return false;	
-					}
 			return true;	
 		}
 
@@ -528,16 +485,16 @@ private static final long serialVersionUID = 1L;
 			kilometersTextField.setText("");
 			brandComboBox.setSelectedIndex(0);
 			branchComboBox.setSelectedIndex(0);
-			ensuranceTextField.setText("");
-			priceTextField.setText("");
-			franchiseTextField.setText("");
+			sellingPriceTextField.setText("");
 			
-			searchTextField.setText("");
-			filterBrandComboBox.setSelectedIndex(0);
+			//searchTextField.setText("");
+			//filterBrandComboBox.setSelectedIndex(0);
 			
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
 	        table.clearSelection();
+			fillBrands();
+			fillBranches();
 		}
 
 		public JTabbedPane getTabbedPane() {
@@ -550,4 +507,9 @@ private static final long serialVersionUID = 1L;
 	        }
 	        return null; // Return null if not found
 	    }
+
+		public JButton getSearchButton() {
+			return searchButton;
+		}
+		
 }

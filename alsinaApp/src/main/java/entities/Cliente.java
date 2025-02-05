@@ -2,6 +2,8 @@ package entities;
 
 import java.util.Objects;
 
+import org.hibernate.annotations.Where;
+
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -11,6 +13,7 @@ import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "clientes")
+@Where(clause = "is_deleted = false")
 public class Cliente {
 
 	@Id
@@ -22,26 +25,18 @@ public class Cliente {
 	private String phone;
 	private String dni;
 	private String cuil;
-
+	
 	private String license;
 	private String expiration;
 	private String cod;
 	private String card;
 	private String cardNumber;
 	private String cardExpiration;	
-
+	@Column(name = "is_deleted", columnDefinition = "boolean default false")
+	private Boolean isDeleted;
+	
 		public Cliente() {
 			//Constructor por defecto NECESARIO
-		}
-		
-		public Cliente(long id, String name, String adress, String phone, String dni,  String cuil) {
-			super();
-			this.id = id;
-			this.name = name;
-			this.adress = adress;
-			this.phone = phone;
-			this.dni=dni;
-			this.cuil=cuil;
 		}
 
 		public Cliente(String name, String adress, String phone, String dni,  String cuil, String license, String expiration, String cod, String card, String cardNumber, String cardExpiration) {
@@ -58,6 +53,8 @@ public class Cliente {
 			this.card=card;
 			this.cardNumber=cardNumber;
 			this.cardExpiration=cardExpiration;
+			this.isDeleted= false;
+
 		}
 
 		public Long getId() {
@@ -145,24 +142,6 @@ public class Cliente {
 			return name;
 		}
 
-		@Override
-		public int hashCode() {
-			return Objects.hash(adress, id, name, phone);
-		}
-
-		@Override
-		public boolean equals(Object obj) {
-			if (this == obj)
-				return true;
-			if (obj == null)
-				return false;
-			if (getClass() != obj.getClass())
-				return false;
-			Cliente other = (Cliente) obj;
-			return Objects.equals(adress, other.adress) && id == other.id && Objects.equals(name, other.name)
-					&& Objects.equals(phone, other.phone);
-		}
-
 		public String getDni() {
 			return dni;
 		}
@@ -178,7 +157,38 @@ public class Cliente {
 		public void setCuil(String cuil) {
 			this.cuil = cuil;
 		}
+		
+		public Boolean getIsDeleted() {
+			return isDeleted;
+		}
 
+		public void setIsDeleted(Boolean isDeleted) {
+			this.isDeleted = isDeleted;
+		}
+
+		@Override
+		public int hashCode() {
+			return Objects.hash(adress, card, cardExpiration, cardNumber, cod, cuil, dni, expiration, id, isDeleted,
+					license, name, phone);
+		}
+
+		@Override
+		public boolean equals(Object obj) {
+			if (this == obj)
+				return true;
+			if (obj == null)
+				return false;
+			if (getClass() != obj.getClass())
+				return false;
+			Cliente other = (Cliente) obj;
+			return Objects.equals(adress, other.adress) && Objects.equals(card, other.card)
+					&& Objects.equals(cardExpiration, other.cardExpiration)
+					&& Objects.equals(cardNumber, other.cardNumber) && Objects.equals(cod, other.cod)
+					&& Objects.equals(cuil, other.cuil) && Objects.equals(dni, other.dni)
+					&& Objects.equals(expiration, other.expiration) && Objects.equals(id, other.id)
+					&& Objects.equals(isDeleted, other.isDeleted) && Objects.equals(license, other.license)
+					&& Objects.equals(name, other.name) && Objects.equals(phone, other.phone);
+		}
 	
 
 }

@@ -1,12 +1,12 @@
 package entityManagers;
 
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import entities.Destino;
-import entities.Marca;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
 
 public class DestinoDao {
 
@@ -74,10 +74,19 @@ public class DestinoDao {
 	        if (destino != null) 
 	        	manager.remove(destino);
 	        else 
-	            throw new Exception("Destino with ID " + id + " not found.");
+	            throw new NoSuchElementException("Destino with ID " + id + " not found.");
 	        	        
 	        manager.getTransaction().commit();
 	        
+	    }catch(PersistenceException e) {
+	    	EntityManager manager = emf.createEntityManager();
+				
+			manager.getTransaction().begin();
+		        
+			Destino destino = manager.find(Destino.class, id);    
+			destino.setIsDeleted(true);
+			
+		    manager.getTransaction().commit();
 	    }
 	}
 	

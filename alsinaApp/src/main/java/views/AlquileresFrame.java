@@ -28,12 +28,12 @@ public class AlquileresFrame extends JFrame{
 		//setSize(1100, 850);
 		setVisible(true);
 		setLocationRelativeTo(null);
-		
+		//setModalExclusionType(ModalExclusionType.APPLICATION_EXCLUDE);
 		
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		getContentPane().add(tabbedPane);
 		
-		tabbedPane.addTab("Vehiculos de Alquiler", new AutosAlquilerForm(vehiculoDao, sucursalDao, marcaDao));
+		tabbedPane.addTab("Vehiculos de Alquiler", new VehiculoAlquilerForm(vehiculoDao, sucursalDao, marcaDao));
 		tabbedPane.setIconAt(0, new ImageIcon(getClass().getResource("/resources/imgs/carro.png")));
 		tabbedPane.addTab("Nuevo Contrato", new AlquileresForm(alquilerDao, vehiculoDao, clienteDao));
 		tabbedPane.setIconAt(1, new ImageIcon(getClass().getResource("/resources/imgs/nuevo-alquiler.png")));
@@ -44,7 +44,19 @@ public class AlquileresFrame extends JFrame{
             @Override
             public void stateChanged(ChangeEvent e) {
                 int selectedIndex = tabbedPane.getSelectedIndex(); // Índice de la pestaña seleccionada
-
+                
+                if(selectedIndex==0) {
+					VehiculoAlquilerForm a = (VehiculoAlquilerForm)tabbedPane.getSelectedComponent();
+			          SwingUtilities.invokeLater(() -> {
+			                a.getSearchButton().doClick();
+			            });                	
+                }
+                if(selectedIndex==1) {
+                	AlquileresForm a = (AlquileresForm)tabbedPane.getSelectedComponent();
+			          SwingUtilities.invokeLater(() -> {
+			             a.fillClients();   
+			            });                	
+                }
                 if(selectedIndex==2) {
 					AlquileresHistorial a = (AlquileresHistorial)tabbedPane.getSelectedComponent();
 			          SwingUtilities.invokeLater(() -> {

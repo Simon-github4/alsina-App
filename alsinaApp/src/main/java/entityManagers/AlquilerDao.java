@@ -3,14 +3,13 @@ package entityManagers;
 import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.List;
+import java.util.NoSuchElementException;
 
 import entities.Alquiler;
-import entities.Marca;
-import entities.Vehiculo;
 import entities.VehiculoAlquilable;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.EntityManagerFactory;
-import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceException;
 import jakarta.persistence.TypedQuery;
 
 public class AlquilerDao {
@@ -98,8 +97,7 @@ public class AlquilerDao {
 	
 	public void delete(long id) throws Exception {
 		
-		try(EntityManagerFactory emf = Persistence.createEntityManagerFactory("persistencia");
-			EntityManager manager = emf.createEntityManager();){ 
+		try(EntityManager manager = emf.createEntityManager()){ 
 			
 			manager.getTransaction().begin();
 	        
@@ -107,10 +105,20 @@ public class AlquilerDao {
 	        if (alquiler != null) 
 	        	manager.remove(alquiler);
 	        else 
-	            throw new Exception("Sucursal with ID " + id + " not found.");
+	            throw new NoSuchElementException("Sucursal with ID " + id + " not found.");
 	        	        
 	        manager.getTransaction().commit();
-		}
+	        
+		}catch(PersistenceException e) {
+	    	EntityManager manager = emf.createEntityManager();
+				
+			manager.getTransaction().begin();
+		        
+			Alquiler alquiler = manager.find(Alquiler.class, id);    
+			alquiler.setIsDeleted(true);
+			
+		    manager.getTransaction().commit();
+	    }
 	}
 
 }

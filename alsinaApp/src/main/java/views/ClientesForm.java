@@ -21,6 +21,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
@@ -41,24 +42,18 @@ public class ClientesForm extends JPanel{
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
+	private ClienteDao ClienteDao;
 	private JTextField nameTextField;
 	private JTextField adressTextField;
-	private JTextField phoneTextField;
-	private ClienteDao ClienteDao;
+	private JTextField phoneTextField;	
 	private JTextField dniTextField;
 	private JTextField cuitTextField;
 	private JTextField searchTextField;
-
 	private JTextField licenseTextField;
-
 	private JTextField codTextField;
-
 	private JTextField expirationTextField;
-
 	private JTextField cardTextField;
-
 	private JTextField cardNumberTextField;
-
 	private JTextField cardExpirationTextField;
 
 
@@ -144,13 +139,11 @@ public class ClientesForm extends JPanel{
 			horizontalPanel.add(new JLabel(""));
 			horizontalPanel.add(new JLabel("Buscar por Nombre", JLabel.RIGHT));
 			searchTextField = new JTextField(); 
-			searchTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Presione Enter para buscar");
 			searchTextField.putClientProperty(FlatClientProperties.TEXT_FIELD_SHOW_CLEAR_BUTTON, true);
 			searchTextField.addKeyListener(new KeyAdapter() {
 				@Override
 				public void keyPressed(KeyEvent e) {
-					if(e.getKeyCode() == KeyEvent.VK_ENTER)
-						loadTable(searchTextField.getText());
+					SwingUtilities.invokeLater(()-> loadTable(searchTextField.getText()));
 				}
 			});
 			horizontalPanel.add(searchTextField);

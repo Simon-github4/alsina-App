@@ -3,6 +3,7 @@ package views;
 import java.awt.GridLayout;
 import java.awt.LayoutManager;
 
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.JTabbedPane;
@@ -21,7 +22,6 @@ public class MarcasSucursalesClientesFrame extends JFrame {
 
 	
 	public MarcasSucursalesClientesFrame(MarcaDao mdao, SucursalDao sdao, ClienteDao cdao, DestinoDao ddao) {
-		//super("Informacion");
 		setVisible(true);
 		setBounds(100, 100, 1110, 860);
 		setLocationRelativeTo(null);
@@ -36,7 +36,7 @@ public class MarcasSucursalesClientesFrame extends JFrame {
 		
 		tabbedPane.addTab("Clientes", new ClientesForm(cdao));
 		tabbedPane.addTab("Marcas", new MarcasForm(mdao));
-		tabbedPane.addTab("Sucursales", new SucursalesForm(sdao));
+		tabbedPane.addTab("Concesionarias", new SucursalesForm(sdao));
 		tabbedPane.addTab("Destinos", new DestinosForm(ddao));
 		
 

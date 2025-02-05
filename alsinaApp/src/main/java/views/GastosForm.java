@@ -2,20 +2,12 @@ package views;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
-import java.awt.Component;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -23,30 +15,21 @@ import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JFormattedTextField;
 import javax.swing.JLabel;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
 import javax.swing.border.EmptyBorder;
-import javax.swing.border.LineBorder;
-import javax.swing.border.TitledBorder;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
-import javax.swing.table.DefaultTableModel;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
-import entities.Alquiler;
-import entities.Cliente;
 import entities.Destino;
 import entities.Gasto;
 import entities.Sucursal;
+import entities.Vehiculo;
 import entities.VehiculoAlquilable;
-import entityManagers.AlquilerDao;
-import entityManagers.ClienteDao;
 import entityManagers.DestinoDao;
 import entityManagers.GastoDao;
 import entityManagers.SucursalDao;
@@ -79,6 +62,8 @@ public class GastosForm extends JPanel{
 	private DestinoDao DestinoDao;
 	private JLabel title;
 	private Long id;
+
+	private JLabel branchInfoLabel;
 	
 	public GastosForm(VehiculoDao vehiculoDao, SucursalDao SucursalDao, GastoDao GastoDao, DestinoDao DestinoDao) {
 			this.VehiculoDao = vehiculoDao;
@@ -111,6 +96,69 @@ public class GastosForm extends JPanel{
 			horizontalPanel.add(new JLabel("Vehiculo", JLabel.RIGHT));
 			vehicleTextField = new JTextField();
 			vehicleTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "Opcional");
+		
+			vehicleTextField.getDocument().addDocumentListener(new DocumentListener() {
+	            @Override
+	            public void insertUpdate(DocumentEvent e) {
+	                // Called when text is inserted into the document
+	            	SwingUtilities.invokeLater(()->{ 
+	            		if(!vehicleTextField.getText().isBlank()) {
+							branchComboBox.setEnabled(false);
+							branchComboBox.setSelectedIndex(0);
+							Vehiculo v =vehiculoDao.getVehiculoByPlate(vehicleTextField.getText());
+							if(v != null) {
+								branchComboBox.setSelectedItem(v.getBranch());
+								branchInfoLabel.setText("(se considerara la concesionaria del vehiculo)");
+							}
+						}else {
+							branchComboBox.setSelectedIndex(0);
+							branchComboBox.setEnabled(true);
+							branchInfoLabel.setText("");
+						}
+	            		
+					});
+	            }
+
+	            @Override
+	            public void removeUpdate(DocumentEvent e) {
+	                // Called when text is removed from the document
+	            	SwingUtilities.invokeLater(()->{ 
+	            		if(!vehicleTextField.getText().isBlank()) {
+							branchComboBox.setEnabled(false);
+							branchComboBox.setSelectedIndex(0);
+							Vehiculo v =vehiculoDao.getVehiculoByPlate(vehicleTextField.getText());
+							if(v != null) {
+								branchComboBox.setSelectedItem(v.getBranch());
+								branchInfoLabel.setText("(se considerara la concesionaria del vehiculo)");
+							}
+						}else {
+							branchComboBox.setSelectedIndex(0);
+							branchComboBox.setEnabled(true);
+							branchInfoLabel.setText("");
+						}
+					});
+	            }
+
+	            @Override
+	            public void changedUpdate(DocumentEvent e) {
+	                // Called when the style of the text changes (not used for plain text fields)
+	            	SwingUtilities.invokeLater(()->{ 
+						if(!vehicleTextField.getText().isBlank()) {
+							branchComboBox.setEnabled(false);
+							branchComboBox.setSelectedIndex(0);
+							Vehiculo v =vehiculoDao.getVehiculoByPlate(vehicleTextField.getText());
+							if(v != null) {
+								branchComboBox.setSelectedItem(v.getBranch());
+								branchInfoLabel.setText("(se considerara la concesionaria del vehiculo)");
+							}
+						}else {
+							branchComboBox.setSelectedIndex(0);
+							branchComboBox.setEnabled(true);
+							branchInfoLabel.setText("");
+						}
+					});
+	            }
+	        });
 			horizontalPanel.add(vehicleTextField);
 			horizontalPanel.add(new JLabel(""));
 			
@@ -139,10 +187,11 @@ public class GastosForm extends JPanel{
 
 			
 			horizontalPanel = new JPanel(new GridLayout(0,3));
-			horizontalPanel.add(new JLabel("Consecionaria", JLabel.RIGHT));
+			horizontalPanel.add(new JLabel("Concesionaria", JLabel.RIGHT));
 			branchComboBox = new JComboBox<Sucursal>();
 			horizontalPanel.add(branchComboBox);
-			horizontalPanel.add(new JLabel(""));
+			branchInfoLabel = new JLabel("");
+			horizontalPanel.add(branchInfoLabel);
 
 			horizontalPanel.add(new JLabel("Forma de Pago", JLabel.RIGHT));
 			paymentTextField = new JTextField();
@@ -163,7 +212,6 @@ public class GastosForm extends JPanel{
 			JButton confirm = new JButton("Confirmar");
 			confirm.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-
 						if(validateFields())
 								insert();				
 
@@ -213,7 +261,8 @@ public class GastosForm extends JPanel{
 		}	
 	
 		private void fillBranchs() {
-			branchComboBox.addItem(new Sucursal("Seleccione una Consecionaria"));
+			branchComboBox.removeAllItems();
+			branchComboBox.addItem(new Sucursal("Seleccione una Consecionaria", null));
 
 			List<Sucursal> sucursales = SucursalDao.getSucursales();
 			for(Sucursal s : sucursales) 
@@ -222,6 +271,7 @@ public class GastosForm extends JPanel{
 		}
 
 		private void fillDestinations() {
+			destinationComboBox.removeAllItems();
 			destinationComboBox.addItem(new Destino("Seleccione un Destino"));
 			
 			List<Destino> destinos = DestinoDao.getDestinos();
@@ -230,10 +280,10 @@ public class GastosForm extends JPanel{
 		}
 		
 		private void insert() {
-			VehiculoAlquilable vehicle=null;
+			Vehiculo vehicle=null;
 			if( ! vehicleTextField.getText().isBlank()) 
 			try {
-				vehicle = VehiculoDao.getVehiculoAlquilableByPlate(vehicleTextField.getText());
+				vehicle = VehiculoDao.getVehiculoByPlate(vehicleTextField.getText());
 			} catch (NoResultException p) {
 				SwingUtilities.invokeLater(() -> setMessage("Vehiculo Inexistente", false));
 				throw p;
@@ -241,7 +291,12 @@ public class GastosForm extends JPanel{
 			
 			try {
 				LocalDate date = dp.getSelectedDate();
-				Sucursal branch = (Sucursal) branchComboBox.getSelectedItem();
+				Sucursal branch ;
+				if(vehicle == null)
+					branch =(Sucursal) branchComboBox.getSelectedItem();
+				else
+					branch = vehicle.getBranch();
+				
 				int amount = Integer.parseInt(amountTextField.getText());
 				String description = descriptionTextField.getText();
 				String pay = paymentTextField.getText();
@@ -252,7 +307,7 @@ public class GastosForm extends JPanel{
 				if(id != null) {
 					g.setId(id);
 					GastoDao.save(g);
-					title.setText("NUEVO ALQUILER");			
+					title.setText("NUEVO GASTO");			
 					id = null;
 					setMessage("Modificado correctamente", true);
 				}
@@ -272,7 +327,7 @@ public class GastosForm extends JPanel{
 		
 		private boolean validateFields() {
 			try {				
-					if(branchComboBox.getSelectedIndex() == 0) {
+					if(branchComboBox.getSelectedIndex() == 0 && vehicleTextField.getText().isBlank()) {
 						setMessage("Seleccione una Consecionaria valido", false);
 						return false;
 					}				
@@ -308,10 +363,13 @@ public class GastosForm extends JPanel{
 			dp.clearSelectedDate();
 			paymentTextField.setText("");
 			branchComboBox.setSelectedIndex(0);
+			branchComboBox.setEnabled(true);
 			destinationComboBox.setSelectedIndex(0);
 	
 			messageLabel.setText("");
 	        messageLabel.setOpaque(false);
+	        title.setText("NUEVO GASTO");			
+			id = null;
 		}
 
 		public void setUpdateForm(Gasto g) {
@@ -326,6 +384,10 @@ public class GastosForm extends JPanel{
 			paymentTextField.setText(String.valueOf(g.getPayment()));
 			branchComboBox.setSelectedItem(g.getBranch());
 			destinationComboBox.setSelectedItem(g.getDestination());
+		}
+
+		public JTextField getVehicleTextField() {
+			return vehicleTextField;
 		}
 		
 }
