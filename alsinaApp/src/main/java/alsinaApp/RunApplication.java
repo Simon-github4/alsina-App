@@ -1,14 +1,18 @@
 package alsinaApp;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import views.Dashboard;
 
 public class RunApplication {
 	
 	public static void main(String[] args) {
-		
+
 		Dashboard d  = Dashboard.getInstance();
 		d.setVisible(true);
-		d.setLocationRelativeTo(null);					
+		d.setLocationRelativeTo(null);	
+	
 		/*
 		        String classpath = System.getProperty("java.class.path");
 		        System.out.println("Classpath:");

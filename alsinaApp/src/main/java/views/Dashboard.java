@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JButton;
 import javax.swing.JFrame;
@@ -55,7 +57,15 @@ public class Dashboard extends JFrame{
 		try {
         	SwingUtilities.invokeLater(() -> {
         		//Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
-        		 	emf = Persistence.createEntityManagerFactory(("persistencia"));
+        		Map<String, String> persistenceMap = new HashMap<String, String>();
+        		String ip = ((System.getProperty("user.home").equalsIgnoreCase("C:\\Users\\simon"))?"192.168.0.178": "ip de pc dani??");
+        		//ip="localhost";
+        		persistenceMap.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://"+ip+":5432/consecionaria");
+        		
+        		String password = (System.getProperty("user.home").equalsIgnoreCase("C:\\Users\\simon"))?"niidea2004": "danipersello";
+        		persistenceMap.put("jakarta.persistence.jdbc.password", password);
+        		
+        		 	emf = Persistence.createEntityManagerFactory(("persistencia"), persistenceMap);
         			AlquilerDao = new AlquilerDao(emf);
         			VehiculoDao = new VehiculoDao(emf);
         			ClienteDao = new ClienteDao(emf);
