@@ -204,7 +204,7 @@ public class PdfUtils {
 
 	public static void createTransactionPdf(Transaccion t) throws IOException {
 		String amountInWords = JOptionPane.showInputDialog("Ingrese el Monto: "+ String.valueOf(t.getAmount())+ " en palabras");
-		String pagaderos = JOptionPane.showInputDialog("Ingrese la forma de Cobro:");
+		String pagaderos = JOptionPane.showInputDialog("Ingrese la forma de Cobro:");  pagaderos += ".";
 		
 		ImageData data = ImageDataFactory.create(PdfUtils.class.getResource(t.getVehicle().getBranch().getLogoPath()));
 		Image img = new Image(data);
@@ -249,10 +249,10 @@ public class PdfUtils {
 		.append(" en el estado que se encuentra, por el cual presta conformidad. El precio de venta pactado es $ ")
 		.append(t.getAmount()).append(".-(").append(amountInWords).append(") pagaderos de la siguiente forma: "+ pagaderos)
 		.append("\n\nEl vendedor declara expresamente que el automotor motivo del presente boleto no reconoce gravamenes de ninguna indole")
-		.append(" por prenda, embargo o deposito, responsabilizando, por cualquier inconveniente que impidiera disponer libremente del mismo")
+		.append(" por prenda, embargo o deposito, responsabilizando, por cualquier inconveniente que impidiera disponer libremente del mismo.")
 		.append("\n\nEn prueba de conformidad se firman dos ejemplares del mismo tenor y a un solo efecto en Necochea a los ").append(t.getDate().getDayOfMonth())
 		.append(" dias del mes ").append(monthName[t.getDate().getMonthValue() - 1]).append(" de "+t.getDate().getYear())
-		.append("\n\n\n\n\n"); 
+		.append(".\n\n\n\n\n"); 
 		
 				
 		Paragraph p = new Paragraph(sb.toString()).add(new Tab()).add("Firma comprador").add(new Tab()).add(new Tab()).add(new Tab()).add("Firma vendedor");

@@ -372,8 +372,9 @@ public class CajaHistorialAlquileres extends JPanel {
 		tableModel.setRowCount(0);
 
 		if(egresosRadioButton.isSelected()) {
-			List<Gasto> gastos = GastoDao.getGastosByFilters(plate.toLowerCase(), dates, branch, desination);			
-			for(Gasto a : gastos) {
+			List<Gasto> gastosAlquiler = GastoDao.getGastosByFilters(plate.toLowerCase(), dates, branch, desination);		
+			gastosAlquiler = gastosAlquiler.stream().filter(g -> g.getVehicle() instanceof VehiculoAlquilable).toList();
+			for(Gasto a : gastosAlquiler) {
 				Object[] row = {a.getVehicle(), a.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getDescription(), a.getAmount(), a.getDestination(), a.getPayment(), a.getBranch(), a.getId()};
 				tableModel.addRow(row);
 				egresos += a.getAmount();

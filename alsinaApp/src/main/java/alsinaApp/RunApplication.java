@@ -16,11 +16,10 @@ public class RunApplication {
 		/*
 		        String classpath = System.getProperty("java.class.path");
 		        System.out.println("Classpath:");
-		        for (String path : classpath.split(":")) { // Use ";" on Windows
+		        for (String path : classpath.split(";")) { // Use ";" on Windows
 		            System.out.println(path);
 		        }
-		 */
-		
+		*/
 	}
 
 }

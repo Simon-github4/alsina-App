@@ -58,7 +58,7 @@ public class Dashboard extends JFrame{
         	SwingUtilities.invokeLater(() -> {
         		//Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         		Map<String, String> persistenceMap = new HashMap<String, String>();
-        		String ip = ((System.getProperty("user.home").equalsIgnoreCase("C:\\Users\\simon"))?"192.168.0.178": "ip de pc dani??");
+        		String ip = ((System.getProperty("user.home").equalsIgnoreCase("C:\\Users\\simon"))?"192.168.0.178": "192.168.0.108");
         		//ip="localhost";
         		persistenceMap.put("jakarta.persistence.jdbc.url", "jdbc:postgresql://"+ip+":5432/consecionaria");
         		

@@ -23,12 +23,6 @@
 		    <artifactId>hibernate-core</artifactId>
 		    <version>6.6.4.Final</version>
 		</dependency>
-	<!-- https://mvnrepository.com/artifact/org.hibernate/hibernate-entitymanager -->
-		<dependency>
-		    <groupId>org.hibernate</groupId>
-		    <artifactId>hibernate-entitymanager</artifactId>
-		    <version>5.6.15.Final</version>
-		</dependency>
 	<!-- https://mvnrepository.com/artifact/com.zaxxer/HikariCP -->
 		<dependency>
 		    <groupId>com.zaxxer</groupId>
@@ -106,7 +100,7 @@
 		    <version>2.20.0</version> 
 		</dependency> -->	
 	</dependencies>
-	
+	<!--
 	<build>
 		<plugins>
 			<plugin>
@@ -124,20 +118,20 @@
 			</plugin>		
 						                
 		</plugins>	
-		<!-- <resources>
-
+		<resources>
+ 
 			<resource>
 	            <directory>src/main/resources</directory>
 	        </resource>
 	        <resource>
-	            <directory>META-INF</directory>
-	            <includes>
-	            	<include>src/main/resources/META-INF/persistence.xml</include>
-	            </includes>
+	            <directory>src/main/resources</directory>
+            <includes>
+                <include>META-INF/persistence.xml</include>
+            </includes>
 	        </resource>
-    	</resources>-->
+    	</resources>
     
-	</build>
+	</build>-->
 	
 	
 </project>
