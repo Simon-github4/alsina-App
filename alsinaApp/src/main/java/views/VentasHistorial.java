@@ -212,7 +212,11 @@ public class VentasHistorial extends JPanel{
 							Long id = (Long)tableModel.getValueAt(table.getSelectedRow(), 0); 
 							Transaccion t = transaccionDao.getTransaccionById(id);
 							PdfUtils.createTransactionPdf(t);
-						}catch(Exception ee) {
+					}catch(IllegalArgumentException il) {
+						setMessage("Datos incompletos para Imprimir Contrato:" + il.getLocalizedMessage(), false);
+						il.printStackTrace();;				
+					}catch(Exception ee) {
+						setMessage("Ha ocurrido un Error" + ee.getLocalizedMessage(), false);
 						ee.printStackTrace();
 					}
 			}

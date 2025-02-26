@@ -100,7 +100,7 @@ public class TransaccionDao {
 				if(client.getId() != null)
 					query.append("AND v.client = :cliente ");
 				
-				query.append("ORDER BY v.date desc");
+				query.append("ORDER BY v.id desc");
 		    					
 		    	manager.getTransaction().begin();
 		        TypedQuery<Transaccion> queryResult = manager.createQuery(query.toString(), Transaccion.class);

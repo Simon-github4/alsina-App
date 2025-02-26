@@ -44,8 +44,7 @@
 		<!-- <property name="hibernate.hikari.idleTimeout" value="600000"/>
 		<property name="hibernate.hikari.maxLifetime" value="1800000"/> 
 		--> 	
-		<property name="hibernate.transaction.jta.platform" value="org.hibernate.engine.transaction.jta.platform.internal.NoJtaPlatform" />
- 	     <property name="hibernate.transaction.coordinator_class" value="jdbc"/>
+		<property name="hibernate.transaction.jta.platform" value="org.hibernate.engine.transaction.jta.platform.internal.oJtaPlatform" />
   
 		<!-- <property name="hibernate.archive.autodetection" value="class"/>
 		<property name="hibernate.ejb.packagesToScan" value="src/main/java/entities"/>		

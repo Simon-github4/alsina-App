@@ -97,17 +97,21 @@ private static final long serialVersionUID = 1L;
 			contentPane.add(inputPanel, BorderLayout.NORTH);
 			
 
-			JPanel horizontalPanel = new JPanel(new GridLayout());
+			JPanel horizontalPanel = new JPanel();
+			horizontalPanel.setLayout(new BorderLayout(0, 0));
 			
 			JLabel titulo = new JLabel("VEHICULOS DE VENTA", JLabel.CENTER);
+			titulo.setBounds(0, 0, 1086, 57);
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
-			horizontalPanel.add(titulo);		
+			horizontalPanel.add(titulo, BorderLayout.CENTER);
+			JLabel usd = new JLabel("$ USD Hoy: ", JLabel.LEFT);
+			usd.setFont(new Font("Montserrat Black", Font.TRUETYPE_FONT, 20));			
+			horizontalPanel.add(usd, BorderLayout.EAST);			
 			inputPanel.add(horizontalPanel);
 
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 7));
-			inputPanel.add(horizontalPanel);
-			
+			inputPanel.add(horizontalPanel);	
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Patente", JLabel.RIGHT));

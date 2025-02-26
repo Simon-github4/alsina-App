@@ -77,7 +77,7 @@ public class AlquilerDao {
 				if(dates != null)
 					query.append("AND a.start BETWEEN :start AND :end OR a.end BETWEEN :start AND :end OR (a.start < :start AND a.end > :end) ");
 				
-				query.append("ORDER BY a.end desc");
+				query.append("ORDER BY a.id desc");
 		    					
 				manager.getTransaction().begin();
 		        TypedQuery<Alquiler> queryResult = manager.createQuery(query.toString(), Alquiler.class);

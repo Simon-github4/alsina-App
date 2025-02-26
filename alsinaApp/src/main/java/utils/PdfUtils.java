@@ -46,7 +46,7 @@ public class PdfUtils {
 		//final int width = 595;
 		//final int height = 842;
 		final float lineY = -17.9f; //-15
-		final int startY = 726;//745?
+		int startY = 726;//745?
 		final int x = 75; // 120?
 
 		File file = new File(dest);
@@ -81,17 +81,21 @@ public class PdfUtils {
 				
 				if(a.getClient().getName().contains("-")) {
 				    p = new Paragraph(a.getClient().getName().substring(a.getClient().getName().indexOf('-') + 1)).setFontSize(9);
-				    document.showTextAligned(p, x, startY + lineY * 2.5f,
+				    document.showTextAligned(p, x, startY + lineY * 1.6f,
 				            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 				}
 			    
+				startY -= lineY; 
+				
 			    p = new Paragraph(a.getVehicle().getPlate()).setFontSize(9);
 			    document.showTextAligned(p, x, startY + lineY * 4.45f,
-			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
+			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);			    
 			    
 			    p = new Paragraph(a.getVehicle().getModel()).setFontSize(9);
 			    document.showTextAligned(p, x + 145, startY + lineY * 4.45f,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
+			    
+			    startY--;
 			    
 			    p = new Paragraph(a.getEnd().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))).setFontSize(9);
 			    document.showTextAligned(p, x, startY + lineY * 8,
@@ -110,11 +114,11 @@ public class PdfUtils {
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 
 			    p = new Paragraph("X");//comb retorno
-			    document.showTextAligned(p, x + 285 + 29* getXPositionGas(a.getGasReturn()), startY + lineY * 8,
+			    document.showTextAligned(p, x + 275 + 29* getXPositionGas(a.getGasReturn()), startY + lineY * 8,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 
 			    p = new Paragraph("X");//comb salida
-			    document.showTextAligned(p, x + 285 + 29* getXPositionGas(a.getGasExit()), startY + lineY * 9,
+			    document.showTextAligned(p, x + 275 + 29* getXPositionGas(a.getGasExit()), startY + lineY * 9,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 
 			    p = new Paragraph(a.getClient().getAdress()).setFontSize(9);
@@ -126,7 +130,7 @@ public class PdfUtils {
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 			  
 			    p = new Paragraph(String.valueOf(a.getTotalPrice() / a.getDurationDays())).setFontSize(9);
-			    document.showTextAligned(p, x + 270, startY + lineY * 11.8f,
+			    document.showTextAligned(p, x + 270, startY + lineY * 10.9f,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 
 			    p = new Paragraph(a.getClient().getLicense()).setFontSize(8);
@@ -140,30 +144,32 @@ public class PdfUtils {
 			    /*p = new Paragraph("financ.").setFontSize(8);
 			    document.showTextAligned(p, x + 160, startY + lineY * 12,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
-			     */
+			     */	    
+			    float lineCard = 12.7f;
+			    
 			    p = new Paragraph(a.getClient().getCard()).setFontSize(8);
-			    document.showTextAligned(p, x - 50, startY + lineY * 13.3f,
+			    document.showTextAligned(p, x - 50, startY + lineY * lineCard,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 			    
 			    p = new Paragraph(a.getClient().getCardNumber()).setFontSize(8);
-			    document.showTextAligned(p, x + 20, startY + lineY * 13.3f,
+			    document.showTextAligned(p, x + 20, startY + lineY * lineCard,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 			    
 			    p = new Paragraph(a.getClient().getCardExpiration()).setFontSize(8);
-			    document.showTextAligned(p, x + 95, startY + lineY * 13.3f,
+			    document.showTextAligned(p, x + 95, startY + lineY * lineCard,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 	
 			    p = new Paragraph(String.valueOf(a.getTotalPrice())).setFontSize(9);
-			    document.showTextAligned(p, x + 145, startY + lineY * 13.3f,
+			    document.showTextAligned(p, x + 145, startY + lineY * lineCard,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 	
 			    p = new Paragraph(a.getClient().getCod()).setFontSize(8);
-			    document.showTextAligned(p, x + 215, startY + lineY * 13.3f,
+			    document.showTextAligned(p, x + 215, startY + lineY * lineCard,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 			    
 			    
 			    p = new Paragraph(String.valueOf(a.getVehicle().getEnsuranceFranchise())).setFontSize(9); //quizas achicar Font
-			    document.showTextAligned(p, x + 35, startY + lineY * 35,
+			    document.showTextAligned(p, x + 35, startY + lineY * 33,
 			            pdfDoc.getPageNumber(page),TextAlignment.LEFT, VerticalAlignment.MIDDLE, 0);
 			    
 			    canvas.restoreState();
@@ -181,27 +187,6 @@ public class PdfUtils {
 
 	}
 
-	private static float getXPositionGas(String gas) {
-
-		//if(gas.equalsIgnoreCase("RESERVA"))
-		//	return 1;
-		if(gas.equalsIgnoreCase("1/8"))
-			return 2;
-		else if(gas.equalsIgnoreCase("1/4"))
-			return 3;
-		else if(gas.equalsIgnoreCase("3/8"))
-			return 4;
-		else if(gas.equalsIgnoreCase("1/2"))
-			return 5;
-		else if(gas.equalsIgnoreCase("5/8"))
-			return 6;
-		else if(gas.equalsIgnoreCase("7/8"))
-			return 7;
-		else //if(gas.equalsIgnoreCase("FULL"))
-			return 7;
-
-	}
-
 	public static void createTransactionPdf(Transaccion t) throws IOException {
 		String amountInWords = JOptionPane.showInputDialog("Ingrese el Monto: "+ String.valueOf(t.getAmount())+ " en palabras");
 		String pagaderos = JOptionPane.showInputDialog("Ingrese la forma de Cobro:");  pagaderos += ".";
@@ -215,9 +200,8 @@ public class PdfUtils {
 
 		String user = System.getProperty("user.home");
 		final String path = user + "\\Desktop\\Boletos Compra - Venta\\";
-		final String fileName = t.getClass().getSimpleName() +"_"+ t.getVehicle().getPlate()+"_"
-							  + t.getClient().getName()+"_"+ t.getDate().format(DateTimeFormatter.ofPattern("dd-MM-yyyy")) +".pdf";
-									// \\Desktop
+		final String fileName = t.getClass().getSimpleName() +"_"+ t.getVehicle().getPlate()+"_" + t.getId() +".pdf";
+
 		File file = new File(path + fileName);
         file.getParentFile().mkdirs();
         
@@ -243,7 +227,7 @@ public class PdfUtils {
 		StringBuilder sb = new StringBuilder("\nConste por el presente que el señor : ");
 		sb.append(t.getVehicle().getBranch().getDescription()).append(" domiciliado en: ").append(t.getVehicle().getBranch().getAdress());
 		sb.append(" de Necochea "+voc+"al señor: ").append(t.getClient().getName()).append(" D.N.I: ").append(t.getClient().getDni());
-		sb.append(" domiciliado en: ").append(t.getClient().getAdress()).append(" de Necochea, Telefono: ");
+		sb.append(" domiciliado en: ").append(t.getClient().getAdress()).append(" , Telefono: ");
 		sb.append(t.getClient().getPhone()).append(" lo siguiente: un automotor Marca: ").append(t.getVehicle().getBrand())
 		.append(" Modelo: ").append(t.getVehicle().getModel()).append(" Dominio: ").append(t.getVehicle().getPlate())
 		.append(" en el estado que se encuentra, por el cual presta conformidad. El precio de venta pactado es $ ")
@@ -271,4 +255,25 @@ public class PdfUtils {
 
 	}
 
+
+	private static float getXPositionGas(String gas) {
+
+		//if(gas.equalsIgnoreCase("RESERVA"))
+		//	return 1;
+		if(gas.equalsIgnoreCase("1/8"))
+			return 2;
+		else if(gas.equalsIgnoreCase("1/4"))
+			return 3;
+		else if(gas.equalsIgnoreCase("3/8"))
+			return 4;
+		else if(gas.equalsIgnoreCase("1/2"))
+			return 5;
+		else if(gas.equalsIgnoreCase("5/8"))
+			return 6;
+		else if(gas.equalsIgnoreCase("7/8"))
+			return 7;
+		else //if(gas.equalsIgnoreCase("FULL"))
+			return 7;
+
+	}
 }

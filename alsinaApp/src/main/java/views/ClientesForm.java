@@ -17,6 +17,7 @@ import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -50,11 +51,11 @@ public class ClientesForm extends JPanel{
 	private JTextField cuitTextField;
 	private JTextField searchTextField;
 	private JTextField licenseTextField;
-	private JTextField codTextField;
+	private JPasswordField codTextField;
 	private JTextField expirationTextField;
 	private JTextField cardTextField;
 	private JTextField cardNumberTextField;
-	private JTextField cardExpirationTextField;
+	private JPasswordField cardExpirationTextField;
 
 
 	public ClientesForm(ClienteDao cdao) {
@@ -125,10 +126,12 @@ public class ClientesForm extends JPanel{
 			
 			horizontalPanel = new JPanel(new GridLayout());	
 			horizontalPanel.add(new JLabel("Tarjeta Vencimiento", JLabel.RIGHT));
-			cardExpirationTextField = new JTextField(10);
+			cardExpirationTextField = new JPasswordField(10);
+			cardExpirationTextField.putClientProperty(FlatClientProperties.STYLE, "showRevealButton:true");
 			horizontalPanel.add(cardExpirationTextField);
 			horizontalPanel.add(new JLabel("Cod.Seg./Autor", JLabel.RIGHT));
-			codTextField = new JTextField(10);
+			codTextField = new JPasswordField(10);
+			codTextField.putClientProperty(FlatClientProperties.STYLE, "showRevealButton:true");
 			horizontalPanel.add(codTextField);
 			horizontalPanel.add(new JLabel(""));
 			horizontalPanel.add(new JLabel(""));
@@ -204,8 +207,10 @@ public class ClientesForm extends JPanel{
 			table.getColumnModel().getColumn(11).setMaxWidth(0);
 			table.getColumnModel().getColumn(11).setMinWidth(0);
 			table.getColumnModel().getColumn(11).setPreferredWidth(0);
+			table.getColumnModel().getColumn(9).setMaxWidth(35);
+			table.getColumnModel().getColumn(9).setMinWidth(35);
+			table.getColumnModel().getColumn(9).setPreferredWidth(35);
 			table.getColumnModel().getColumn(10).setPreferredWidth(40);
-			table.getColumnModel().getColumn(9).setPreferredWidth(40);
 			table.getColumnModel().getColumn(6).setPreferredWidth(40);
 			table.setShowGrid(true);
 			table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {

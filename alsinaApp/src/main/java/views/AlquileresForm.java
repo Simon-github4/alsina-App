@@ -37,6 +37,7 @@ import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
 import raven.datetime.event.DateSelectionEvent;
 import raven.datetime.event.DateSelectionListener;
+import utils.PdfUtils;
 import utils.ViewUtils;
 
 public class AlquileresForm extends JPanel{
@@ -284,12 +285,16 @@ private static final long serialVersionUID = 1L;
 					setMessage("Insertado correctamente", true);
 				}
 				clearFields();
+				PdfUtils.openPdfToPrint(v);
 
 			} catch (NumberFormatException e2) {
 				setMessage("Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)", false);
 			} catch (PersistenceException e5) {
 				setMessage("ya existe un Vehiculo con esa Patente", false);
 				e5.printStackTrace();
+			}catch(IllegalArgumentException il) {
+				setMessage("Datos incompletos para Imprimir Contrato:" + il.getLocalizedMessage(), false);
+				il.printStackTrace();;				
 			} catch (Exception e3) {
 				setMessage("Ha ocurrido un Error:" + e3.getLocalizedMessage(), false);
 				e3.printStackTrace();;

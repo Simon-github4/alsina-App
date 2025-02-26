@@ -40,6 +40,7 @@ import entityManagers.VehiculoDao;
 import jakarta.persistence.PersistenceException;
 import raven.datetime.DatePicker;
 import raven.datetime.DatePicker.DateSelectionMode;
+import utils.PdfUtils;
 import utils.ViewUtils;
 
 public class TransaccionNuevaFrame extends JFrame {
@@ -228,13 +229,17 @@ private static final long serialVersionUID = 1L;
 					
 				transaccionDao.save(t);
 				JOptionPane.showMessageDialog(null, "Operacion Exitosa.");
-				
+
 				if(tipoTransaction.equalsIgnoreCase("VENTA"))
 					VehiculoDao.delete(t.getVehicle().getId());
+				PdfUtils.createTransactionPdf(t);
 				
 			}catch (NumberFormatException e2) {
 				JOptionPane.showMessageDialog(null,"Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)");
 				return false;
+			}catch(IllegalArgumentException il) {
+				setMessage("Datos incompletos para Imprimir Boleto:" + il.getLocalizedMessage(), false);
+				il.printStackTrace();;				
 			}catch(PersistenceException e5) {
 				JOptionPane.showMessageDialog(null,"ya existe un Vehiculo con esa Patente");	
 				return false;

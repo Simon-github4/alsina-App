@@ -20,7 +20,8 @@ import jakarta.persistence.Table;
 import jakarta.persistence.UniqueConstraint;
 
 @Entity
-@Table(name = "vehiculos", uniqueConstraints = @UniqueConstraint(columnNames = {"plate"}))
+@Table(name = "vehiculos", 
+			uniqueConstraints = @UniqueConstraint(columnNames = {"plate", "esalquilable"}))
 @DiscriminatorColumn(name = "esalquilable", discriminatorType = DiscriminatorType.STRING) 
 //@Where(clause = "is_deleted = false")
 @Inheritance(strategy = InheritanceType.SINGLE_TABLE)
@@ -32,7 +33,7 @@ public abstract class Vehiculo {
 	private Long id;
 	private int year;
 	private int kilometers;
-    @Column(name = "plate", unique = true)
+    //@Column(name = "plate", unique = true)
 	private String plate;
 	private String model;
 	@ManyToOne

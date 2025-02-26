@@ -346,7 +346,7 @@ public class GastosForm extends JPanel{
 			return true;	
 		}
 		
-
+		
 		private void setMessage(String message, boolean succes) {
 			messageLabel.setText(message);
 	        messageLabel.setOpaque(true);
