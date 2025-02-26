@@ -11,6 +11,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.List;
 
 import javax.swing.BoxLayout;
@@ -45,6 +47,7 @@ import entityManagers.SucursalDao;
 import entityManagers.TransaccionDao;
 import entityManagers.VehiculoDao;
 import jakarta.persistence.PersistenceException;
+import utils.DolarData;
 import utils.ViewUtils;
 import views.temporalFrames.VehiculoVentaResumenFrame;
 
@@ -97,21 +100,29 @@ private static final long serialVersionUID = 1L;
 			contentPane.add(inputPanel, BorderLayout.NORTH);
 			
 
-			JPanel horizontalPanel = new JPanel();
-			horizontalPanel.setLayout(new BorderLayout(0, 0));
+			JPanel horizontalPanel = new JPanel(new BorderLayout(0, 0));
 			
 			JLabel titulo = new JLabel("VEHICULOS DE VENTA", JLabel.CENTER);
-			titulo.setBounds(0, 0, 1086, 57);
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(titulo, BorderLayout.CENTER);
-			JLabel usd = new JLabel("$ USD Hoy: ", JLabel.LEFT);
-			usd.setFont(new Font("Montserrat Black", Font.TRUETYPE_FONT, 20));			
-			horizontalPanel.add(usd, BorderLayout.EAST);			
+			JLabel usdLabel = null ;
+			try(DolarData d = new DolarData()) {
+				BigDecimal usdValue = d.getActualValue();
+				usdLabel = new JLabel("$ USD Hoy: "+usdValue, JLabel.LEFT);
+			} catch (IOException e) {
+				usdLabel = new JLabel("");
+				e.printStackTrace();
+			} catch (Exception e1) {
+				usdLabel = new JLabel("");
+				e1.printStackTrace();
+			}			
+			usdLabel.setFont(new Font("Montserrat Black", Font.TRUETYPE_FONT, 20));			
+			horizontalPanel.add(usdLabel, BorderLayout.EAST);			
 			inputPanel.add(horizontalPanel);
 
-			horizontalPanel = new JPanel(new GridLayout());
-			horizontalPanel.setPreferredSize(new Dimension(WIDTH, 7));
-			inputPanel.add(horizontalPanel);	
+			JLabel l = new JLabel("");
+			l.setPreferredSize(new Dimension(WIDTH, 15));
+			inputPanel.add(l);
 			
 			horizontalPanel = new JPanel(new GridLayout());
 			horizontalPanel.add(new JLabel("Patente", JLabel.RIGHT));
@@ -143,9 +154,6 @@ private static final long serialVersionUID = 1L;
 			horizontalPanel.add(new JLabel("Precio de venta", JLabel.RIGHT));
 			sellingPriceTextField = new JTextField();
 			horizontalPanel.add(sellingPriceTextField);
-			/*horizontalPanel.add(new JLabel("Seguro", JLabel.RIGHT));
-			ensuranceTextField = new JTextField(20);
-			horizontalPanel.add(ensuranceTextField);*/
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));
 			horizontalPanel.add(new JLabel("", JLabel.RIGHT));

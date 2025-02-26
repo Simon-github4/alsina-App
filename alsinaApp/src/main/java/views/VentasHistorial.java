@@ -10,6 +10,8 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -42,6 +44,7 @@ import entities.Venta;
 import entityManagers.ClienteDao;
 import entityManagers.TransaccionDao;
 import raven.datetime.DatePicker;
+import utils.DolarData;
 import utils.PdfUtils;
 import utils.ViewUtils;
 
@@ -82,11 +85,24 @@ public class VentasHistorial extends JPanel{
 		northPanel.setLayout(new BoxLayout(northPanel, BoxLayout.Y_AXIS));
 		contentPane.add(northPanel, BorderLayout.NORTH);
 		
-		JPanel horizontalPanel = new JPanel(new GridLayout());
+		JPanel horizontalPanel = new JPanel(new BorderLayout(0, 0));
 		
 		JLabel titulo = new JLabel("HISTORIAL BOLETOS DE C - V", JLabel.CENTER);
 		titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
-		horizontalPanel.add(titulo);		
+		horizontalPanel.add(titulo, BorderLayout.CENTER);
+		JLabel usdLabel = null ;
+		try(DolarData d = new DolarData()) {
+			BigDecimal usdValue = d.getActualValue();
+			usdLabel = new JLabel("$ USD Hoy: "+usdValue, JLabel.LEFT);
+		} catch (IOException e) {
+			usdLabel = new JLabel("");
+			e.printStackTrace();
+		} catch (Exception e1) {
+			usdLabel = new JLabel("");
+			e1.printStackTrace();
+		}			
+		usdLabel.setFont(new Font("Montserrat Black", Font.TRUETYPE_FONT, 20));			
+		horizontalPanel.add(usdLabel, BorderLayout.EAST);			
 		northPanel.add(horizontalPanel);
 		
 		JLabel l = new JLabel("");

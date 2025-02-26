@@ -3,6 +3,8 @@ package alsinaApp;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.SwingUtilities;
+
 import com.formdev.flatlaf.FlatIntelliJLaf;
 
 import entityManagers.UsuarioDao;
@@ -26,20 +28,16 @@ public class RunApplication {
 		String password = (System.getProperty("user.home").equalsIgnoreCase("C:\\Users\\simon"))?"niidea2004": "danipersello";
 		persistenceMap.put("jakarta.persistence.jdbc.password", password);
 		
+
 		emf = Persistence.createEntityManagerFactory(("persistencia"), persistenceMap);
-		
+		//SwingUtilities.invokeLater(()->{ 		
+		//});
 		Login login = new Login(new UsuarioDao(emf));
 		login.setVisible(true);
-		login.setLocationRelativeTo(null);	
+		login.setLocationRelativeTo(null);
 	
-		/*		
-		        String classpath = System.getProperty("java.class.path");
-		        System.out.println("Classpath:");
-		        for (String path : classpath.split(";")) { // Use ";" on Windows
-		            System.out.println(path);
-		        }
-		*/
 	}
+	
 	public static void startApp() {
 		Dashboard d  = new Dashboard(emf);
 		d.setVisible(true);
