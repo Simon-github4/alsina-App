@@ -11,16 +11,17 @@
     -->  
     <class>entities.Alquiler</class>
     <class>entities.Cliente</class>
+    <class>entities.Compra</class>
+    <class>entities.Cuota</class>
     <class>entities.Destino</class>
     <class>entities.Gasto</class>
     <class>entities.Marca</class>
+    <class>entities.Transaccion</class>
+    <class>entities.Usuario</class>
     <class>entities.Sucursal</class>
     <class>entities.Vehiculo</class>
     <class>entities.VehiculoAlquilableventa</class>
     <class>entities.VehiculoAlquilable</class>
-    <class>entities.Cuota</class>
-    <class>entities.Transaccion</class>
-    <class>entities.Compra</class>
     <class>entities.Venta</class>
  
     <properties>
@@ -28,27 +29,24 @@
         <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver" />
         <property name="jakarta.persistence.jdbc.user" value="postgres" />
         <!-- <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
-        <property name="jakarta.persistence.jdbc.password" value="niidea2004" />-->   
-        <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />
-        <property name="hibernate.hbm2ddl.auto" value="update" />
+        <property name="jakarta.persistence.jdbc.password" value="niidea2004" /> -->
+        <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect" />  
+        <property name="hibernate.hbm2ddl.auto" value="none" />
         <property name="hibernate.show_sql" value="false"/>
         <property name="hibernate.format_sql" value="false"/>		<!-- false to reduce init start --> 
         <property name="hibernate.use_sql_comments" value="false"/>
-
+<!-- 
         <property name="hibernate.hikari.dataSource.url" value="jdbc:postgresql://localhost:5432/consecionaria" />
         <property name="hibernate.hikari.dataSource.user" value="postgres"/>
-        <property name="hibernate.hikari.dataSource.password" value="niidea2004"/> 
+        <property name="hibernate.hikari.dataSource.password" value="niidea2004"/> -->
         <property name="hibernate.hikari.maximumPoolSize" value="5"/>
 		<property name="hibernate.hikari.connectionTimeout" value="30000"/> 
 		<property name="hibernate.hikari.minimumIdle" value="1"/>
-		<!-- <property name="hibernate.hikari.idleTimeout" value="600000"/>
-		<property name="hibernate.hikari.maxLifetime" value="1800000"/> 
+		 <property name="hibernate.hikari.idleTimeout" value="30000"/>
+		<!--<property name="hibernate.hikari.maxLifetime" value="1800000"/> 
 		--> 	
 		<property name="hibernate.transaction.jta.platform" value="org.hibernate.engine.transaction.jta.platform.internal.oJtaPlatform" />
-  
-		<!-- <property name="hibernate.archive.autodetection" value="class"/>
-		<property name="hibernate.ejb.packagesToScan" value="src/main/java/entities"/>		
-		-->
+
     </properties>
 
   </persistence-unit>

@@ -106,16 +106,8 @@ private static final long serialVersionUID = 1L;
 			titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 			horizontalPanel.add(titulo, BorderLayout.CENTER);
 			JLabel usdLabel = null ;
-			try(DolarData d = new DolarData()) {
-				BigDecimal usdValue = d.getActualValue();
-				usdLabel = new JLabel("$ USD Hoy: "+usdValue, JLabel.LEFT);
-			} catch (IOException e) {
-				usdLabel = new JLabel("");
-				e.printStackTrace();
-			} catch (Exception e1) {
-				usdLabel = new JLabel("");
-				e1.printStackTrace();
-			}			
+			BigDecimal usdValue = Dashboard.getInstance().getActualValue();
+			usdLabel = new JLabel("$ USD Hoy: "+usdValue, JLabel.LEFT);
 			usdLabel.setFont(new Font("Montserrat Black", Font.TRUETYPE_FONT, 20));			
 			horizontalPanel.add(usdLabel, BorderLayout.EAST);			
 			inputPanel.add(horizontalPanel);

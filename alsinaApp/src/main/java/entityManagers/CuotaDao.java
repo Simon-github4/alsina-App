@@ -65,8 +65,8 @@ public class CuotaDao {
 			    }
 				
 			return cuotas;
-			
 		}
+		
 		public void delete(long id) throws Exception{
 			
 			try(EntityManager manager = emf.createEntityManager()){ 
@@ -81,6 +81,25 @@ public class CuotaDao {
 		        	        
 		        manager.getTransaction().commit();
 		        
+		    }
+		}
+
+		public void refreshQuotesNumbers(Long transaccionId) {
+			List<Cuota> cuotas = null;
+			try (EntityManager manager = emf.createEntityManager()) {
+				        
+				    manager.getTransaction().begin();
+				    cuotas = manager.createQuery("select c FROM Cuota c "
+								    			+ "WHERE c.transaccion.id = :t "
+								    			+ "ORDER BY c.quoteNumber ASC", Cuota.class)
+								    			.setParameter("t", transaccionId).getResultList();       
+				    for(int i=1; i < cuotas.size() + 1; i++) {
+				    	cuotas.get(i - 1).setQuoteNumber(i);
+				    }
+				    manager.getTransaction().commit();
+				    		        
+			} catch (Exception e) {
+				        e.printStackTrace();
 		    }
 		}
 		

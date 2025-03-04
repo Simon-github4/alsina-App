@@ -3,6 +3,7 @@ package views.temporalFrames;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
@@ -40,7 +41,7 @@ public class VentaNuevaPagosFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private JPanel contentPane;
 	private JPanel tablePanel;
-	private JPanel inputPanel;
+	private JPanel buttonsPanel;
 	private JTable table;
 	private DefaultTableModel tableModel;
 	private JSpinner quantitySpinner;
@@ -121,18 +122,89 @@ public class VentaNuevaPagosFrame extends JFrame{
         JScrollPane scroll = new JScrollPane(table); 
 		tablePanel.add(scroll);
 		
-		inputPanel = new JPanel();
+		buttonsPanel = new JPanel();
+		buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.Y_AXIS));
+		buttonsPanel.setPreferredSize(new Dimension(200, HEIGHT));
+		contentPane.add(buttonsPanel, BorderLayout.EAST);
+		
+		horizontalPanel = new JPanel(new GridLayout());
+		horizontalPanel.add(new JLabel(""));
+		buttonsPanel.add(horizontalPanel);	
+		
+		horizontalPanel = new JPanel(new GridLayout());
+		JButton confirmButton = new JButton("Agregar");
+		confirmButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				openQuoteFrame();
+			}
+		});
+		horizontalPanel.add(confirmButton);
+		buttonsPanel.add(horizontalPanel);	
+
+		horizontalPanel = new JPanel(new GridLayout());
+		JButton deleteButton = new JButton("Eliminar");
+		deleteButton.addActionListener(new ActionListener() {
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				if(table.getSelectedRow() == -1)
+					JOptionPane.showMessageDialog(null, "Ningun Pago seleccionado");
+				else {
+						try {
+							cuotaDao.delete((Long)tableModel.getValueAt(table.getSelectedRow(), 0));
+							cuotaDao.refreshQuotesNumbers(transaccionId);
+							loadTable();
+						} catch (Exception e1) {
+							JOptionPane.showMessageDialog(null, e1.getLocalizedMessage());
+						}
+					}
+			}
+		});
+		horizontalPanel.add(deleteButton);
+		buttonsPanel.add(horizontalPanel);
+		
+		horizontalPanel = new JPanel(new GridLayout());
+		horizontalPanel.add(new JLabel("Fecha Pago:", JLabel.CENTER));
+		buttonsPanel.add(horizontalPanel);	
+
+		horizontalPanel = new JPanel(new GridLayout());
+		JFormattedTextField ft = new JFormattedTextField();
+		dp = new DatePicker();
+		dp.setDateSelectionMode(DatePicker.DateSelectionMode.SINGLE_DATE_SELECTED);
+		dp.setBackground(Color.GRAY);
+		dp.setDateFormat("dd/MM/yyyy");
+		dp.setEditor(ft);
+		horizontalPanel.add(ft);
+		buttonsPanel.add(horizontalPanel);
+
+		
+		dp.addDateSelectionListener(new DateSelectionListener() {
+			@Override
+			public void dateSelected(DateSelectionEvent e) {
+                	int row = table.getSelectedRow();
+	            	if(row != -1 && dp.getSelectedDate() != null){
+	            		Cuota c = cuotaDao.getCuotaById((Long)tableModel.getValueAt(row, 0));
+	            		c.setDatePayed(dp.getSelectedDate());
+	            		tableModel.setValueAt(dp.getSelectedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), row, 4);
+	            		cuotaDao.save(c);
+	            	}
+			}	
+		});
+		loadTable();
+	}
+
+	private void openQuoteFrame() {
+		JFrame f = new JFrame();
+		f.setVisible(true);
+		f.setLocationRelativeTo(null);
+		f.setSize(400, 280);
+		f.setLayout(new BorderLayout());
+		
+		JPanel inputPanel = new JPanel();
 		inputPanel.setLayout(new BoxLayout(inputPanel, BoxLayout.Y_AXIS));
-		contentPane.add(inputPanel, BorderLayout.EAST);
+		f.add(inputPanel, BorderLayout.CENTER);
 		
-		horizontalPanel = new JPanel(new GridLayout());
-		horizontalPanel.add(new JLabel(""));
-		inputPanel.add(horizontalPanel);
-		horizontalPanel = new JPanel(new GridLayout());
-		horizontalPanel.add(new JLabel(""));
-		inputPanel.add(horizontalPanel);
-		
-		horizontalPanel = new JPanel(new GridLayout());
+		JPanel horizontalPanel = new JPanel(new GridLayout());
 		horizontalPanel.add(new JLabel("Cantidad de cuotas", JLabel.RIGHT));
 		quantitySpinner = new JSpinner();
 		quantitySpinner.setValue(1);
@@ -152,14 +224,14 @@ public class VentaNuevaPagosFrame extends JFrame{
 		inputPanel.add(horizontalPanel);
 		
 		horizontalPanel = new JPanel(new GridLayout());
-		horizontalPanel.add(new JLabel("Patente de Vehiculo"));
+		horizontalPanel.add(new JLabel("Patente de Vehiculo", JLabel.RIGHT));
 		plateTextField = new JTextField();
 		plateTextField.putClientProperty(FlatClientProperties.PLACEHOLDER_TEXT, "(OPCIONAL)");
 		horizontalPanel.add(plateTextField);
 		inputPanel.add(horizontalPanel);
 		
 		horizontalPanel = new JPanel(new GridLayout());
-		JButton confirmButton = new JButton("Agregar");
+		JButton confirmButton = new JButton("Confirmar");
 		confirmButton.addActionListener(new ActionListener() {
 			@Override
 			public void actionPerformed(ActionEvent e) {
@@ -179,55 +251,13 @@ public class VentaNuevaPagosFrame extends JFrame{
 					cuotaDao.save(c);
 				}
 				loadTable();
+				f.dispose();
 			}
 		});
 		horizontalPanel.add(confirmButton);
-		JButton deleteButton = new JButton("Eliminar");
-		deleteButton.addActionListener(new ActionListener() {
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				if(table.getSelectedRow() == -1)
-					JOptionPane.showMessageDialog(null, "Ningun Pago seleccionado");
-				else {
-						try {
-							cuotaDao.delete((Long)tableModel.getValueAt(table.getSelectedRow(), 0));
-							loadTable();
-						} catch (Exception e1) {
-							JOptionPane.showMessageDialog(null, e1.getLocalizedMessage());
-						}
-					}
-			}
-		});
-		horizontalPanel.add(deleteButton);
 		inputPanel.add(horizontalPanel);
-		
-		horizontalPanel = new JPanel(new GridLayout());
-		horizontalPanel.add(new JLabel("Fecha Pago:", JLabel.RIGHT));
-		JFormattedTextField ft = new JFormattedTextField();
-		dp = new DatePicker();
-		dp.setDateSelectionMode(DatePicker.DateSelectionMode.SINGLE_DATE_SELECTED);
-		dp.setBackground(Color.GRAY);
-		dp.setDateFormat("dd/MM/yyyy");
-		dp.setEditor(ft);
-		horizontalPanel.add(ft);
-		inputPanel.add(horizontalPanel);
-
-		
-		dp.addDateSelectionListener(new DateSelectionListener() {
-			@Override
-			public void dateSelected(DateSelectionEvent e) {
-                	int row = table.getSelectedRow();
-	            	if(row != -1 && dp.getSelectedDate() != null){
-	            		Cuota c = cuotaDao.getCuotaById((Long)tableModel.getValueAt(row, 0));
-	            		c.setDatePayed(dp.getSelectedDate());
-	            		tableModel.setValueAt(dp.getSelectedDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), row, 4);
-	            		cuotaDao.save(c);
-	            	}
-			}	
-		});
-		loadTable();
 	}
-
+	
 	private void loadTable() {
 		tableModel.setRowCount(0);
 		

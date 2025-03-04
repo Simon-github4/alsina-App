@@ -42,6 +42,7 @@ import raven.datetime.DatePicker;
 import raven.datetime.DatePicker.DateSelectionMode;
 import utils.PdfUtils;
 import utils.ViewUtils;
+import views.VentaFrame;
 
 public class TransaccionNuevaFrame extends JFrame {
 
@@ -49,20 +50,13 @@ private static final long serialVersionUID = 1L;
 	
 	private JPanel contentPane;
 	private JPanel inputPanel;
-	private JPanel west;
-	private JPanel tablePanel;
-	private JTable table;
-	private DefaultTableModel tableModel;
 	private JLabel messageLabel;
 	private JComboBox<Cliente> clientComboBox;
 	private JComboBox<Vehiculo> vehicleComboBox;
-	private JTextField searchTextField;
-	private JComboBox<Marca> filterBrandComboBox;
 	private VehiculoDao VehiculoDao;
 	private ClienteDao clienteDao;
 	private TransaccionDao transaccionDao;
 	
-	private JButton searchButton;
 	private JTextField sellingPriceTextField;
 	private DatePicker dp;
 	private JTextArea observationsTextArea;
@@ -146,10 +140,6 @@ private static final long serialVersionUID = 1L;
 						if(validateFields())
 							if(insert())
 								dispose();
-					//JTabbedPane t = getTabbedPane();
-					//t.setSelectedIndex(1);
-					//VentaNuevaPagosForm a = (VentaNuevaPagosForm)t.getSelectedComponent();
-					
 
 			}});
 	        confirm.setPreferredSize(new Dimension(250,40));
@@ -232,7 +222,9 @@ private static final long serialVersionUID = 1L;
 
 				if(tipoTransaction.equalsIgnoreCase("VENTA"))
 					VehiculoDao.delete(t.getVehicle().getId());
-				PdfUtils.createTransactionPdf(t);
+				
+				if(JOptionPane.showConfirmDialog(null, "Impresion de Boleto", "Desea Imprimir el Boleto de C - V",  JOptionPane.YES_NO_OPTION) == 0)
+					PdfUtils.createTransactionPdf(t);
 				
 			}catch (NumberFormatException e2) {
 				JOptionPane.showMessageDialog(null,"Asegurese de que todos los campos tengan formato valido. (Campos NUMERICOS no pueden estar vacios)");
@@ -244,7 +236,8 @@ private static final long serialVersionUID = 1L;
 				JOptionPane.showMessageDialog(null,"ya existe un Vehiculo con esa Patente");	
 				return false;
 			} catch(Exception e3) {
-				JOptionPane.showMessageDialog(null,"Ha ocurrido un Error:"+e3.getLocalizedMessage());	
+				JOptionPane.showMessageDialog(null,"Ha ocurrido un Error:"+e3.getLocalizedMessage());
+				e3.printStackTrace();
 				return false;
 			}
 			return true;
@@ -293,15 +286,4 @@ private static final long serialVersionUID = 1L;
 	        messageLabel.setOpaque(false);
 		}
 
-		public JTabbedPane getTabbedPane() {
-	        Container parent = this.getParent();
-	        while (parent != null) {
-	            if (parent instanceof JTabbedPane) {
-	                return (JTabbedPane) parent;
-	            }
-	            parent = parent.getParent();
-	        }
-	        return null; // Return null if not found
-	    }
-	
 }

@@ -40,9 +40,9 @@ public class AlquilerDao {
 			if(alquiler.getVehicle() == null && alquiler.getId() == null)
 				manager.persist(alquiler);				
 			else if(alquiler.getId() == null) {
-					List<VehiculoAlquilable> availables = new VehiculoDao(emf).getVehiculosAlquilablesAvailable(alquiler.getStart(), alquiler.getEnd());			
-					HashSet<VehiculoAlquilable> hs = new HashSet<VehiculoAlquilable>(availables);
-					if(hs.contains(alquiler.getVehicle())) 
+					List<VehiculoAlquilable> availableCars = new VehiculoDao(emf).getVehiculosAlquilablesAvailable(alquiler.getStart(), alquiler.getEnd());			
+
+					if(new HashSet<VehiculoAlquilable>(availableCars).contains(alquiler.getVehicle())) 
 						manager.persist(alquiler);
 					else
 						throw new Exception("No se puedo insertar alquiler debido a Fechas no disponibles");

@@ -26,12 +26,20 @@ public class DolarData implements AutoCloseable{
 	
 	}
 	
-	public BigDecimal getActualValue() throws IOException {
+	public BigDecimal getActualValue() {
 		
-		JSONObject obj = new JSONObject(getJSONString(ACTUAL));
+		JSONObject obj;
+		BigDecimal venta = new BigDecimal(0);
+		try {
+			obj = new JSONObject(getJSONString(ACTUAL));
+			venta = obj.getBigDecimal("venta");
+			//double compra = obj.getDouble("compra");
+		} catch (JSONException e) {
+			e.printStackTrace();
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
         
-		BigDecimal venta = obj.getBigDecimal("venta");
-        double compra = obj.getDouble("compra");
 
         return venta;
 	}
@@ -46,9 +54,9 @@ public class DolarData implements AutoCloseable{
         return venta;
 	}
 	
-	public Map<LocalDate, BigDecimal> getHistoricalValues() throws JSONException, IOException{
+	public Map<LocalDate, BigDecimal> getHistoricalValues() {
 		Map<LocalDate, BigDecimal> values = new HashMap<LocalDate, BigDecimal>();
-		
+		try {
 		JSONArray jsonArray = new JSONArray(getJSONString(BASE_HISTORIC));
 
         for (int i = 0; i < jsonArray.length(); i++) {
@@ -60,7 +68,10 @@ public class DolarData implements AutoCloseable{
             
             values.put(LocalDate.parse(date.subSequence(0, 10)), venta);
         } 
-		
+		}catch(IOException e) {
+			e.printStackTrace();
+			values = null;
+		}
 		return values;
 	}
 	
@@ -73,16 +84,30 @@ public class DolarData implements AutoCloseable{
 		if(con.getResponseCode() != 200) 
 			throw new RuntimeException("Error al conectarse a la api dolar");
 
-		BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()));
+		BufferedReader reader = new BufferedReader(new InputStreamReader(con.getInputStream()),8192);
 		StringBuilder sb = new StringBuilder();
 		String linea;
-			
-		while((linea = reader.readLine()) != null) 
-			sb.append(linea);
-		reader.close();
-		
-		//con.disconnect();
 
+		sb.append(reader.readLine());
+		
+		if(url.equalsIgnoreCase(BASE_HISTORIC)) {
+			long objectSize = 89;//88 con un digito
+			reader.skip(objectSize * 365 * 12 + 38);
+		}
+
+		char[] buffer = new char[8192];
+		int numRead;
+		
+	      while ((numRead = reader.read(buffer)) != -1) {
+	            sb.append(buffer, 0, numRead);
+	        }
+
+		//while((linea = reader.readLine()) != null) 
+			//sb.append(linea);
+	      //System.out.println(sb.toString());
+
+	    reader.close();
+		
 		return sb.toString();
 	}
 	

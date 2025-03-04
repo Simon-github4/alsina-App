@@ -51,7 +51,7 @@ public class VehiculoAlquilable extends Vehiculo{
 	public int hashCode() {
 		final int prime = 31;
 		int result = super.hashCode();
-		result = prime * result + Objects.hash(ensurance, price);
+		result = prime * result + Objects.hash(ensurance, ensuranceFranchise, price);
 		return result;
 	}
 
@@ -64,7 +64,8 @@ public class VehiculoAlquilable extends Vehiculo{
 		if (getClass() != obj.getClass())
 			return false;
 		VehiculoAlquilable other = (VehiculoAlquilable) obj;
-		return Objects.equals(ensurance, other.ensurance) && price == other.price;
+		return Objects.equals(ensurance, other.ensurance) && ensuranceFranchise == other.ensuranceFranchise
+				&& price == other.price;
 	}
 
 	public int getEnsuranceFranchise() {

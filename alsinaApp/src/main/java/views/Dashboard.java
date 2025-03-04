@@ -7,6 +7,8 @@ import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -39,6 +41,7 @@ public class Dashboard extends JFrame{
 	private static EntityManagerFactory emf;
 	
 	private JPanel mainPanel;
+	
 	private CuotaDao CuotaDao;
 	private static TransaccionDao TransaccionDao;
 	private static AlquilerDao AlquilerDao;
@@ -48,15 +51,14 @@ public class Dashboard extends JFrame{
 	private static MarcaDao MarcaDao;
 	private static DestinoDao DestinoDao;
 	private static GastoDao GastoDao;
-	
-	/*static {
-        try {
-    }*/
 
+	private Map<LocalDate, BigDecimal> historicalValues;
+	private BigDecimal actualValue;
+	
 	public Dashboard(EntityManagerFactory emf) {
+		currentInstance = this;
 		try {
         	SwingUtilities.invokeLater(() -> {
-        		//Thread.currentThread().setContextClassLoader(getClass().getClassLoader());
         			AlquilerDao = new AlquilerDao(emf);
         			VehiculoDao = new VehiculoDao(emf);
         			ClienteDao = new ClienteDao(emf);
@@ -202,6 +204,22 @@ public class Dashboard extends JFrame{
 
 	public static GastoDao getGastoDao() {
 		return GastoDao;
+	}
+
+	public Map<LocalDate, BigDecimal> getHistoricalValues() {
+		return historicalValues;
+	}
+
+	public void setHistoricalValues(Map<LocalDate, BigDecimal> historicalValues) {
+		this.historicalValues = historicalValues;
+	}
+
+	public BigDecimal getActualValue() {
+		return actualValue;
+	}
+
+	public void setActualValue(BigDecimal actualValue) {
+		this.actualValue = actualValue;
 	}
 	
 	

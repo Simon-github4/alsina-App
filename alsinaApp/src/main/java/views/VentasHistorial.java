@@ -15,6 +15,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
@@ -34,6 +35,8 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 import javax.swing.table.DefaultTableModel;
+
+import org.json.JSONException;
 
 import com.formdev.flatlaf.FlatClientProperties;
 
@@ -91,16 +94,8 @@ public class VentasHistorial extends JPanel{
 		titulo.setFont(new Font("Montserrat Black", Font.BOLD, 46));
 		horizontalPanel.add(titulo, BorderLayout.CENTER);
 		JLabel usdLabel = null ;
-		try(DolarData d = new DolarData()) {
-			BigDecimal usdValue = d.getActualValue();
-			usdLabel = new JLabel("$ USD Hoy: "+usdValue, JLabel.LEFT);
-		} catch (IOException e) {
-			usdLabel = new JLabel("");
-			e.printStackTrace();
-		} catch (Exception e1) {
-			usdLabel = new JLabel("");
-			e1.printStackTrace();
-		}			
+		BigDecimal usdValue = Dashboard.getInstance().getActualValue();
+		usdLabel = new JLabel("$ USD Hoy: "+usdValue, JLabel.LEFT);	
 		usdLabel.setFont(new Font("Montserrat Black", Font.TRUETYPE_FONT, 20));			
 		horizontalPanel.add(usdLabel, BorderLayout.EAST);			
 		northPanel.add(horizontalPanel);
@@ -187,7 +182,7 @@ public class VentasHistorial extends JPanel{
 		updateButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				if(table.getSelectedRow()==-1)
-					setMessage("Ningun Alquiler seleccionado", false);
+					setMessage("Ningun Boleto seleccionado", false);
 				else {
 					try {
 						update();
@@ -258,23 +253,13 @@ public class VentasHistorial extends JPanel{
         tableModel.addColumn("Id");
         tableModel.addColumn("Vehiculo");
         tableModel.addColumn("Cliente");
-        tableModel.addColumn("Monto");
+        tableModel.addColumn("Monto($ ARS)");
+        tableModel.addColumn("Monto($ USD)");
         tableModel.addColumn("Fecha");
         tableModel.addColumn("Observaciones");
         tableModel.addColumn("C/V");
         
 		table = new JTable(tableModel);
-        table.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			@Override
-			public void valueChanged(ListSelectionEvent e) {
-                if (!e.getValueIsAdjusting()) {
-                	int row = table.getSelectedRow();
-                	if(row != -1){
-                		
-                	}
-                }
-			}		
-		});
 		//table.getColumnModel().getColumn(4).setCellRenderer(new ColorearTabla(AlquilerDao));
 		table.getColumnModel().getColumn(0).setMaxWidth(0);
 		table.getColumnModel().getColumn(0).setMinWidth(0);
@@ -282,11 +267,11 @@ public class VentasHistorial extends JPanel{
 		table.getColumnModel().getColumn(1).setMaxWidth(155);	
 		table.getColumnModel().getColumn(1).setPreferredWidth(155);			
 		table.getColumnModel().getColumn(2).setPreferredWidth(160);		
-		table.getColumnModel().getColumn(4).setMaxWidth(140);	
-		table.getColumnModel().getColumn(4).setPreferredWidth(140);		
-		table.getColumnModel().getColumn(5).setPreferredWidth(160);		
-		table.getColumnModel().getColumn(6).setMaxWidth(95);	
-		table.getColumnModel().getColumn(6).setPreferredWidth(95);	
+		table.getColumnModel().getColumn(5).setMaxWidth(140);	
+		table.getColumnModel().getColumn(5).setPreferredWidth(140);		
+		table.getColumnModel().getColumn(6).setPreferredWidth(160);		
+		table.getColumnModel().getColumn(7).setMaxWidth(95);	
+		table.getColumnModel().getColumn(7).setPreferredWidth(95);	
 		table.setShowGrid(true);
 			
 		JScrollPane scroll = new JScrollPane(table);
@@ -336,14 +321,28 @@ public class VentasHistorial extends JPanel{
         else if(! purchasesRadioButton.isSelected() && ! salesRadioButton.isSelected())
         	transacciones = List.of();
         
-		for(Transaccion a : transacciones) {
-			Object[] row = {a.getId(), a.getVehicle(), a.getClient(), a.getAmount(), 
+		Map<LocalDate, BigDecimal> historicalValues = Dashboard.getInstance().getHistoricalValues();
+		
+        for(Transaccion a : transacciones) {
+			Object dolarAmountColumn = null;
+			BigDecimal usdValue = new BigDecimal(0);
+			try {
+				usdValue = historicalValues.get(a.getDate());
+				dolarAmountColumn = (long)(a.getAmount() / usdValue.doubleValue());
+			} catch (Exception e1) {
+				e1.printStackTrace();
+				setMessage(e1.getLocalizedMessage(), false);
+			} 
+			Object[] row = {a.getId(), a.getVehicle(), a.getClient(), a.getAmount(), dolarAmountColumn,
 							a.getDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy")), a.getDescription(), a.getClass().getSimpleName()};
 			tableModel.addRow(row);
 		}
+        clearFields();
 	}
 
 	private void update() {
+        //clearFields();
+
 		int row =table.getSelectedRow();
 		Long id = (Long) tableModel.getValueAt(row, 0);
 		
@@ -362,6 +361,7 @@ public class VentasHistorial extends JPanel{
 				transaccionDao.delete(id);
 				searchButton.doClick();
 				setMessage("Eliminado correctamente", true);
+				clearFields();
 			}
 		}catch(Exception e) {
 			setMessage(e.getCause().getMessage(), false);
